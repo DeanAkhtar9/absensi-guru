@@ -9,7 +9,8 @@ switch ($_SESSION['role']) {
         header("Location: " . BASE_URL . "/guru");
         break;
     case 'walikelas':
-        header("Location: " . BASE_URL . "/walikelas");
+        header("Location: " . BASE_URL . "/
+        ");
         break;
     default:
         header("Location: " . BASE_URL . "/login.php");

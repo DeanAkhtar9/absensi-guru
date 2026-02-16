@@ -3,23 +3,16 @@ require "config/config.php";
 require "config/database.php";
 
 
-if (isset($_SESSION['id_user']) && isset($_SESSION['role'])) {
+if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
     switch ($_SESSION['role']) {
-        case 'admin':
-            header("Location: admin/index.php");
-            break;
-        case 'guru':
-            header("Location: guru/index.php");
-            break;
-        case 'siswa':
-            header("Location: siswa/index.php");
-            break;
-        case 'walikelas':
-            header("Location: walikelas/index.php");
-            break;
+        case 'admin': header("Location: admin/index.php"); break;
+        case 'guru': header("Location: guru/index.php"); break;
+        case 'siswa': header("Location: siswa/index.php"); break;
+        case 'walikelas': header("Location: walikelas/index.php"); break;
     }
     exit;
 }
+
 
 $error = "";
 
@@ -42,6 +35,7 @@ if (isset($_POST['login'])) {
         if (password_verify($password, $user['password'])) {
 
             // SET SESSION FINAL
+            $_SESSION['login'] = true;
             $_SESSION['id_user'] = $user['id_user'];
             $_SESSION['nama']    = $user['nama'];
             $_SESSION['role']    = $user['role'];

@@ -1,12 +1,13 @@
 <?php
+require "../config/config.php";   // ⬅️ PINDAHKAN KE PALING ATAS
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('admin');
 
-require "../config/database.php";
 include "../templates/header.php";
 include "../templates/navbar.php";
 ?>
+
 
 <div class="container">
     <h3>Dashboard Admin</h3>
@@ -45,4 +46,4 @@ include "../templates/navbar.php";
     </div>
 </div>
 
-<?php include "../templates/footer.php"; ?>
+<?php require "../templates/footer.php"; ?>
