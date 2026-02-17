@@ -90,8 +90,8 @@ if (!empty($keterangan)) {
 }
 
 $stmt = $conn->prepare("
-    INSERT INTO komplain (id_siswa, id_jadwal, tanggal, pesan, status, created_at)
-    VALUES (?, ?, ?, ?, 'menunggu', NOW())
+    INSERT INTO komplain (id_siswa, id_jadwal, tanggal, pesan, created_at)
+    VALUES (?, ?, ?, ?, NOW())
 ");
 
 $stmt->bind_param("iiss", $id_siswa, $id_jadwal, $tanggal, $pesan);
