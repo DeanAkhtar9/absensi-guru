@@ -21,6 +21,7 @@ if (isset($_SESSION['id_user']) && isset($_SESSION['role'])) {
     }
 }
 
+
 $error = "";
 
 if (isset($_POST['login'])) {
