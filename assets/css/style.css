@@ -314,6 +314,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background-color: #fff;
 }
 
 /* Icon background muncul lagi */
@@ -364,6 +365,8 @@ body {
 .card-total {
     margin-top: 18px;
     font-weight: 600;
+    margin-left: 14px;
+    
 }
 
 .stat-cards {
