@@ -162,10 +162,6 @@ th {
   color: #fff;
 }
 /* Main Content agar tidak tertutup */
-.container {
-  margin-left: 150px; /* Lebar sidebar + sedikit spasi */
-  padding: 20px;
-}
 /* ===== FIGMA DASHBOARD STYLE ===== */
 
 body {
@@ -195,10 +191,10 @@ body {
 /* Statistic Cards */
 .stat-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
-  margin-bottom: 35px;
 }
+
 
 .stat-card {
   background: #ffffff;
@@ -456,9 +452,11 @@ body {
 
 /* Content tidak ketimpa sidebar */
 .container {
-  margin-left: 150px;
+  margin-left: 250px;
   padding: 25px;
+  max-width: calc(100% - 250px); /* pastikan card tidak melebar melewati viewport */
 }
+
 .brand-icon img {
   width: 45px;
   height:62px;

@@ -15,15 +15,14 @@ $jadwal = mysqli_query($conn, "
     SELECT 
         jm.id_jadwal,
         jm.id_kelas,
-        k.nama_kelas,
-        m.nama_mapel
+        jm.mapel,
+        k.nama_kelas
     FROM jadwal_mengajar jm
     JOIN kelas k ON jm.id_kelas = k.id_kelas
-    JOIN mapel m ON jm.id_mapel = m.id_mapel
-    WHERE jm.id_jadwal = '$id_jadwal'
       AND jm.id_guru = '$id_guru'
     LIMIT 1
 ");
+
 
 if (mysqli_num_rows($jadwal) == 0) {
     echo "<div class='container'><div class='alert alert-danger'>
@@ -54,20 +53,29 @@ if (mysqli_num_rows($absensi) == 0) {
 $data_absensi = mysqli_fetch_assoc($absensi);
 $id_absensi_guru = $data_absensi['id_absensi_guru'];
 
+
 /* PROSES SIMPAN JURNAL */
 if (isset($_POST['simpan'])) {
+
+    $topik     = mysqli_real_escape_string($conn,$_POST['topik']);
+    $tujuan    = mysqli_real_escape_string($conn,$_POST['tujuan']);
+    $aktivitas = mysqli_real_escape_string($conn,$_POST['aktivitas']);
+    $pr        = mysqli_real_escape_string($conn,$_POST['pr']);
+    $jumlah    = intval($_POST['jumlah_hadir']);
+
     $materi   = mysqli_real_escape_string($conn, $_POST['materi']);
     $catatan  = mysqli_real_escape_string($conn, $_POST['catatan']);
 
     mysqli_query($conn, "
         INSERT INTO jurnal_mengajar
-        (id_absensi_guru, materi, catatan, diisi_oleh)
+        (id_absensi_guru, topik, tujuan, aktivitas, pr, jumlah_hadir, materi, catatan, diisi_oleh)
         VALUES
-        ('$id_absensi_guru', '$materi', '$catatan', '$id_guru')
+        ('$id_absensi_guru','$topik','$tujuan','$aktivitas','$pr','$jumlah','$materi','$catatan','$id_guru')
     ");
 
     $id_jurnal = mysqli_insert_id($conn);
 
+    /* SIMPAN ABSENSI SISWA */
     foreach ($_POST['siswa'] as $id_siswa => $status) {
         mysqli_query($conn, "
             INSERT INTO absensi_siswa
@@ -84,6 +92,7 @@ if (isset($_POST['simpan'])) {
     exit;
 }
 
+
 /* AMBIL SISWA */
 $siswa = mysqli_query($conn, "
     SELECT id_siswa, nama_siswa
@@ -96,13 +105,40 @@ $siswa = mysqli_query($conn, "
 <div class="container">
     <h3>Jurnal Mengajar</h3>
 
-    <p>
-        <b><?= $data_jadwal['nama_mapel'] ?></b><br>
-        Kelas: <?= $data_jadwal['nama_kelas'] ?><br>
-        Tanggal: <?= date('d-m-Y') ?>
-    </p>
+<p>
+    <b><?= $data_jadwal['mapel'] ?></b><br>
+    Kelas: <?= $data_jadwal['nama_kelas'] ?><br>
+    Tanggal: <?= date('d-m-Y') ?>
+</p>
+
 
     <form method="post">
+
+        <div class="mb-3">
+            <label>Topik</label>
+            <input type="text" name="topik" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Tujuan Pembelajaran</label>
+            <textarea name="tujuan" class="form-control" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Aktivitas Kelas</label>
+            <textarea name="aktivitas" class="form-control" required></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Pekerjaan Rumah (PR)</label>
+            <textarea name="pr" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Jumlah Hadir</label>
+            <input type="number" name="jumlah_hadir" class="form-control">
+        </div>
+
         <div class="mb-3">
             <label>Materi</label>
             <textarea name="materi" class="form-control" required></textarea>
@@ -138,6 +174,7 @@ $siswa = mysqli_query($conn, "
         <button name="simpan" class="btn btn-success">
             Simpan Jurnal
         </button>
+
     </form>
 </div>
 
