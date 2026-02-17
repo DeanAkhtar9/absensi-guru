@@ -45,6 +45,12 @@ $role = $_SESSION['role'];
             </a>
         </li>
 
+        <li>
+            <a href="/absensi-guru/admin/laporan.php">
+                <i class="bi bi-file-earmark-text"></i>
+                Laporan
+            </a>
+        </li>
         <!-- ================= SISWA ================= -->
         <?php if($role == 'siswa'): ?>
             
