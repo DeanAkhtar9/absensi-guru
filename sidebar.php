@@ -42,40 +42,11 @@
         </li>
 
         <li>
-            <a href="/absensi-guru/admin/absensi.php">
-                <i class="bi bi-calendar-check"></i>
-                Absensi
-            </a>
-        </li>
-
-        <li>
-            <a href="/absensi-guru/admin/guru.php">
-                <i class="bi bi-person-badge"></i>
-                Data Guru
-            </a>
-        </li>
-
-        <li>
-            <a href="/absensi-guru/admin/siswa.php">
-                <i class="bi bi-people"></i>
-                Data Siswa
-            </a>
-        </li>
-
-        <li>
             <a href="/absensi-guru/admin/laporan.php">
                 <i class="bi bi-file-earmark-text"></i>
                 Laporan
             </a>
         </li>
-
-        <li class="logout">
-            <a href="/absensi-guru/logout.php">
-                <i class="bi bi-box-arrow-right"></i>
-                Logout
-            </a>
-        </li>
-
     </ul>
 
 </div>
