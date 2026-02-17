@@ -80,10 +80,6 @@ body {
   color: #1e90ff;
 }
 
-/* Dashboard */
-.container {
-  padding: 30px;
-}
 
 .card {
   background: white;
@@ -452,9 +448,9 @@ body {
 
 /* Content tidak ketimpa sidebar */
 .container {
-  margin-left: 250px;
-  padding: 25px;
-  max-width: calc(100% - 250px); /* pastikan card tidak melebar melewati viewport */
+  padding: 0;
+  margin: 0;
+  max-width: 100%;
 }
 
 .brand-icon img {
@@ -1067,8 +1063,7 @@ th, td {
     vertical-align: middle;
 }
 /* Wrapper content utama */
-.main-content {
-    margin-left: 230px;   /* sama dengan lebar sidebar */
+.main-content { /* sama dengan lebar sidebar */
     margin-top: 80px;     /* sama dengan tinggi header */
     padding: 30px 40px;   /* jarak dalam */
 }
@@ -1111,8 +1106,33 @@ th, td {
 .laporan-table tr {
     border-bottom: 1px solid #eee;
 }
-
-.page-header {
-    margin-left: 50px;
-    margin-top: -70px; 
+.main-content{
+    margin-left:250px;   /* sama dengan sidebar */
+    margin-top:80px;     /* sama dengan header */
+    padding:25px;
+}
+/* CONTENT FIX SIDEBAR + HEADER */
+.main-content{
+    margin-left:250px;   /* sama dengan sidebar */
+    margin-top:7px;     /* sama dengan header */
+    padding:30px;
+}
+/* STAT CARDS */
+.stat-cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+/* ROW */
+.dashboard-row{
+    display:flex;
+    gap:20px;
+    margin-top:25px;
+}
+/* CARD */
+.dashboard-card{
+    flex:1;
+}
+.page-header{
+  margin-left: 50px;
 }
