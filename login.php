@@ -1,34 +1,30 @@
 <?php
+session_start(); // WAJIB
+
 require "config/config.php";
 require "config/database.php";
-
 
 if (isset($_SESSION['id_user']) && isset($_SESSION['role'])) {
     switch ($_SESSION['role']) {
         case 'admin':
             header("Location: admin/index.php");
-            break;
+            exit;
         case 'guru':
             header("Location: guru/index.php");
-            break;
+            exit;
         case 'siswa':
             header("Location: siswa/index.php");
-            break;
+            exit;
         case 'walikelas':
             header("Location: walikelas/index.php");
-            break;
+            exit;
     }
-    exit;
 }
 
 $error = "";
 
-/*
-|--------------------------------------------------------------------------
-| Proses login
-|--------------------------------------------------------------------------
-*/
 if (isset($_POST['login'])) {
+
     $username = trim($_POST['username']);
     $password = $_POST['password'];
 
@@ -37,31 +33,29 @@ if (isset($_POST['login'])) {
     );
 
     if (mysqli_num_rows($query) === 1) {
+
         $user = mysqli_fetch_assoc($query);
 
         if (password_verify($password, $user['password'])) {
 
-            // SET SESSION FINAL
             $_SESSION['id_user'] = $user['id_user'];
             $_SESSION['nama']    = $user['nama'];
             $_SESSION['role']    = $user['role'];
 
-            // REDIRECT SESUAI ROLE
             switch ($user['role']) {
                 case 'admin':
                     header("Location: admin/index.php");
-                    break;
+                    exit;
                 case 'guru':
                     header("Location: guru/index.php");
-                    break;
+                    exit;
                 case 'siswa':
                     header("Location: siswa/index.php");
-                    break;
+                    exit;
                 case 'walikelas':
                     header("Location: walikelas/index.php");
-                    break;
+                    exit;
             }
-            exit;
         }
     }
 
