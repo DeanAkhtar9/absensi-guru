@@ -5,6 +5,7 @@ checkRole('guru');
 
 include "../templates/header.php";
 include "../templates/navbar.php";
+include "../sidebar.php";
 
 $id_guru   = $_SESSION['id_user'];
 $id_jadwal = isset($_GET['id_jadwal']) ? intval($_GET['id_jadwal']) : 0;
@@ -15,7 +16,7 @@ $jadwal = mysqli_query($conn, "
     SELECT 
         jm.id_jadwal,
         jm.id_kelas,
-        jm.mapel,
+        jm.id_mapel,
         k.nama_kelas
     FROM jadwal_mengajar jm
     JOIN kelas k ON jm.id_kelas = k.id_kelas

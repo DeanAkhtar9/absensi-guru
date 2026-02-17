@@ -6,12 +6,13 @@ checkRole('guru');
 include "../config/database.php";
 include "../templates/header.php";
 include "../templates/navbar.php";
+include "../sidebar.php";
 
 $id_guru = $_SESSION['id_user'];
 
 $query = mysqli_query($conn,"
     SELECT ag.tanggal,k.nama_kelas,m.nama_mapel,
-           j.topik,j.tujuan,j.aktivitas,j.pr
+           j.materi,j.catatan,j.diisi_oleh,j.created_at
     FROM jurnal_mengajar j
     JOIN absensi_guru ag ON j.id_absensi_guru=ag.id_absensi_guru
     JOIN jadwal_mengajar jm ON ag.id_jadwal=jm.id_jadwal
@@ -30,8 +31,8 @@ $query = mysqli_query($conn,"
 <th>Tanggal</th>
 <th>Kelas</th>
 <th>Mapel</th>
-<th>Topik</th>
-<th>PR</th>
+<th>Materi</th>
+<th>Di isi oleh</th>
 </tr>
 
 <?php while($r=mysqli_fetch_assoc($query)): ?>
@@ -39,8 +40,8 @@ $query = mysqli_query($conn,"
 <td><?= date('d-m-Y',strtotime($r['tanggal'])) ?></td>
 <td><?= $r['nama_kelas'] ?></td>
 <td><?= $r['nama_mapel'] ?></td>
-<td><?= $r['topik'] ?></td>
-<td><?= $r['pr'] ?></td>
+<td><?= $r['materi'] ?></td>
+<td><?= $r['created_at'] ?></td>
 </tr>
 <?php endwhile; ?>
 </table>

@@ -6,6 +6,7 @@ checkRole('guru');
 include "../config/database.php";
 include "../templates/header.php";
 include "../templates/navbar.php";
+include "../sidebar.php";
 
 $id_guru = $_SESSION['id_user'];
 
