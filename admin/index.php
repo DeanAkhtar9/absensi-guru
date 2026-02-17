@@ -1,5 +1,5 @@
 <?php
-require "../config/config.php";   // ⬅️ PINDAHKAN KE PALING ATAS
+require "../config/config.php";   
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('admin');
@@ -7,7 +7,6 @@ checkRole('admin');
 require "../config/database.php";
 require "../config/functions.php";
 
-include "../templates/header.php";
 include "../templates/navbar.php";
 include "../sidebar.php";
 
