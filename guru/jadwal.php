@@ -23,26 +23,28 @@ $hariMap = [
 $hari_ini = $hariMap[date('l')];
 $jam_sekarang = date('H:i:s');
 
-/* ambil jadwal aktif */
+/* ambil seluruh jadwal hari ini */
 $query = mysqli_query($conn, "
     SELECT 
         jm.id_jadwal,
         k.nama_kelas,
-        m.nama_mapel,
+        jm.mapel,
         jm.jam_mulai,
         jm.jam_selesai
     FROM jadwal_mengajar jm
     JOIN kelas k ON jm.id_kelas = k.id_kelas
-    JOIN mapel m ON jm.id_mapel = m.id_mapel
     WHERE jm.id_guru = '$id_guru'
       AND jm.hari = '$hari_ini'
-      AND '$jam_sekarang' BETWEEN jm.jam_mulai AND jm.jam_selesai
+    ORDER BY jm.jam_mulai
 ");
 
+if (!$query) {
+    die("Query Error: " . mysqli_error($conn));
+}
 ?>
 
 <div class="container">
-    <h3>Jadwal Mengajar Saat Ini</h3>
+    <h3>Jadwal Mengajar Hari Ini</h3>
 
     <p>
         Hari: <b><?= $hari_ini ?></b> <br>
@@ -51,16 +53,29 @@ $query = mysqli_query($conn, "
 
     <?php if (mysqli_num_rows($query) == 0): ?>
         <div class="alert alert-secondary">
-            Saat ini kamu <b>tidak sedang mengajar</b>.
+            Kamu tidak memiliki jadwal hari ini.
         </div>
 
     <?php else: ?>
         <div class="row">
             <?php while ($row = mysqli_fetch_assoc($query)): ?>
+                <?php
+                // Tentukan status mengajar
+                if ($jam_sekarang >= $row['jam_mulai'] && $jam_sekarang <= $row['jam_selesai']) {
+                    $status = "Sedang mengajar";
+                    $alertClass = "alert-success";
+                } elseif ($jam_sekarang < $row['jam_mulai']) {
+                    $status = "Belum mulai";
+                    $alertClass = "alert-info";
+                } else {
+                    $status = "Selesai";
+                    $alertClass = "alert-secondary";
+                }
+                ?>
                 <div class="col-md-4">
                     <div class="card mb-3 shadow-sm">
                         <div class="card-body">
-                            <h5><?= $row['nama_mapel'] ?></h5>
+                            <h5><?= $row['mapel'] ?></h5>
                             <p class="mb-1">
                                 Kelas: <b><?= $row['nama_kelas'] ?></b>
                             </p>
@@ -69,6 +84,9 @@ $query = mysqli_query($conn, "
                                 -
                                 <?= substr($row['jam_selesai'],0,5) ?>
                             </p>
+                            <div class="alert <?= $alertClass ?> py-1 px-2">
+                                Status: <b><?= $status ?></b>
+                            </div>
 
                             <a href="jurnal.php?id_jadwal=<?= $row['id_jadwal'] ?>"
                                class="btn btn-primary btn-sm">

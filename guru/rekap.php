@@ -12,22 +12,33 @@ $id_guru = $_SESSION['id_user'];
 /* AMBIL REKAP */
 $query = mysqli_query($conn, "
     SELECT 
+        ag.id_absensi_guru,
         ag.tanggal,
         k.nama_kelas,
-        m.nama_mapel,
+        jm.mapel,
         ag.status AS status_guru,
         j.materi,
         COUNT(CASE WHEN asw.status != 'hadir' THEN 1 END) AS tidak_hadir
     FROM absensi_guru ag
     JOIN jadwal_mengajar jm ON ag.id_jadwal = jm.id_jadwal
     JOIN kelas k ON jm.id_kelas = k.id_kelas
-    JOIN mapel m ON jm.id_mapel = m.id_mapel
     LEFT JOIN jurnal_mengajar j ON ag.id_absensi_guru = j.id_absensi_guru
     LEFT JOIN absensi_siswa asw ON j.id_jurnal = asw.id_jurnal
     WHERE jm.id_guru = '$id_guru'
-    GROUP BY ag.id_absensi_guru
+    GROUP BY 
+        ag.id_absensi_guru,
+        ag.tanggal,
+        k.nama_kelas,
+        jm.mapel,
+        ag.status,
+        j.materi
     ORDER BY ag.tanggal DESC
 ");
+
+if (!$query) {
+    die("Query Error: " . mysqli_error($conn));
+}
+
 ?>
 
 <div class="container">
@@ -57,7 +68,7 @@ $query = mysqli_query($conn, "
             <tr>
                 <td><?= date('d-m-Y', strtotime($row['tanggal'])) ?></td>
                 <td><?= $row['nama_kelas'] ?></td>
-                <td><?= $row['nama_mapel'] ?></td>
+                <td><?= $row['mapel'] ?></td>
                 <td>
                     <span class="badge bg-<?= 
                         $row['status_guru'] == 'hadir' ? 'success' : 'danger' ?>">
