@@ -59,20 +59,15 @@ $role = $_SESSION['role'];
         </li>
         <!-- ================= SISWA ================= -->
         <?php if($role == 'siswa'): ?>
-            
-            <li>
-                <a href="/absensi-guru/siswa/buat_laporan.php">
-                    <i class="bi bi-send"></i>
-                    Buat Laporan
-                </a>
-            </li>
+        <li>
+            <a href="/absensi-guru/siswa/buat_laporan.php">
+                <i class="bi bi-pencil-square"></i> Buat Laporan </a>
+        </li>
 
-            <li>
-                <a href="/absensi-guru/siswa/riwayat_laporan.php">
-                    <i class="bi bi-clock-history"></i>
-                    Riwayat Laporan
-                </a>
-            </li>
+        <li>
+            <a href="/absensi-guru/siswa/riwayat_laporan.php">
+                <i class="bi bi-file-earmark-text"></i> Riwayat Laporan </a>
+        </li>
 
         <?php endif; ?>
 
@@ -80,26 +75,36 @@ $role = $_SESSION['role'];
         <!-- ================= GURU ================= -->
         <?php if($role == 'guru'): ?>
 
-            <li>
-                <a href="/absensi-guru/guru/laporan.php">
+                <a href="/absensi-guru/guru/jadwal.php">
                     <i class="bi bi-file-earmark-text"></i>
-                    Laporan Masuk
+                    Jadwal
+                </a>
+            </li>
+            <li>
+                <a href="/absensi-guru/guru/rekap.php">
+                    <i class="bi bi-file-earmark-text"></i>
+                    Rekap
                 </a>
             </li>
 
              <li>
                 <a href="/absensi-guru/guru/jurnal.php">
                     <i class="bi bi-check2-square"></i>
-                    jurnal
+                    Jurnal
                 </a>
             </li>
             <li>
-                <a href="/absensi-guru/guru/konfirmasi.php">
+                <a href="/absensi-guru/guru/riwayat_absensi.php">
                     <i class="bi bi-check2-square"></i>
-                    Konfirmasi Laporan
+                    Riwayat Absensi
                 </a>
             </li>
-
+            <li>
+                <a href="/absensi-guru/guru/riwayat_jurnal.php">
+                    <i class="bi bi-check2-square"></i>
+                    Riwayat Jurnal
+                </a>
+            </li>
         <?php endif; ?>
 
 
@@ -121,7 +126,7 @@ $role = $_SESSION['role'];
             </li>
 
             <li>
-                <a href="/absensi-guru/admin/siswa.php">
+                <a href="/absensi-guru/admin/kelas.php">
                     <i class="bi bi-people"></i>
                     Data Siswa
                 </a>
