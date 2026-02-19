@@ -43,6 +43,7 @@ $data = mysqli_query($conn, "SELECT * FROM kelas ORDER BY nama_kelas ASC");
 include "../templates/header.php";
 include "../templates/navbar.php";
 include "../sidebar.php";
+include "../header.php"; 
 ?>
 
 <div class="container">

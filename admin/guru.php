@@ -7,6 +7,7 @@ require_once "../config/database.php";
 include "../templates/header.php";
 include "../templates/navbar.php";
 include "../sidebar.php";
+include "../header.php"; 
 ?>
 
 <div class="container mt-4">
