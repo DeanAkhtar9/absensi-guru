@@ -165,11 +165,6 @@ body {
   font-family: 'Poppins', sans-serif;
 }
 
-/* Dashboard Container */
-.dashboard-wrapper {
-  padding: 25px;
-}
-
 /* Header */
 .dashboard-header h2 {
   font-size: 26px;
@@ -1021,7 +1016,7 @@ body {
   color: #a4472d;
 }
 .main-content{
-    margin-left:230px;
+    margin-left:20px;
     padding:25px;
 }
 
@@ -1139,44 +1134,85 @@ th, td {
 .page-header{
   margin-left: 50px;
 }
-/* ===== MOBILE SIDEBAR FIX ===== */
-@media (max-width: 768px) {
+/* ===== SIDEBAR (sudah benar) ===== */
+.sidebar {
+    width: 250px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    padding: 20px 15px;
+    background: #1e1e2f;
+    box-sizing: border-box;
+}
 
-    .sidebar {
-        width: 240px;
-        padding-top: 60px; /* turunkan seluruh isi sidebar */
-        z-index: 1000;
-    }
+/* ===== HEADER ===== */
+.main-header {
+    margin-left: 250px;
+    padding: 18px 30px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    /* Brand area */
-    .sidebar-brand {
-        margin-top: 20px;   /* turunkan logo + teks */
-        margin-bottom: 25px;
-        padding-left: 10px;
-    }
+/* ===== MAIN CONTENT ===== */
+.main-content {
+    margin-left: 250px;
+    padding: 25px 30px;
+    background: #f5f7fb;
+    min-height: calc(100vh - 70px); /* jika header tinggi 70px */
+}
 
-    .brand-icon img {
-        width: 40px;
-        height: auto;
-    }
 
-    .brand-text h2 {
-        font-size: 18px;
-        margin-bottom: 2px;
-    }
+/* ===== STAT CARDS tetap ===== */
+.stat-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+.main-content {
+    margin-left: 250px !important;
+    padding: 25px 20px; /* top-bottom 25px, kiri-kanan 20px */
+    background: #f5f7fb;
+    min-height: 100vh;
+}
 
-    .brand-text span {
-        font-size: 12px;
-    }
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-    /* Menu */
-    .sidebar-menu {
-        margin-top: 10px;
-    }
+body {
+    background: #f5f7fb;
+}
 
-    .sidebar-menu a {
-        font-size: 14px;
-        padding: 12px;
-    }
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+    background: #1e1e2f;
+    color: #fff;
+    z-index: 1000;
+}
 
+/* Main content */
+.main-content {
+    margin-left: 250px !important; /* dorong ke kanan selebar sidebar */
+    padding-top: 40px;
+    padding-left: 0; /* sesuaikan */
+    background: #f5f7fb;
+    min-height: 100vh;
+}
+.main-content {
+    margin-left: 250px;   /* atau 0 jika ingin lebih rapat, tapi konsisten */
+    padding: 25px 10px;   /* kurangi padding kiri-kanan jadi 10px */
+    background: #f5f7fb;
+    min-height: 100vh;
 }
