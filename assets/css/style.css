@@ -1139,3 +1139,44 @@ th, td {
 .page-header{
   margin-left: 50px;
 }
+/* ===== MOBILE SIDEBAR FIX ===== */
+@media (max-width: 768px) {
+
+    .sidebar {
+        width: 240px;
+        padding-top: 60px; /* turunkan seluruh isi sidebar */
+        z-index: 1000;
+    }
+
+    /* Brand area */
+    .sidebar-brand {
+        margin-top: 20px;   /* turunkan logo + teks */
+        margin-bottom: 25px;
+        padding-left: 10px;
+    }
+
+    .brand-icon img {
+        width: 40px;
+        height: auto;
+    }
+
+    .brand-text h2 {
+        font-size: 18px;
+        margin-bottom: 2px;
+    }
+
+    .brand-text span {
+        font-size: 12px;
+    }
+
+    /* Menu */
+    .sidebar-menu {
+        margin-top: 10px;
+    }
+
+    .sidebar-menu a {
+        font-size: 14px;
+        padding: 12px;
+    }
+
+}

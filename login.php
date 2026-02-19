@@ -72,15 +72,17 @@ if (isset($_POST['login'])) {
     <title>Login</title>
     <link rel="stylesheet" href="assets/css/bootstrap.min.css">
 </head>
-<body class="bg-light">
+<body class="bg-light d-flex align-items-center justify-content-center min-vh-100">
 
-<div class="container mt-5">
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-4">
             <div class="card shadow">
                 <div class="card-body">
-                    <h4 class="text-center mb-3">Login</h4>
-
+                    <div class="wrapp mb-4">
+                        <img class="logg" src="logo.png" alt="">
+                        <h4 class="text-center mb-2">Jurnal Pembelajaran</h4>
+                    </div>
                     <?php if ($error): ?>
                         <div class="alert alert-danger">
                             <?= $error ?>
@@ -88,17 +90,15 @@ if (isset($_POST['login'])) {
                     <?php endif; ?>
 
                     <form method="post">
-                        <div class="mb-3">
-                            <label>Username</label>
-                            <input type="text" name="username" class="form-control" required>
+                        <div class="mb-4">
+                            <input type="text" name="username" class="form-control" placeholder="Username" required>
                         </div>
 
-                        <div class="mb-3">
-                            <label>Password</label>
-                            <input type="password" name="password" class="form-control" required>
+                        <div class="mb-4">
+                            <input type="password" name="password" class="form-control" placeholder="Password" required>
                         </div>
 
-                        <button name="login" class="btn btn-primary w-100">
+                        <button name="login" class="subb btn btn-primary w-100">
                             Login
                         </button>
                     </form>
