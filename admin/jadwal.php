@@ -6,6 +6,7 @@ checkRole('admin');
 
 require "../config/database.php";
 require "../includes/flash.php";
+include "../header.php"; 
 
 /*
 |--------------------------------------------------------------------------

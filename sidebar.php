@@ -117,7 +117,7 @@ $role = $_SESSION['role'];
             <li>
                 <a href="/absensi-guru/admin/siswa.php">
                     <i class="bi bi-people"></i>
-                    Data Siswa
+                    Data Kelas
                 </a>
             </li>
 

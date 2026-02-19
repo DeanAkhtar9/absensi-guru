@@ -6,6 +6,7 @@ checkRole('admin');
 
 require "../config/database.php";
 
+
 /*
 |--------------------------------------------------------------------------
 | Ambil data komplain + nama siswa
@@ -17,7 +18,7 @@ $query = mysqli_query($conn, "
         komplain.pesan,
         komplain.tanggal,
         komplain.created_at,
-        siswa.nama_siswa
+        siswa.id_siswa
     FROM komplain
     JOIN siswa ON komplain.id_siswa = siswa.id_siswa
     ORDER BY komplain.created_at DESC
@@ -62,7 +63,7 @@ include "../header.php";
                     <td><?= $no++; ?></td>
 
                     <td>
-                        <?= htmlspecialchars($row['nama_siswa']); ?>
+                        <?= htmlspecialchars($row['id_siswa']); ?>
                     </td>
 
                     <td>
