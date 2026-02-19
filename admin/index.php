@@ -8,17 +8,13 @@ require "../config/database.php";
 require "../config/functions.php";
 
 include "../templates/navbar.php";
-include "../templates/header.php";
 include "../sidebar.php";
 include "../header.php";    
 
-/* =========================
-   QUERY KOMPLAIN
-========================= */
 $query_komplain = mysqli_query($conn, "
     SELECT 
         komplain.*, 
-        siswa.id_siswa AS id_siswa
+        users.nama AS nama_siswa
     FROM komplain
     JOIN siswa 
         ON komplain.id_siswa = siswa.id_siswa
@@ -28,12 +24,11 @@ $query_komplain = mysqli_query($conn, "
     LIMIT 3
 ");
 
-/* =========================
-   QUERY JURNAL
-========================= */
+
 $query_jurnal = mysqli_query($conn, "
     SELECT 
         jurnal_mengajar.id_jurnal,
+        jurnal_mengajar.materi,
         jurnal_mengajar.created_at,
 
         users.nama AS nama_guru,
@@ -57,144 +52,98 @@ $query_jurnal = mysqli_query($conn, "
     ORDER BY jurnal_mengajar.created_at DESC
     LIMIT 3
 ");
+
+
 ?>
 
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../assets/css/responsive.css">
-    <title>Admin</title>
-</head>
-<body>
-    <div class="container">
+<link rel="stylesheet" href="../assets/css/responsive.css">
+<div class="container">
     <div class="container dashboard-wrapper">
     <div class="dashboard-header">
+        
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    </div>
 
-<!-- =========================
-     MAIN CONTENT
-========================= -->
-<div class="main-content">
+    <!-- STATISTICS CARDS -->
+    <div class="stat-cards">
 
-<div class="dashboard-wrapper">
-
-<!-- =========================
-     STAT CARDS
-========================= -->
-<div class="stat-cards">
-
-    <!-- Guru -->
-    <div class="card">
-        <div class="card-header">
-            <h5>Total Guru</h5>
-            <div class="icon-box-guru">
-                <i class="orang bi bi-person"></i>
+        <div class="card">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Total Guru</h5>
+                <div class="icon-box-guru">
+                    <i class="orang bi bi-person"></i>
+                </div>
+            </div>
+            <div class="card-total">
+                <h3><?= getUserByRole("guru", $conn); ?></h3>
             </div>
         </div>
 
-        <div class="card-total">
-            <h3><?= getUserByRole("guru", $conn); ?></h3>
-        </div>
-    </div>
-
-
-    <!-- Jurnal -->
-    <div class="card">
-        <div class="card-header">
-            <h5>Pengumpulan Jurnal</h5>
-            <div class="icon-box-kelas">
-                <i class="buku bi bi-book"></i>
+        <div class="card">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Pengumpulan Jurnal</h5>
+                <div class="icon-box-kelas">
+                    <i class="buku bi bi-book"></i>
+                </div>
+            </div>
+            <div class="card-total">
+                <h3><?= getTotal("kelas", $conn); ?></h3>
             </div>
         </div>
 
-        <div class="card-total">
-            <h3><?= getTotal("jurnal_mengajar", $conn); ?></h3>
-        </div>
-    </div>
-
-
-    <!-- Siswa -->
-    <div class="card">
-        <div class="card-header">
-            <h5>Total Siswa</h5>
-            <div class="icon-box-siswa">
-                <i class="orang2 bi bi-people"></i>
+        <div class="card">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Total Siswa</h5>
+                <div class="icon-box-siswa">
+                    <i class="orang2 bi bi-people"></i>
+                </div>
             </div>
+                <div class="card-total">
+                    <h3><?= getTotal("siswa", $conn); ?></h3>
+                </div>
         </div>
-
-        <div class="card-total">
-            <h3><?= getTotal("siswa", $conn); ?></h3>
-        </div>
-    </div>
-
-
-    <!-- Komplain -->
-    <div class="card">
-        <div class="card-header">
-            <h5>Laporan</h5>
+        
+        <div class="card">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Laporan</h5>
             <div class="icon-box-laporan">
                 <i class="bel bi bi-bell"></i>
             </div>
         </div>
-
-        <div class="card-total">
-            <h3><?= getTotal("komplain", $conn); ?></h3>
+            <div class="card-total">
+                <h3><?= getTotal("komplain", $conn); ?></h3>
+            </div>
         </div>
+
     </div>
 
-</div>
 
+ <div class="dashboard-row">
 
+    <!-- COMPLAINT -->
+    <div class="card dashboard-card">
+        <h3>Recent Complaints</h3>
+        <p class="sub-title">Komplain terbaru siswa</p>
 
-<!-- =========================
-     KOMPLAIN + JURNAL
-========================= -->
-<div class="dashboard-row">
+        <?php while($row = mysqli_fetch_assoc($query_komplain)) { ?>
+            
+            <div class="list-item">
 
+                <div>
+                    <strong><?= $row['nama_siswa'] ?></strong>
+                    <p><?= $row['pesan'] ?></p>
+                    <small><?= date('d M Y', strtotime($row['tanggal'])) ?></small>
+                </div>
 
-<!-- =========================
-     KOMPLAIN
-========================= -->
-<div class="card dashboard-card">
-
-    <h3>Recent Complaints</h3>
-    <p class="sub-title">Komplain terbaru siswa</p>
-
-    <?php while($row = mysqli_fetch_assoc($query_komplain)) { ?>
-
-        <div class="list-item">
-
-            <div>
-
-                <strong><?= $row['id_siswa'] ?></strong>
-
-                <p><?= $row['pesan'] ?></p>
-
-                <small>
-                    <?= date('d M Y', strtotime($row['created_at'])) ?>
-                </small>
+                <span class="badge pending">pending</span>
 
             </div>
 
-            <span class="badge pending">
-                pending
-            </span>
+        <?php } ?>
 
-        </div>
-
-    <?php } ?>
-
-</div>
-
-
-
-<!-- =========================
-     JURNAL
-========================= -->
+    </div>
 
 
     <!-- JOURNAL -->
@@ -206,39 +155,37 @@ $query_jurnal = mysqli_query($conn, "
 
         <div class="journal-item">
 
-            <div>
+                <div class="journal-left">
 
-                <div class="journal-nama">
-                    <?= $jurnal['nama_guru'] ?>
+                    <div class="journal-nama">
+                        <?= $jurnal['nama_guru'] ?>
+                    </div>
+
+                    <div class="journal-info">
+                        <?= $jurnal['mapel'] ?> - <?= $jurnal['nama_kelas'] ?>
+                    </div>
+
+                    <div class="journal-date">
+                        <?= date('Y-m-d', strtotime($jurnal['created_at'])) ?>
+                    </div>
+
                 </div>
 
-                <div class="journal-info">
-                    <?= $jurnal['mapel'] ?> - <?= $jurnal['nama_kelas'] ?>
-                </div>
-
-                <div class="journal-date">
-                    <?= date('d M Y', strtotime($jurnal['created_at'])) ?>
+                <div class="journal-right">
+                    <span class="badge submitted">submitted</span>
                 </div>
 
             </div>
 
-            <span class="badge submitted">
-                submitted
-            </span>
+            <hr class="journal-divider">
 
-        </div>
+        <?php } ?>
 
-        <hr class="journal-divider">
-
-    <?php } ?>
-
-</div>
-
+    </div>
 
 
 </div>
-</body>
-</html>
 
+</div>
 
 <?php require "../templates/footer.php"; ?>
