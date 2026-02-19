@@ -14,10 +14,16 @@ $role = $_SESSION['role'];
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="/absensi-guru/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/absensi-guru/assets/css/style.css">
+    <link rel="stylesheet" href="/absensi-guru/assets/css/responsive.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <body>
+<!-- Tombol Hamburger (Mobile Only) -->
+<button class="toggle-btn d-md-none" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+</button>
 
 <div class="sidebar">
 
@@ -167,3 +173,10 @@ $role = $_SESSION['role'];
     </ul>
 
 </div>
+<script>
+function toggleSidebar() {
+    document.querySelector(".sidebar").classList.toggle("active");
+}
+</script>
+
+</body>

@@ -455,6 +455,29 @@ body {
   ); /* pastikan card tidak melebar melewati viewport */
 }
 
+.toggle-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    background: #5b6cff; /* Samakan dengan warna tema */
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    z-index: 10000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Perbaikan Card agar tidak terlalu rapat di mobile */
+.card {
+    margin-bottom: 15px;
+    overflow-x: auto; /* Mencegah tabel pecah di HP */
+}
+
 .brand-icon img {
   width: 45px;
   height: 62px;

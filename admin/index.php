@@ -7,6 +7,7 @@ checkRole('admin');
 require "../config/database.php";
 require "../config/functions.php";
 
+include "../templates/navbar.php";
 include "../templates/header.php";
 include "../sidebar.php";
 include "../header.php";    
@@ -19,7 +20,10 @@ $query_komplain = mysqli_query($conn, "
         komplain.*, 
         siswa.id_siswa AS id_siswa
     FROM komplain
-    JOIN siswa ON komplain.id_siswa = siswa.id_siswa
+    JOIN siswa 
+        ON komplain.id_siswa = siswa.id_siswa
+    JOIN users 
+        ON siswa.id_user = users.id_user
     ORDER BY komplain.created_at DESC
     LIMIT 3
 ");
@@ -56,6 +60,20 @@ $query_jurnal = mysqli_query($conn, "
 ?>
 
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <title>Admin</title>
+</head>
+<body>
+    <div class="container">
+    <div class="container dashboard-wrapper">
+    <div class="dashboard-header">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
 <!-- =========================
      MAIN CONTENT
@@ -219,8 +237,8 @@ $query_jurnal = mysqli_query($conn, "
 
 
 </div>
-</div>
-</div>
+</body>
+</html>
 
 
 <?php require "../templates/footer.php"; ?>
