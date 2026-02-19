@@ -12,7 +12,6 @@ if (session_status() == PHP_SESSION_NONE) {
    AMBIL DATA SESSION
 ========================= */
 $id_user = $_SESSION['id_user'] ?? 0;
-
 if ($id_user == 0) {
     die("Session login tidak ditemukan. Silakan login ulang.");
 }
@@ -24,7 +23,6 @@ $id_jadwal = isset($_POST['id_jadwal']) ? intval($_POST['id_jadwal']) : 0;
 $tanggal   = $_POST['tanggal'] ?? '';
 $status_kehadiran = trim($_POST['deskripsi'] ?? '');
 $keterangan       = trim($_POST['keterangan'] ?? '');
-
 
 /* =========================
    VALIDASI FORM
@@ -39,11 +37,9 @@ if (!in_array($status_kehadiran, $allowed_status)) {
     die("Status tidak valid.");
 }
 
-/* Jika Tidak Hadir wajib isi keterangan */
 if ($status_kehadiran == "Tidak Hadir" && empty($keterangan)) {
     die("Jika guru tidak hadir, keterangan wajib diisi (izin atau tanpa pemberitahuan).");
 }
-
 
 /* =========================
    CEK DATA SISWA
@@ -63,7 +59,6 @@ $stmt->close();
 
 /* =========================
    CEK DUPLIKAT LAPORAN
-   (1 siswa, 1 jadwal, 1 hari)
 ========================= */
 $stmt = $conn->prepare("
     SELECT id_komplain FROM komplain
@@ -78,31 +73,65 @@ if ($cek->num_rows > 0) {
 }
 $stmt->close();
 
-
 /* =========================
    INSERT KE TABEL KOMPLAIN
 ========================= */
-/* Gabungkan status dan keterangan */
-if (!empty($keterangan)) {
-    $pesan = $status_kehadiran . " - " . $keterangan;
-} else {
-    $pesan = $status_kehadiran;
-}
+$pesan = !empty($keterangan) ? $status_kehadiran . " - " . $keterangan : $status_kehadiran;
 
 $stmt = $conn->prepare("
-    INSERT INTO komplain (id_siswa, id_jadwal, tanggal, pesan, status, created_at)
-    VALUES (?, ?, ?, ?, 'menunggu', NOW())
+    INSERT INTO komplain (id_siswa, id_jadwal, tanggal, pesan, created_at)
+    VALUES (?, ?, ?, ?, NOW())
 ");
-
 $stmt->bind_param("iiss", $id_siswa, $id_jadwal, $tanggal, $pesan);
-
-if ($stmt->execute()) {
-    header("Location: riwayat_laporan.php?status=sukses");
-    exit;
-} else {
+if (!$stmt->execute()) {
     die("Gagal menyimpan laporan: " . $stmt->error);
 }
+$stmt->close();
 
+/* =========================
+   UPDATE / INSERT ABSENSI GURU OTOMATIS
+========================= */
+/* Konversi status ke enum absensi_guru */
+$status_enum = strtolower(str_replace(" ", "_", $status_kehadiran));
+
+$stmt = $conn->prepare("
+    SELECT id_absensi_guru FROM absensi_guru
+    WHERE id_jadwal = ? AND tanggal = ?
+");
+$stmt->bind_param("is", $id_jadwal, $tanggal);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows == 0) {
+    /* BELUM ADA, INSERT BARU */
+    $stmt2 = $conn->prepare("
+        INSERT INTO absensi_guru (id_jadwal, tanggal, status, diinput_oleh, created_at)
+        VALUES (?, ?, ?, ?, NOW())
+    ");
+    $diinput_oleh = $id_siswa; // siapa yang input
+    $stmt2->bind_param("issi", $id_jadwal, $tanggal, $status_enum, $diinput_oleh);
+    $stmt2->execute();
+    $stmt2->close();
+} else {
+    /* SUDAH ADA, UPDATE STATUS */
+    $row = $result->fetch_assoc();
+    $id_absensi_guru = $row['id_absensi_guru'];
+
+    $stmt2 = $conn->prepare("
+        UPDATE absensi_guru
+        SET status = ?, diinput_oleh = ?
+        WHERE id_absensi_guru = ?
+    ");
+    $stmt2->bind_param("sii", $status_enum, $id_siswa, $id_absensi_guru);
+    $stmt2->execute();
+    $stmt2->close();
+}
 $stmt->close();
 $conn->close();
+
+/* =========================
+   REDIRECT
+========================= */
+header("Location: riwayat_laporan.php?status=sukses");
+exit;
 ?>

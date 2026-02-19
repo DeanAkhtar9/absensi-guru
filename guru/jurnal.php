@@ -11,7 +11,18 @@ $id_guru   = $_SESSION['id_user'];
 $id_jadwal = isset($_GET['id_jadwal']) ? intval($_GET['id_jadwal']) : 0;
 $tanggal   = date('Y-m-d');
 
-/* VALIDASI JADWAL */
+/* ==============================
+   CEK ID JADWAL VALID
+   ============================== */
+if ($id_jadwal == 0) {
+    echo "<div class='container'><div class='alert alert-danger'>
+            ID Jadwal tidak ditemukan.
+          </div></div>";
+    include "../templates/footer.php";
+    exit;
+}
+
+/* Ambil jadwal, pastikan milik guru ini */
 $jadwal = mysqli_query($conn, "
     SELECT 
         jm.id_jadwal,
@@ -20,22 +31,29 @@ $jadwal = mysqli_query($conn, "
         k.nama_kelas
     FROM jadwal_mengajar jm
     JOIN kelas k ON jm.id_kelas = k.id_kelas
+    WHERE jm.id_jadwal = '$id_jadwal'
       AND jm.id_guru = '$id_guru'
     LIMIT 1
 ");
 
-
 if (mysqli_num_rows($jadwal) == 0) {
-    echo "<div class='container'><div class='alert alert-danger'>
-            Jadwal tidak valid.
-          </div></div>";
-    include "../templates/footer.php";
-    exit;
+    $check = mysqli_query($conn, "SELECT * FROM jadwal_mengajar WHERE id_jadwal = '$id_jadwal'");
+    if (mysqli_num_rows($check) == 0) {
+        die("<div class='container'><div class='alert alert-danger'>
+                ID Jadwal tidak ditemukan di database.
+            </div></div>");
+    } else {
+        die("<div class='container'><div class='alert alert-danger'>
+                Jadwal ditemukan, tapi bukan milik guru ini.
+            </div></div>");
+    }
 }
 
 $data_jadwal = mysqli_fetch_assoc($jadwal);
 
-/* CEK ABSENSI GURU */
+/* ==============================
+   CEK ATAU BUAT ABSENSI GURU
+   ============================== */
 $absensi = mysqli_query($conn, "
     SELECT * FROM absensi_guru
     WHERE id_jadwal = '$id_jadwal'
@@ -44,46 +62,44 @@ $absensi = mysqli_query($conn, "
 ");
 
 if (mysqli_num_rows($absensi) == 0) {
-    echo "<div class='container'><div class='alert alert-warning'>
-            Absensi guru belum diisi oleh siswa.
-          </div></div>";
-    include "../templates/footer.php";
-    exit;
+    // Jika absensi guru belum ada, buat otomatis "hadir"
+    mysqli_query($conn, "
+        INSERT INTO absensi_guru (id_jadwal, tanggal, status, diinput_oleh)
+        VALUES ('$id_jadwal', '$tanggal', 'hadir', '$id_guru')
+    ");
+    $id_absensi_guru = mysqli_insert_id($conn);
+} else {
+    $data_absensi = mysqli_fetch_assoc($absensi);
+    $id_absensi_guru = $data_absensi['id_absensi_guru'];
 }
 
-$data_absensi = mysqli_fetch_assoc($absensi);
-$id_absensi_guru = $data_absensi['id_absensi_guru'];
-
-
-/* PROSES SIMPAN JURNAL */
+/* ==============================
+   PROSES SIMPAN JURNAL
+   ============================== */
 if (isset($_POST['simpan'])) {
 
-    $topik     = mysqli_real_escape_string($conn,$_POST['topik']);
-    $tujuan    = mysqli_real_escape_string($conn,$_POST['tujuan']);
-    $aktivitas = mysqli_real_escape_string($conn,$_POST['aktivitas']);
-    $pr        = mysqli_real_escape_string($conn,$_POST['pr']);
-    $jumlah    = intval($_POST['jumlah_hadir']);
-
-    $materi   = mysqli_real_escape_string($conn, $_POST['materi']);
-    $catatan  = mysqli_real_escape_string($conn, $_POST['catatan']);
+    $materi  = mysqli_real_escape_string($conn, $_POST['materi']);
+    $catatan = mysqli_real_escape_string($conn, $_POST['catatan']);
 
     mysqli_query($conn, "
         INSERT INTO jurnal_mengajar
-        (id_absensi_guru, topik, tujuan, aktivitas, pr, jumlah_hadir, materi, catatan, diisi_oleh)
+        (id_absensi_guru, materi, catatan, diisi_oleh)
         VALUES
-        ('$id_absensi_guru','$topik','$tujuan','$aktivitas','$pr','$jumlah','$materi','$catatan','$id_guru')
+        ('$id_absensi_guru','$materi','$catatan','$id_guru')
     ");
 
     $id_jurnal = mysqli_insert_id($conn);
 
     /* SIMPAN ABSENSI SISWA */
-    foreach ($_POST['siswa'] as $id_siswa => $status) {
-        mysqli_query($conn, "
-            INSERT INTO absensi_siswa
-            (id_jurnal, id_siswa, status)
-            VALUES
-            ('$id_jurnal', '$id_siswa', '$status')
-        ");
+    if (isset($_POST['siswa']) && is_array($_POST['siswa'])) {
+        foreach ($_POST['siswa'] as $id_siswa => $status) {
+            mysqli_query($conn, "
+                INSERT INTO absensi_siswa
+                (id_jurnal, id_siswa, status)
+                VALUES
+                ('$id_jurnal', '$id_siswa', '$status')
+            ");
+        }
     }
 
     echo "<script>
@@ -93,53 +109,28 @@ if (isset($_POST['simpan'])) {
     exit;
 }
 
-
-/* AMBIL SISWA */
+/* ==============================
+   AMBIL DATA SISWA
+   ============================== */
 $siswa = mysqli_query($conn, "
-    SELECT id_siswa, nama_siswa
-    FROM siswa
-    WHERE id_kelas = '{$data_jadwal['id_kelas']}'
-    ORDER BY nama_siswa
+    SELECT s.id_siswa, u.nama AS nama_siswa
+    FROM siswa s
+    JOIN users u ON s.id_user = u.id_user
+    WHERE s.id_kelas = '{$data_jadwal['id_kelas']}'
+    ORDER BY u.nama
 ");
 ?>
 
 <div class="container">
     <h3>Jurnal Mengajar</h3>
 
-<p>
-    <b><?= $data_jadwal['mapel'] ?></b><br>
-    Kelas: <?= $data_jadwal['nama_kelas'] ?><br>
-    Tanggal: <?= date('d-m-Y') ?>
-</p>
-
+    <p>
+        <b><?= htmlspecialchars($data_jadwal['mapel']) ?></b><br>
+        Kelas: <?= htmlspecialchars($data_jadwal['nama_kelas']) ?><br>
+        Tanggal: <?= date('d-m-Y') ?>
+    </p>
 
     <form method="post">
-
-        <div class="mb-3">
-            <label>Topik</label>
-            <input type="text" name="topik" class="form-control" required>
-        </div>
-
-        <div class="mb-3">
-            <label>Tujuan Pembelajaran</label>
-            <textarea name="tujuan" class="form-control" required></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label>Aktivitas Kelas</label>
-            <textarea name="aktivitas" class="form-control" required></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label>Pekerjaan Rumah (PR)</label>
-            <textarea name="pr" class="form-control"></textarea>
-        </div>
-
-        <div class="mb-3">
-            <label>Jumlah Hadir</label>
-            <input type="number" name="jumlah_hadir" class="form-control">
-        </div>
-
         <div class="mb-3">
             <label>Materi</label>
             <textarea name="materi" class="form-control" required></textarea>
@@ -159,7 +150,7 @@ $siswa = mysqli_query($conn, "
             </tr>
             <?php while ($s = mysqli_fetch_assoc($siswa)): ?>
             <tr>
-                <td><?= $s['nama_siswa'] ?></td>
+                <td><?= htmlspecialchars($s['nama_siswa']) ?></td>
                 <td>
                     <select name="siswa[<?= $s['id_siswa'] ?>]" class="form-select">
                         <option value="hadir">Hadir</option>
