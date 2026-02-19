@@ -15,7 +15,7 @@ include "../header.php";
 $query_komplain = mysqli_query($conn, "
     SELECT 
         komplain.*, 
-        siswa.nama_siswa AS nama_siswa
+        siswa.id_siswa AS id_siswa
     FROM komplain
     JOIN siswa ON komplain.id_siswa = siswa.id_siswa
     ORDER BY komplain.created_at DESC
@@ -128,7 +128,7 @@ $query_jurnal = mysqli_query($conn, "
             <div class="list-item">
 
                 <div>
-                    <strong><?= $row['nama_siswa'] ?></strong>
+                    <strong><?= $row['id_siswa'] ?></strong>
                     <p><?= $row['pesan'] ?></p>
                     <small><?= date('d M Y', strtotime($row['tanggal'])) ?></small>
                 </div>
