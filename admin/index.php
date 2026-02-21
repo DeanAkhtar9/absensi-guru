@@ -56,23 +56,16 @@ $query_jurnal = mysqli_query($conn, "
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../assets/css/responsive.css">
-    <title>Admin</title>
-</head>
-<body>
-    <div class="container">
+
+<link rel="stylesheet" href="../assets/css/responsive.css">
+<div class="container">
     <div class="container dashboard-wrapper">
     <div class="dashboard-header">
+        
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-        <h2>Dashboard Admin</h2>
-        <p class="sub-title">Kelola sistem absensi guru dengan mudah.</p>
     </div>
+
     <!-- STATISTICS CARDS -->
     <div class="stat-cards">
 
@@ -194,9 +187,12 @@ $query_jurnal = mysqli_query($conn, "
 </div>
 
 </div>
+<<<<<<< HEAD
 
 </body>
 </html>
     
+=======
+>>>>>>> d94582e396e89d30dc70727824bbc5b62268f427
 
 <?php require "../templates/footer.php"; ?>

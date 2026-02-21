@@ -73,6 +73,7 @@ $role = $_SESSION['role'];
 
         <!-- ================= GURU ================= -->
         <?php if($role == 'guru'): ?>
+<<<<<<< HEAD
 
             <li>
                 <a href="/absensi-guru/guru/laporan.php">
@@ -91,6 +92,21 @@ $role = $_SESSION['role'];
                 <a href="/absensi-guru/guru/konfirmasi.php">
                     <i class="bi bi-check2-square"></i>
                     Konfirmasi Laporan
+=======
+            <li>
+                <a href="/absensi-guru/guru/jadwal.php">
+                    <i class="bi bi-calendar3"></i> Jadwal
+                </a>
+            </li>
+            <li>
+                <a href="/absensi-guru/guru/rekap.php">
+                    <i class="bi bi-bar-chart-line"></i> Rekap
+                </a>
+            </li>
+            <li>
+                <a href="/absensi-guru/guru/riwayat_laporan.php">
+                    <i class="bi bi-file-earmark-text"></i> Riwayat Laporan
+>>>>>>> d94582e396e89d30dc70727824bbc5b62268f427
                 </a>
             </li>
 
@@ -117,7 +133,7 @@ $role = $_SESSION['role'];
             <li>
                 <a href="/absensi-guru/admin/siswa.php">
                     <i class="bi bi-people"></i>
-                    Data Kelas
+                    Data Siswa
                 </a>
             </li>
 
