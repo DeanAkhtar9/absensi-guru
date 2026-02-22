@@ -7,6 +7,7 @@ include "../config/database.php";
 include "../templates/header.php";
 include "../templates/navbar.php";
 include "../sidebar.php";
+include "../header.php"; 
 
 $id_guru = $_SESSION['id_user'];
 

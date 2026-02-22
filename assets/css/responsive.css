@@ -4,6 +4,7 @@
 
 /* Desktop Default (Lebar > 768px) */
 @media (min-width: 769px) {
+
     .sidebar {
         width: 250px;
         height: 100vh;
@@ -12,14 +13,11 @@
         top: 0;
     }
 
-    /* Memastikan konten terdorong ke kanan hanya di desktop */
-    .container, 
-    .main-header, 
-    .main-content, 
-    .dashboard-wrapper {
-        margin-left: 250px !important;
-        max-width: calc(100% - 250px);
+    /* HANYA geser content utama */
+    .container {
+        margin-left: 180px;
     }
+
 }
 
 /* Mobile Mode (Lebar <= 768px) */
