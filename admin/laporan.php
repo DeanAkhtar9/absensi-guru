@@ -34,13 +34,13 @@ include "../header.php";
     <!-- TITLE -->
     <div class="page-header">
         <h2>Laporan Komplain</h2>
-        <p class="sub-title">Daftar komplain dari siswa</p>
     </div>
 
     <!-- TABLE CARD -->
 
     <div class="laporan-container">
-
+    
+        <p class="sub-title">Daftar komplain dari siswa</p>
         <div class="laporan-card">
 
             <table class="laporan-table">
