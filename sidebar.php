@@ -14,16 +14,10 @@ $role = $_SESSION['role'];
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="/absensi-guru/assets/css/bootstrap.min.css">
     <link rel="stylesheet" href="/absensi-guru/assets/css/style.css">
-    <link rel="stylesheet" href="/absensi-guru/assets/css/responsive.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <body>
-<!-- Tombol Hamburger (Mobile Only) -->
-<button class="toggle-btn d-md-none" onclick="toggleSidebar()">
-    <i class="bi bi-list"></i>
-</button>
 
 <div class="sidebar">
 
@@ -74,35 +68,19 @@ $role = $_SESSION['role'];
 
         <!-- ================= GURU ================= -->
         <?php if($role == 'guru'): ?>
-
+            <li>
                 <a href="/absensi-guru/guru/jadwal.php">
-                    <i class="bi bi-file-earmark-text"></i>
-                    Jadwal
+                    <i class="bi bi-calendar3"></i> Jadwal
                 </a>
             </li>
             <li>
                 <a href="/absensi-guru/guru/rekap.php">
-                    <i class="bi bi-file-earmark-text"></i>
-                    Rekap
-                </a>
-            </li>
-
-             <li>
-                <a href="/absensi-guru/guru/jurnal.php">
-                    <i class="bi bi-check2-square"></i>
-                    Jurnal
+                    <i class="bi bi-bar-chart-line"></i> Rekap
                 </a>
             </li>
             <li>
-                <a href="/absensi-guru/guru/riwayat_absensi.php">
-                    <i class="bi bi-check2-square"></i>
-                    Riwayat Absensi
-                </a>
-            </li>
-            <li>
-                <a href="/absensi-guru/guru/riwayat_jurnal.php">
-                    <i class="bi bi-check2-square"></i>
-                    Riwayat Jurnal
+                <a href="/absensi-guru/guru/riwayat_laporan.php">
+                    <i class="bi bi-file-earmark-text"></i> Riwayat Laporan
                 </a>
             </li>
         <?php endif; ?>
@@ -128,7 +106,7 @@ $role = $_SESSION['role'];
             <li>
                 <a href="/absensi-guru/admin/kelas.php">
                     <i class="bi bi-people"></i>
-                    Data Kelas
+                    Data Siswa
                 </a>
             </li>
 
@@ -173,10 +151,3 @@ $role = $_SESSION['role'];
     </ul>
 
 </div>
-<script>
-function toggleSidebar() {
-    document.querySelector(".sidebar").classList.toggle("active");
-}
-</script>
-
-</body>
