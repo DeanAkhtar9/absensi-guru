@@ -1013,7 +1013,6 @@ body {
   color: #a4472d;
 }
 .main-content {
-  margin-left: 230px;
   padding: 25px;
 }
 
@@ -1060,7 +1059,6 @@ td {
 }
 /* Wrapper content utama */
 .main-content {
-  margin-left: 230px; /* sama dengan lebar sidebar */
   margin-top: 80px; /* sama dengan tinggi header */
   padding: 30px 40px; /* jarak dalam */
 }
@@ -1109,7 +1107,6 @@ td {
   margin-top: -70px;
 }
 .main-content{
-    margin-left:250px;   /* sama dengan sidebar */
     margin-top:80px;     /* sama dengan header */
     padding:25px;
 }
@@ -1137,7 +1134,4 @@ td {
 }
 .page-header{
   margin-left: 50px;
-}
-.container{
-  margin-left: 40px;
 }

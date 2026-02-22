@@ -45,12 +45,6 @@ $role = $_SESSION['role'];
             </a>
         </li>
 
-        <li>
-            <a href="/absensi-guru/admin/laporan.php">
-                <i class="bi bi-file-earmark-text"></i>
-                Laporan
-            </a>
-        </li>
         <!-- ================= SISWA ================= -->
         <?php if($role == 'siswa'): ?>
         <li>
@@ -89,6 +83,12 @@ $role = $_SESSION['role'];
         <!-- ================= ADMIN ================= -->
         <?php if($role == 'admin' || $role == 'superadmin'): ?>
 
+         <li>
+            <a href="/absensi-guru/admin/laporan.php">
+                <i class="bi bi-file-earmark-text"></i>
+                Laporan
+            </a>
+        </li>
             <li>
                 <a href="/absensi-guru/admin/absensi.php">
                     <i class="bi bi-calendar-check"></i>
