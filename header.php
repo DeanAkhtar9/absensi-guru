@@ -29,15 +29,6 @@ $username = $_SESSION['username'] ?? 'User';
 
     <!-- RIGHT -->
     <div class="header-right">
-
-        <!-- NOTIFICATION -->
-        <div class="notif-container">
-            <button class="notif-btn">
-                <i class="bi bi-bell"></i>
-                <span class="notif-badge">3</span>
-            </button>
-        </div>
-
         <!-- ACCOUNT -->
         <div class="account-container">
             <button class="account-btn" onclick="toggleDropdown()">

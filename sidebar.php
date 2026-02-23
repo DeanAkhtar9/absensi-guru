@@ -92,7 +92,7 @@ $role = $_SESSION['role'];
             <li>
                 <a href="/absensi-guru/admin/absensi.php">
                     <i class="bi bi-calendar-check"></i>
-                    Data Absensi
+                    Absensi Siswa
                 </a>
             </li>
 
