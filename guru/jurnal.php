@@ -27,7 +27,7 @@ $jadwal = mysqli_query($conn, "
     SELECT 
         jm.id_jadwal,
         jm.id_kelas,
-        jm.id_mapel,
+        jm.mapel,
         k.nama_kelas
     FROM jadwal_mengajar jm
     JOIN kelas k ON jm.id_kelas = k.id_kelas
