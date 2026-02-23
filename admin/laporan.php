@@ -15,10 +15,11 @@ require "../config/database.php";
 $query = mysqli_query($conn, "
     SELECT 
         komplain.id_komplain,
-        komplain.pesan,
+        komplain.id_siswa,
+        komplain.id_jadwal,
         komplain.tanggal,
-        komplain.created_at,
-        siswa.id_siswa
+        komplain.pesan,
+        komplain.created_at
     FROM komplain
     JOIN siswa ON komplain.id_siswa = siswa.id_siswa
     ORDER BY komplain.created_at DESC
@@ -47,7 +48,9 @@ include "../header.php";
 
                 <tr>
                     <th>No</th>
-                    <th>Nama Siswa</th>
+                    <th>Kelas</th>
+                    <th>Nama Guru</th>
+                    <th>Status</th>
                     <th>Pesan</th>
                     <th>Tanggal</th>
                     <th>Dibuat</th>
@@ -63,11 +66,18 @@ include "../header.php";
                     <td><?= $no++; ?></td>
 
                     <td>
-                        <?= htmlspecialchars($row['id_siswa']); ?>
+                        <?= htmlspecialchars($row['Kelas']); ?>
                     </td>
-
+                    
                     <td>
-                        <?= htmlspecialchars($row['pesan']); ?>
+                        <?= htmlspecialchars($row['nama_guru']); ?>
+                    </td>
+                    <td>
+                        <?= htmlspecialchars($row['status']); ?>
+                    </td>
+                    
+                    <td>
+                        <?= htmlspecialchars($row['status']); ?>
                     </td>
 
                     <td>
