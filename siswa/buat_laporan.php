@@ -34,7 +34,7 @@ $jadwal = mysqli_query($conn,"
         <div class="mb-3">
             <label class="form-label">Pilih Jadwal</label>
             <select name="id_jadwal" class="form-control" required>
-                <option value="">-- Pilih Jadwal --</option>
+                <option value="">Pilih Jadwal</option>
                 <?php while($j = mysqli_fetch_assoc($jadwal)): ?>
                     <option value="<?= $j['id_jadwal'] ?>">
                         <?= $j['hari'] ?> |
@@ -50,7 +50,7 @@ $jadwal = mysqli_query($conn,"
         <div class="mb-3">
             <label class="form-label">Status Kehadiran Guru</label>
             <select name="deskripsi" class="form-control" required>
-                <option value="">-- Pilih Status --</option>
+                <option value="">Pilih Status</option>
                 <option value="Hadir">Hadir</option>
                 <option value="Tidak Hadir">Tidak Hadir</option>
                 <option value="Tidak Ada Keterangan">Tidak Ada Keterangan</option>
