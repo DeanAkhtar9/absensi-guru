@@ -48,6 +48,10 @@ $role = $_SESSION['role'];
             </a>
         </li>
 
+<<<<<<< HEAD
+=======
+        <!-- ================= SISWA ================= -->
+>>>>>>> fa4ffc66e5f63b9d3567777f3b91956f3090fe30
         <?php if($role == 'siswa'): ?>
             <li><a href="/absensi-guru/siswa/buat_laporan.php"><i class="bi bi-send"></i><span>Buat Laporan</span></a></li>
             <li><a href="/absensi-guru/siswa/riwayat_laporan.php"><i class="bi bi-clock-history"></i><span>Riwayat Laporan</span></a></li>
@@ -60,10 +64,54 @@ $role = $_SESSION['role'];
         <?php endif; ?>
 
         <?php if($role == 'admin' || $role == 'superadmin'): ?>
+<<<<<<< HEAD
             <li><a href="/absensi-guru/admin/absensi.php"><i class="bi bi-calendar-check"></i><span>Data Absensi</span></a></li>
             <li><a href="/absensi-guru/admin/guru.php"><i class="bi bi-person-badge"></i><span>Data Guru</span></a></li>
             <li><a href="/absensi-guru/admin/siswa.php"><i class="bi bi-people"></i><span>Data Siswa</span></a></li>
             <li><a href="/absensi-guru/admin/laporan.php"><i class="bi bi-file-earmark-text"></i><span>Semua Laporan</span></a></li>
+=======
+
+         <li>
+            <a href="/absensi-guru/admin/laporan.php">
+                <i class="bi bi-file-earmark-text"></i>
+                Laporan
+            </a>
+        </li>
+            <li>
+                <a href="/absensi-guru/admin/absensi.php">
+                    <i class="bi bi-calendar-check"></i>
+                    Absensi Siswa
+                </a>
+            </li>
+
+            <li>
+                <a href="/absensi-guru/admin/guru.php">
+                    <i class="bi bi-person-badge"></i>
+                    Data Guru
+                </a>
+            </li>
+
+            <li>
+                <a href="/absensi-guru/admin/kelas.php">
+                    <i class="bi bi-people"></i>
+                    Data Kelas
+                </a>
+            </li>
+
+            <li>
+                <a href="/absensi-guru/admin/laporan.php">
+                    <i class="bi bi-file-earmark-text"></i>
+                    Semua Laporan
+                </a>
+            </li>
+            <li>
+                <a href="/absensi-guru/admin/jurnal_guru.php">
+                    <i class="bi bi-journal-text"></i>
+                    Jurnal Guru
+                </a>
+            </li>
+
+>>>>>>> fa4ffc66e5f63b9d3567777f3b91956f3090fe30
         <?php endif; ?>
 
         <?php if($role == 'superadmin'): ?>
