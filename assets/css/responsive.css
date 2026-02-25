@@ -17,7 +17,7 @@
     .main-header, 
     .main-content, 
     .dashboard-wrapper {
-        margin-left: 250px !important;
+        margin-left: 250px;
         max-width: calc(100% - 250px);
     }
 }
