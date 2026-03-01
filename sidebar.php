@@ -85,8 +85,8 @@ $role = $_SESSION['role'];
 
          <li>
             <a href="/absensi-guru/admin/laporan.php">
-                <i class="bi bi-file-earmark-text"></i>
-                Laporan
+                <i class="bi bi-shield-check"></i>
+                Verifikasi Laporan
             </a>
         </li>
             <li>
@@ -102,7 +102,12 @@ $role = $_SESSION['role'];
                     Data Guru
                 </a>
             </li>
-
+            <li>
+                <a href="/absensi-guru/admin/riwayat_absensi.php">
+                    <i class="bi bi-calendar-check"></i>
+                    Jadwal 
+                </a>
+            </li>
             <li>
                 <a href="/absensi-guru/admin/kelas.php">
                     <i class="bi bi-people"></i>
@@ -113,6 +118,12 @@ $role = $_SESSION['role'];
                 <a href="/absensi-guru/admin/jurnal_guru.php">
                     <i class="bi bi-journal-text"></i>
                     Jurnal Guru
+                </a>
+            </li>
+            <li>
+                <a href="/absensi-guru/admin/users.php">
+                    <i class="bi bi-journal-text"></i>
+                    User
                 </a>
             </li>
 
@@ -137,15 +148,6 @@ $role = $_SESSION['role'];
             </li>
 
         <?php endif; ?>
-
-
-        <!-- LOGOUT -->
-        <li class="logout">
-            <a href="/absensi-guru/logout.php">
-                <i class="bi bi-box-arrow-right"></i>
-                Logout
-            </a>
-        </li>
 
     </ul>
 

@@ -8,8 +8,9 @@ require "../config/database.php";
 require "../config/functions.php";
 
 include "../templates/navbar.php";
+include "../templates/header.php";
 include "../sidebar.php";
-include "../header.php";    
+include "../header.php";
 
 $query_komplain = mysqli_query($conn, "
     SELECT 
