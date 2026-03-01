@@ -90,7 +90,7 @@ $role = $_SESSION['role'];
             </a>
         </li>
             <li>
-                <a href="/absensi-guru/admin/absensi.php">
+                <a href="/absensi-guru/admin/riwayat_absensi.php">
                     <i class="bi bi-calendar-check"></i>
                     Absensi Siswa
                 </a>
@@ -107,13 +107,6 @@ $role = $_SESSION['role'];
                 <a href="/absensi-guru/admin/kelas.php">
                     <i class="bi bi-people"></i>
                     Data Kelas
-                </a>
-            </li>
-
-            <li>
-                <a href="/absensi-guru/admin/laporan.php">
-                    <i class="bi bi-file-earmark-text"></i>
-                    Semua Laporan
                 </a>
             </li>
             <li>

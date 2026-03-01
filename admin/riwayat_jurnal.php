@@ -1,7 +1,7 @@
 <?php
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
-checkRole('guru');
+checkRole('admin');
 
 include "../config/database.php";
 include "../templates/header.php";

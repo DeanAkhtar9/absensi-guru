@@ -26,7 +26,7 @@ $jadwal = mysqli_query($conn,"
 
         <!-- Tanggal -->
         <div class="mb-3">
-            <label class="form-label">Tanggal Kejadian</label>
+            <label class="form-label">Tanggal Laporan</label>
             <input type="date" name="tanggal" class="form-control" required>
         </div>
 
