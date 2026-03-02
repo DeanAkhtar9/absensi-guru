@@ -6,6 +6,10 @@ checkRole('admin');
 require "../config/database.php";
 require "../includes/flash.php";
 
+
+include "../templates/navbar.php";
+include "../sidebar.php";
+include "../header.php";
 /*
 |--------------------------------------------------------------------------
 | Tambah user
@@ -33,34 +37,76 @@ include "../templates/header.php";
 include "../templates/navbar.php";
 ?>
 
-<div class="container">
-    <h3>Manajemen Users</h3>
+<div class="users-wrapper">
+    <p>Manajemen Users</>
     <?php flash(); ?>
 
-    <form method="post" class="row g-2 mb-4">
-        <div class="col">
-            <input type="text" name="nama" class="form-control" placeholder="Nama" required>
-        </div>
-        <div class="col">
-            <input type="text" name="username" class="form-control" placeholder="Username" required>
-        </div>
-        <div class="col">
-            <input type="password" name="password" class="form-control" placeholder="Password" required>
-        </div>
-        <div class="col">
-            <select name="role" class="form-control">
-                <option value="admin">Admin</option>
-                <option value="guru">Guru</option>
-                <option value="siswa">Siswa</option>
-                <option value="walikelas">Wali Kelas</option>
-            </select>
-        </div>
-        <div class="col">
-            <button name="tambah" class="btn btn-primary">Tambah</button>
-        </div>
-    </form>
+    <div class="card users-card mb-4">
+    <div class="card-body p-4">
 
-    <table class="table table-bordered">
+        <h5 class="mb-4 fw-bold text-primary">
+            <i class="bi bi-person-plus-fill me-2"></i>Tambah User Baru
+        </h5>
+
+        <form method="post">
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Nama Lengkap</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="bi bi-person"></i>
+                        </span>
+                        <input type="text" name="nama" class="form-control" placeholder="Masukkan nama lengkap" required>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="bi bi-at"></i>
+                        </span>
+                        <input type="text" name="username" class="form-control" placeholder="Masukkan username" required>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light">
+                            <i class="bi bi-lock"></i>
+                        </span>
+                        <input type="password" name="password" class="form-control" placeholder="Masukkan password" required>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Role</label>
+                    <select name="role" class="form-select">
+                        <option value="admin">Admin</option>
+                        <option value="guru">Guru</option>
+                        <option value="siswa">Siswa</option>
+                        <option value="walikelas">Wali Kelas</option>
+                    </select>
+                </div>
+
+                <div class="col-12 text-end mt-3">
+                    <button type="reset" class="btn btn-outline-secondary me-2">
+                        Reset
+                    </button>
+                    <button name="tambah" class="btn btn-primary px-4">
+                        <i class="bi bi-save me-1"></i> Simpan
+                    </button>
+                </div>
+
+            </div>
+        </form>
+
+    </div>
+</div>
+
+    <table class="table table-bordered users-table">
         <thead class="table-dark">
             <tr>
                 <th>Nama</th>

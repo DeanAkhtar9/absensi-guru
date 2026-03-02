@@ -18,7 +18,7 @@ $jadwal = mysqli_query($conn,"
     ORDER BY jm.hari, jm.jam_mulai
 ");
 ?>
-
+<div class="">
 <div class="container mt-4">
     <h3>Buat Laporan Kehadiran Guru</h3>
 
@@ -73,5 +73,7 @@ $jadwal = mysqli_query($conn,"
 
     </form>
 </div>
+
+
 
 <?php include "../templates/footer.php"; ?>

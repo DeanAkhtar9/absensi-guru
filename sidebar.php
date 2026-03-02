@@ -64,21 +64,15 @@ $role = $_SESSION['role'];
         <?php endif; ?>
 
         <?php if($role == 'admin' || $role == 'superadmin'): ?>
-<<<<<<< HEAD
-            <li><a href="/absensi-guru/admin/absensi.php"><i class="bi bi-calendar-check"></i><span>Data Absensi</span></a></li>
-            <li><a href="/absensi-guru/admin/guru.php"><i class="bi bi-person-badge"></i><span>Data Guru</span></a></li>
-            <li><a href="/absensi-guru/admin/siswa.php"><i class="bi bi-people"></i><span>Data Siswa</span></a></li>
-            <li><a href="/absensi-guru/admin/laporan.php"><i class="bi bi-file-earmark-text"></i><span>Semua Laporan</span></a></li>
-=======
 
          <li>
             <a href="/absensi-guru/admin/laporan.php">
-                <i class="bi bi-file-earmark-text"></i>
-                Laporan
+                <i class="bi bi-shield-check"></i>
+                Verifikasi Laporan
             </a>
         </li>
             <li>
-                <a href="/absensi-guru/admin/absensi.php">
+                <a href="/absensi-guru/admin/riwayat_absensi.php">
                     <i class="bi bi-calendar-check"></i>
                     Absensi Siswa
                 </a>
@@ -90,18 +84,16 @@ $role = $_SESSION['role'];
                     Data Guru
                 </a>
             </li>
-
+            <li>
+                <a href="/absensi-guru/admin/riwayat_absensi.php">
+                    <i class="bi bi-calendar-check"></i>
+                    Jadwal 
+                </a>
+            </li>
             <li>
                 <a href="/absensi-guru/admin/kelas.php">
                     <i class="bi bi-people"></i>
                     Data Kelas
-                </a>
-            </li>
-
-            <li>
-                <a href="/absensi-guru/admin/laporan.php">
-                    <i class="bi bi-file-earmark-text"></i>
-                    Semua Laporan
                 </a>
             </li>
             <li>
@@ -110,8 +102,13 @@ $role = $_SESSION['role'];
                     Jurnal Guru
                 </a>
             </li>
+            <li>
+                <a href="/absensi-guru/admin/users.php">
+                    <i class="bi bi-journal-text"></i>
+                    User
+                </a>
+            </li>
 
->>>>>>> fa4ffc66e5f63b9d3567777f3b91956f3090fe30
         <?php endif; ?>
 
         <?php if($role == 'superadmin'): ?>
@@ -119,12 +116,15 @@ $role = $_SESSION['role'];
             <li><a href="/absensi-guru/admin/pengaturan.php"><i class="bi bi-gear"></i><span>Pengaturan</span></a></li>
         <?php endif; ?>
 
+<<<<<<< HEAD
         <li class="logout-item">
             <a href="/absensi-guru/logout.php">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Logout</span>
             </a>
         </li>
+=======
+>>>>>>> 8db1b46b56af55c6d0273a31d7541f1cb8f9111c
     </ul>
 </div>
 

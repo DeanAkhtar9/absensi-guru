@@ -66,12 +66,14 @@ include "../header.php";
 
                 <tr>
                     <th>No</th>
+                    <th>ID</th>
+                    <th>Pelapor</th>
                     <th>Kelas</th>
+                    <th>Tanggal</th>
                     <th>Nama Guru</th>
                     <th>Status</th>
                     <th>Pesan</th>
-                    <th>Tanggal</th>
-                    <th>Dibuat</th>
+                    <th>Aksi</th>
                 </tr>
 <tbody>
 
@@ -82,16 +84,25 @@ include "../header.php";
 
                 <tr>
                     <td><?= $no++; ?></td>
-
+                    <td>
+                        {id siswa(pelapor)}
+                    </td>
+                    <td>
+                        {nama siswa(pelapor)}
+                    </td>
                     <td>
                         <?= htmlspecialchars($row['nama_kelas']); ?>
+                    </td>
+                    <td>
+                        <?= date('d M Y', strtotime($row['tanggal'])); ?>
                     </td>
                     
                     <td>
                         <?= htmlspecialchars($row['nama_guru']); ?>
                     </td>
+
                     <td>
-        <?php
+                        <?php
         $status = $row['status_absensi'] ?? 'Belum Absen';
 
         if($status == 'Hadir') {
@@ -104,18 +115,12 @@ include "../header.php";
             echo "<span class='badge bg-secondary'>Belum Absen</span>";
         }
         ?>
-    </td>
-                    
-                    <td>
-                        <?= htmlspecialchars($row['pesan']); ?>
                     </td>
-
                     <td>
-                        <?= date('d M Y', strtotime($row['tanggal'])); ?>
+                        
                     </td>
-
                     <td>
-                        <?= date('d M Y H:i', strtotime($row['created_at'])); ?>
+                        {aksi(dropdown)}
                     </td>
                 </tr>
 
