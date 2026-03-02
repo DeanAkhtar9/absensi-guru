@@ -6,10 +6,8 @@ checkRole('admin');
 require "../config/database.php";
 require "../includes/flash.php";
 
-
-include "../templates/navbar.php";
-include "../sidebar.php";
 include "../header.php";
+
 /*
 |--------------------------------------------------------------------------
 | Tambah user
@@ -28,7 +26,7 @@ if (isset($_POST['tambah'])) {
 
     setFlash('success', 'User berhasil ditambahkan');
     header("Location: users.php");
-    exit;
+exit;
 }
 
 $data = mysqli_query($conn, "SELECT * FROM users ORDER BY role");
@@ -126,4 +124,9 @@ include "../templates/navbar.php";
     </table>
 </div>
 
+<?php
+include "../templates/navbar.php";
+include "../sidebar.php";
+
+?>
 <?php include "../templates/footer.php"; ?>

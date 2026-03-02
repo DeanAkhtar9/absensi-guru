@@ -35,9 +35,6 @@ $role = $_SESSION['role'];
                 <small><?php echo ucfirst($role); ?></small>
             </div>
         </div>
-        <button class="close-sidebar" id="closeSidebar">
-            <i class="bi bi-x-lg"></i>
-        </button>
     </div>
 
     <ul class="sidebar-menu">
@@ -48,10 +45,7 @@ $role = $_SESSION['role'];
             </a>
         </li>
 
-<<<<<<< HEAD
-=======
         <!-- ================= SISWA ================= -->
->>>>>>> fa4ffc66e5f63b9d3567777f3b91956f3090fe30
         <?php if($role == 'siswa'): ?>
             <li><a href="/absensi-guru/siswa/buat_laporan.php"><i class="bi bi-send"></i><span>Buat Laporan</span></a></li>
             <li><a href="/absensi-guru/siswa/riwayat_laporan.php"><i class="bi bi-clock-history"></i><span>Riwayat Laporan</span></a></li>
@@ -116,15 +110,6 @@ $role = $_SESSION['role'];
             <li><a href="/absensi-guru/admin/pengaturan.php"><i class="bi bi-gear"></i><span>Pengaturan</span></a></li>
         <?php endif; ?>
 
-<<<<<<< HEAD
-        <li class="logout-item">
-            <a href="/absensi-guru/logout.php">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Logout</span>
-            </a>
-        </li>
-=======
->>>>>>> 8db1b46b56af55c6d0273a31d7541f1cb8f9111c
     </ul>
 </div>
 

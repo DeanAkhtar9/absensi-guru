@@ -188,12 +188,5 @@ $query_jurnal = mysqli_query($conn, "
 </div>
 
 </div>
-<<<<<<< HEAD
-
-</body>
-</html>
-    
-=======
->>>>>>> d94582e396e89d30dc70727824bbc5b62268f427
 
 <?php require "../templates/footer.php"; ?>

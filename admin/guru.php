@@ -10,22 +10,29 @@ include "../sidebar.php";
 include "../header.php"; 
 ?>
 
-<div class="container mt-4">
-    <h3 class="mb-4">Data Guru</h3>
+<div class="main-content">
 
-    <div class="card shadow-sm">
-        <div class="card-body">
+    <!-- TITLE -->
+    <div class="page-header">
+        <h2>Laporan Komplain</h2>
+    </div>
 
-            <table class="table table-bordered table-hover align-middle">
-                <thead class="table-dark text-center">
-                    <tr>
-                        <th>No</th>
+    <!-- TABLE CARD -->
+
+    <div class="laporan-container">
+    
+        <p class="sub-title">Riwayat Absensi Siswa</p>
+        <div class="laporan-card">
+
+            <table class="laporan-table">
+
+                <tr>
+                    <th>No</th>
                         <th>Nama Guru</th>
                         <th>Mata Pelajaran</th>
                         <th>Total Kehadiran</th>
                         <th>Jumlah Komplain</th>
-                    </tr>
-                </thead>
+                </tr>
                 <tbody>
 
                     <?php
