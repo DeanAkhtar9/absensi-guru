@@ -149,8 +149,8 @@ th {
 }
 
 .sidebar-menu li a:hover {
-  background: #343454;
-  color: #fff;
+  background: #d4e5ef;
+  color: #20008a;
 }
 
 /* Aktif Link */
@@ -371,7 +371,7 @@ body {
 .sidebar {
   width: 230px;
   height: 100vh;
-  background: #1e1e2f; /* warna tetap sama */
+  background: #1E3A8A; /* warna tetap sama */
   color: #fff;
   position: fixed;
   top: 0;
@@ -1079,26 +1079,38 @@ td {
 /* Table */
 .laporan-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;   /* GANTI */
+  border-spacing: 0;           /* Tambahkan ini */
+  border: 1px solid rgb(224, 223, 223);
+  border-radius: 10px;
+  overflow: hidden;            /* Penting */
 }
 
 /* Header */
 .laporan-table th {
   text-align: center;
   padding: 14px;
-  background: #1e1e2fe8;
+  background: #ebeef3;
   font-weight: 600;
+  color: #979797;
+  font-weight: normal;
+  text-align: left;
 }
 
 /* Isi */
 .laporan-table td {
-  text-align: center;
+  text-align: left;
   padding: 12px;
+  border: none;
 }
 
 /* Garis */
 .laporan-table tr {
   border-bottom: 1px solid #eee;
+  border: none;
+}
+.laporan-table th {
+  border: none;
 }
 
 .page-header {
@@ -1136,5 +1148,28 @@ td {
 }
 .container{
   margin-left: 250px;
+}
+
+.update{
+  border-radius: 8px;
+  background-color:#4c61a1;
+  padding: 5px;
+  color:  white;
+  border: none;
+  text-decoration: none;
+} 
+.update:hover{
+  color: #5555a3;
+  background-color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 5px;
+}
+.update a:hover{
+  color: #5555a3;
+  background-color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 5px;
 }
 

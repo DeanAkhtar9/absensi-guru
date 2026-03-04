@@ -12,6 +12,7 @@ if (session_status() == PHP_SESSION_NONE) {
 include "../templates/header.php";
 include "../templates/navbar.php";
 include "../sidebar.php";
+include "../header.php";
 
 /* =========================
    CEK SESSION
