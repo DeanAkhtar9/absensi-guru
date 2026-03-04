@@ -60,20 +60,18 @@ include "../header.php";
     <div class="laporan-container">
     
         <p class="sub-title">Daftar komplain dari siswa</p>
-        <div class="laporan-card">
 
             <table class="laporan-table">
 
                 <tr>
-                    <th>No</th>
-                    <th>ID</th>
-                    <th>Pelapor</th>
+                    <th>Nama Siswa</th>
                     <th>Kelas</th>
                     <th>Tanggal</th>
                     <th>Nama Guru</th>
                     <th>Status</th>
                     <th>Pesan</th>
                     <th>Aksi</th>
+                    <th></th>
                 </tr>
 <tbody>
 
@@ -83,10 +81,6 @@ include "../header.php";
                 ?>
 
                 <tr>
-                    <td><?= $no++; ?></td>
-                    <td>
-                        {id siswa(pelapor)}
-                    </td>
                     <td>
                         {nama siswa(pelapor)}
                     </td>
@@ -121,6 +115,9 @@ include "../header.php";
                     </td>
                     <td>
                         {aksi(dropdown)}
+                    </td>
+                    <td>
+                       <button class="update"><a class="update">Update</a></button>
                     </td>
                 </tr>
 
