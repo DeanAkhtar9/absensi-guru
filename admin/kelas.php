@@ -46,7 +46,7 @@ include "../sidebar.php";
 include "../header.php"; 
 ?>
 
-<div class="container">
+<div class="main-content">
     <h3>Data Kelas</h3>
 
     <?php flash(); ?>

@@ -1,7 +1,7 @@
 <?php
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
-checkRole('guru');
+checkRole('admin');
 
 include "../config/database.php";
 include "../templates/header.php";
@@ -26,18 +26,56 @@ ORDER BY ag.tanggal DESC
 ");
 ?>
 
-<div class="container mt-4">
-<h3>Riwayat Absensi</h3>
+<div class="main-content">
 
-<table class="table table-bordered">
-<tr>
-<th>Tanggal</th>
-<th>Kelas</th>
-<th>Hadir</th>
-<th>Tidak Hadir</th>
-</tr>
+    <!-- TITLE -->
+    <div class="page-header">
+        <h2>Laporan Komplain</h2>
+    </div>
 
-<?php while($r=mysqli_fetch_assoc($query)): ?>
+    <!-- TABLE CARD -->
+
+    <div class="laporan-container">
+    
+        <p class="sub-title">Riwayat Absensi Siswa</p>
+        <div class="laporan-card">
+
+            <table class="laporan-table">
+
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Kelas</th>
+                    <th>Hadir</th>
+                    <th>Tidak Hadir</th>
+                    </tr>
+                </tr>
+<tbody>
+<?php 
+                $no = 1;
+                while($row = mysqli_fetch_assoc($query)) { 
+                ?>
+
+                <tr>
+                    <td><?= $no++; ?></td>
+                    <td>
+                        {id siswa(pelapor)}
+                    </td>
+                    <td>
+                        {nama siswa(pelapor)}
+                    </td>
+                    <td>
+                        <?= htmlspecialchars($row['nama_kelas']); ?>
+                    </td>
+                    <td>
+                        <?= date('d M Y', strtotime($row['tanggal'])); ?>
+                    </td>
+                    
+                    <td>
+                        <?= htmlspecialchars($row['nama_guru']); ?>
+                    </td>
+
+                    <td>
+                    <?php while($r=mysqli_fetch_assoc($query)): ?>
 <tr>
 <td><?= date('d-m-Y',strtotime($r['tanggal'])) ?></td>
 <td><?= $r['nama_kelas'] ?></td>
@@ -45,6 +83,21 @@ ORDER BY ag.tanggal DESC
 <td><?= $r['tidak_hadir'] ?></td>
 </tr>
 <?php endwhile; ?>
+
+                <?php } ?>
+
+            </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
 </table>
 </div>
 

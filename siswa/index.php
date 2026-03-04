@@ -3,6 +3,7 @@ require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('siswa');
 require "../config/database.php";
+include "../header.php";
 
 if (session_status() == PHP_SESSION_NONE) {
     session_start();

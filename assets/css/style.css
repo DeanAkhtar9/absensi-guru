@@ -443,7 +443,6 @@ body {
 
 /* Content tidak ketimpa sidebar */
 .container {
-  margin-left: 250px;
   padding: 25px;
   max-width: calc(
     100% - 250px
@@ -1135,3 +1134,7 @@ td {
 .page-header{
   margin-left: 50px;
 }
+.container{
+  margin-left: 250px;
+}
+
