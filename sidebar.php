@@ -122,6 +122,12 @@ $role = $_SESSION['role'];
                     Jurnal Guru
                 </a>
             </li>
+            <li>
+                <a href="/absensi-guru/admin/upload_jd.php">
+                    <i class="bi bi-journal-text"></i>
+                    Jadwal Kelas
+                </a>
+            </li>
 
         <?php endif; ?>
 
