@@ -94,52 +94,11 @@ while($row = mysqli_fetch_assoc($query)) {
 <tr>
     <td><?= $no++; ?></td>
 
-<<<<<<< HEAD
     <td><?= htmlspecialchars($row['id_siswa']); ?></td>
-=======
-                <tr>
-                    <td>
-                        {nama siswa(pelapor)}
-                    </td>
-                    <td>
-                        <?= htmlspecialchars($row['nama_kelas']); ?>
-                    </td>
-                    <td>
-                        <?= date('d M Y', strtotime($row['tanggal'])); ?>
-                    </td>
-                    
-                    <td>
-                        <?= htmlspecialchars($row['nama_guru']); ?>
-                    </td>
->>>>>>> 92388105e177605293f7682f5bdd01c53d988929
 
 <td><?= htmlspecialchars($row['nama_siswa']); ?></td>
 
-<<<<<<< HEAD
 <td><?= htmlspecialchars($row['nama_kelas']); ?></td>
-=======
-        if($status == 'Hadir') {
-            echo "<span class='badge bg-success'>Hadir</span>";
-        } elseif($status == 'Izin') {
-            echo "<span class='badge bg-warning'>Izin</span>";
-        } elseif($status == 'Alpha') {
-            echo "<span class='badge bg-danger'>Alpha</span>";
-        } else {
-            echo "<span class='badge bg-secondary'>Belum Absen</span>";
-        }
-        ?>
-                    </td>
-                    <td>
-                        
-                    </td>
-                    <td>
-                        {aksi(dropdown)}
-                    </td>
-                    <td>
-                       <button class="update"><a class="update">Update</a></button>
-                    </td>
-                </tr>
->>>>>>> 92388105e177605293f7682f5bdd01c53d988929
 
 <td><?= date('d M Y', strtotime($row['tanggal'])); ?></td>
 
