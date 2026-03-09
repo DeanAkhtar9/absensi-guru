@@ -18,7 +18,7 @@ $id_guru_login = intval($_SESSION['id_user']);
    GOOGLE API CONFIG
 ========================== */
 $client = new Google_Client();
-$client->setAuthConfig('../config/google-service-account.json');
+$client->setAuthConfig('../config/cred.json');
 $client->addScope(Google_Service_Sheets::SPREADSHEETS_READONLY);
 
 $service = new Google_Service_Sheets($client);

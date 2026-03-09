@@ -54,7 +54,7 @@ $role = $_SESSION['role'];
         <?php if($role == 'guru'): ?>
             <li><a href="/absensi-guru/guru/laporan.php"><i class="bi bi-file-earmark-text"></i><span>Laporan Masuk</span></a></li>
             <li><a href="/absensi-guru/guru/jurnal.php"><i class="bi bi-check2-square"></i><span>Jurnal</span></a></li>
-            <li><a href="/absensi-guru/jadwal.php"><i class="bi bi-check2-square"></i><span>Jadwal</span></a></li>
+            <li><a href="/absensi-guru/guru/jadwal.php"><i class="bi bi-check2-square"></i><span>Jadwal</span></a></li>
             <li><a href="/absensi-guru/guru/konfirmasi.php"><i class="bi bi-shield-check"></i><span>Konfirmasi</span></a></li>
         <?php endif; ?>
 
