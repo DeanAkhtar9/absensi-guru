@@ -45,19 +45,20 @@ $role = $_SESSION['role'];
             </a>
         </li>
 
-        <!-- ================= SISWA ================= -->
+        <!-- ================= GURU ================= -->
         <?php if($role == 'siswa'): ?>
             <li><a href="/absensi-guru/siswa/buat_laporan.php"><i class="bi bi-send"></i><span>Buat Laporan</span></a></li>
             <li><a href="/absensi-guru/siswa/riwayat_laporan.php"><i class="bi bi-clock-history"></i><span>Riwayat Laporan</span></a></li>
         <?php endif; ?>
 
         <?php if($role == 'guru'): ?>
-            <li><a href="/absensi-guru/guru/laporan.php"><i class="bi bi-file-earmark-text"></i><span>Laporan Masuk</span></a></li>
+
             <li><a href="/absensi-guru/guru/jurnal.php"><i class="bi bi-check2-square"></i><span>Jurnal</span></a></li>
-            <li><a href="/absensi-guru/jadwal.php"><i class="bi bi-check2-square"></i><span>Jadwal</span></a></li>
+            <li><a href="/absensi-guru/guru/riwayat-jadwal.php"><i class="bi bi-stopwatch"></i><span>Riwayat Jadwal</span></a></li>
             <li><a href="/absensi-guru/guru/konfirmasi.php"><i class="bi bi-shield-check"></i><span>Konfirmasi</span></a></li>
         <?php endif; ?>
 
+        <!-- ================= ADMIN ================= -->
         <?php if($role == 'admin' || $role == 'superadmin'): ?>
 
          <li>
@@ -67,43 +68,11 @@ $role = $_SESSION['role'];
             </a>
         </li>
             <li>
-                <a href="/absensi-guru/admin/riwayat_absensi.php">
-                    <i class="bi bi-calendar-check"></i>
-                    Absensi Siswa
+                <a href="/absensi-guru/admin/jadwal2.php">
+                    <i class="bi bi-calendar"></i>
+                    Kelola Jadwal Guru
                 </a>
             </li>
-
-            <li>
-                <a href="/absensi-guru/admin/guru.php">
-                    <i class="bi bi-person-badge"></i>
-                    Data Guru
-                </a>
-            </li>
-            <li>
-                <a href="/absensi-guru/admin/riwayat_absensi.php">
-                    <i class="bi bi-calendar-check"></i>
-                    Jadwal 
-                </a>
-            </li>
-            <li>
-                <a href="/absensi-guru/admin/kelas.php">
-                    <i class="bi bi-people"></i>
-                    Data Kelas
-                </a>
-            </li>
-            <li>
-                <a href="/absensi-guru/admin/jurnal_guru.php">
-                    <i class="bi bi-journal-text"></i>
-                    Jurnal Guru
-                </a>
-            </li>
-            <li>
-                <a href="/absensi-guru/admin/users.php">
-                    <i class="bi bi-journal-text"></i>
-                    User
-                </a>
-            </li>
-            <li>
                 <a href="/absensi-guru/admin/jadwal2.php">
                     <i class="bi bi-journal-text"></i>
                     Jadwal Pelajaran

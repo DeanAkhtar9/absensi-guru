@@ -58,50 +58,131 @@ $kehadiran = mysqli_query($conn,"
 ");
 $rata_kehadiran = mysqli_fetch_assoc($kehadiran)['persen'] ?? 0;
 ?>
+<div class="dashboard-wrapper">
 
-<div class="container mt-4">
-    <h3>Dashboard Guru</h3>
-    <p>Selamat datang, <b><?= $_SESSION['nama'] ?></b></p>
+    <?php include "../sidebar.php"; ?>
 
-    <div class="row mt-4">
+    <div class="main-content">
 
-        <div class="col-md-3">
-            <div class="card text-center shadow">
-                <div class="card-body">
-                    <h6>Jumlah Kelas</h6>
-                    <h2><?= $total_kelas ?></h2>
+        <div class="content-area">
+
+<!-- WELCOME -->
+<div class="mb-4">
+    <h4 class="fw-bold">
+        Selamat datang kembali, <?= $_SESSION['nama_user'] ?? 'Guru' ?>!
+    </h4>
+    <p class="text-muted">
+        Berikut adalah ringkasan aktivitas pengajaran Anda hari ini.
+    </p>
+</div>
+
+
+<!-- RINGKASAN -->
+<div class="row g-3 mb-4">
+
+    <!-- Kelas Hari Ini -->
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted">Kelas Hari Ini</small>
+                    <h4 class="fw-bold"><?= $total_kelas ?> Kelas</h4>
+                </div>
+                <div class="bg-light p-3 rounded">
+                    📘
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-md-3">
-            <div class="card text-center shadow">
-                <div class="card-body">
-                    <h6>Total Siswa</h6>
-                    <h2><?= $total_siswa ?></h2>
+    <!-- Jurnal Terisi -->
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted">Jurnal Terisi</small>
+                    <h4 class="fw-bold"><?= $total_jurnal ?> / <?= $total_kelas ?></h4>
+                </div>
+                <div class="bg-light p-3 rounded">
+                    ✅
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-md-3">
-            <div class="card text-center shadow">
-                <div class="card-body">
-                    <h6>Jurnal Minggu Ini</h6>
-                    <h2><?= $total_jurnal ?></h2>
+    <!-- Total Siswa -->
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <div>
+                    <small class="text-muted">Total Siswa</small>
+                    <h4 class="fw-bold"><?= $total_siswa ?> Siswa</h4>
+                </div>
+                <div class="bg-light p-3 rounded">
+                    👥
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-md-3">
-            <div class="card text-center shadow">
-                <div class="card-body">
-                    <h6>Rata Kehadiran</h6>
-                    <h2><?= $rata_kehadiran ?>%</h2>
+</div>
+
+
+<!-- JADWAL MENGAJAR -->
+<div class="card shadow-sm border-0">
+    <div class="card-body">
+
+        <div class="d-flex justify-content-between mb-3">
+            <h6 class="fw-bold">Jadwal Mengajar Terdekat</h6>
+            <a href="#" class="text-decoration-none">Lihat Semua</a>
+        </div>
+
+        <!-- contoh jadwal -->
+        <div class="p-3 mb-2 border rounded d-flex justify-content-between align-items-center">
+
+            <div class="d-flex align-items-center">
+
+                <div class="bg-light p-2 rounded me-3 text-center">
+                    <small>JAM</small><br>
+                    <b>08:00</b>
                 </div>
+
+                <div>
+                    <b>Matematika - Kelas 10-A</b><br>
+                    <small class="text-muted">Ruang Laboratorium 1</small>
+                </div>
+
             </div>
+
+            <span class="badge bg-success">Selesai</span>
+
+        </div>
+
+
+        <div class="p-3 border rounded d-flex justify-content-between align-items-center">
+
+            <div class="d-flex align-items-center">
+
+                <div class="bg-light p-2 rounded me-3 text-center">
+                    <small>JAM</small><br>
+                    <b>10:30</b>
+                </div>
+
+                <div>
+                    <b>Matematika - Kelas 12-C</b><br>
+                    <small class="text-muted">Gedung B, Ruang 204</small>
+                </div>
+
+            </div>
+
+            <span class="badge bg-primary">Sedang Berlangsung</span>
+
         </div>
 
     </div>
 </div>
+        </div>
+    </div>
 
-<?php include "../templates/footer.php"; ?>
+</div>
+</div>

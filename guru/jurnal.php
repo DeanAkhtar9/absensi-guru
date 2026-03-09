@@ -3,171 +3,151 @@ require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('guru');
 
+include "../config/database.php";
 include "../templates/header.php";
-include "../templates/navbar.php";
 include "../sidebar.php";
+include "../header.php";
 
-$id_guru   = $_SESSION['id_user'];
-$id_jadwal = isset($_GET['id_jadwal']) ? intval($_GET['id_jadwal']) : 0;
-$tanggal   = date('Y-m-d');
-
-/* ==============================
-   CEK ID JADWAL VALID
-   ============================== */
-if ($id_jadwal == 0) {
-    echo "<div class='container'><div class='alert alert-danger'>
-            ID Jadwal tidak ditemukan.
-          </div></div>";
-    include "../templates/footer.php";
-    exit;
-}
-
-/* Ambil jadwal, pastikan milik guru ini */
-$jadwal = mysqli_query($conn, "
-    SELECT 
-        jm.id_jadwal,
-        jm.id_kelas,
-        jm.mapel,
-        k.nama_kelas
-    FROM jadwal_mengajar jm
-    JOIN kelas k ON jm.id_kelas = k.id_kelas
-    WHERE jm.id_jadwal = '$id_jadwal'
-      AND jm.id_guru = '$id_guru'
-    LIMIT 1
-");
-
-if (mysqli_num_rows($jadwal) == 0) {
-    $check = mysqli_query($conn, "SELECT * FROM jadwal_mengajar WHERE id_jadwal = '$id_jadwal'");
-    if (mysqli_num_rows($check) == 0) {
-        die("<div class='container'><div class='alert alert-danger'>
-                ID Jadwal tidak ditemukan di database.
-            </div></div>");
-    } else {
-        die("<div class='container'><div class='alert alert-danger'>
-                Jadwal ditemukan, tapi bukan milik guru ini.
-            </div></div>");
-    }
-}
-
-$data_jadwal = mysqli_fetch_assoc($jadwal);
-
-/* ==============================
-   CEK ATAU BUAT ABSENSI GURU
-   ============================== */
-$absensi = mysqli_query($conn, "
-    SELECT * FROM absensi_guru
-    WHERE id_jadwal = '$id_jadwal'
-      AND tanggal = '$tanggal'
-    LIMIT 1
-");
-
-if (mysqli_num_rows($absensi) == 0) {
-    // Jika absensi guru belum ada, buat otomatis "hadir"
-    mysqli_query($conn, "
-        INSERT INTO absensi_guru (id_jadwal, tanggal, status, diinput_oleh)
-        VALUES ('$id_jadwal', '$tanggal', 'hadir', '$id_guru')
-    ");
-    $id_absensi_guru = mysqli_insert_id($conn);
-} else {
-    $data_absensi = mysqli_fetch_assoc($absensi);
-    $id_absensi_guru = $data_absensi['id_absensi_guru'];
-}
-
-/* ==============================
-   PROSES SIMPAN JURNAL
-   ============================== */
-if (isset($_POST['simpan'])) {
-
-    $materi  = mysqli_real_escape_string($conn, $_POST['materi']);
-    $catatan = mysqli_real_escape_string($conn, $_POST['catatan']);
-
-    mysqli_query($conn, "
-        INSERT INTO jurnal_mengajar
-        (id_absensi_guru, materi, catatan, diisi_oleh)
-        VALUES
-        ('$id_absensi_guru','$materi','$catatan','$id_guru')
-    ");
-
-    $id_jurnal = mysqli_insert_id($conn);
-
-    /* SIMPAN ABSENSI SISWA */
-    if (isset($_POST['siswa']) && is_array($_POST['siswa'])) {
-        foreach ($_POST['siswa'] as $id_siswa => $status) {
-            mysqli_query($conn, "
-                INSERT INTO absensi_siswa
-                (id_jurnal, id_siswa, status)
-                VALUES
-                ('$id_jurnal', '$id_siswa', '$status')
-            ");
-        }
-    }
-
-    echo "<script>
-        alert('Jurnal berhasil disimpan');
-        window.location='rekap.php';
-    </script>";
-    exit;
-}
-
-/* ==============================
-   AMBIL DATA SISWA
-   ============================== */
-$siswa = mysqli_query($conn, "
-    SELECT s.id_siswa, u.nama AS nama_siswa
-    FROM siswa s
-    JOIN users u ON s.id_user = u.id_user
-    WHERE s.id_kelas = '{$data_jadwal['id_kelas']}'
-    ORDER BY u.nama
-");
+$id_guru = $_SESSION['id_user'];
 ?>
 
-<div class="container">
-    <h3>Jurnal Mengajar</h3>
+<style>
 
-    <p>
-        <b><?= htmlspecialchars($data_jadwal['mapel']) ?></b><br>
-        Kelas: <?= htmlspecialchars($data_jadwal['nama_kelas']) ?><br>
-        Tanggal: <?= date('d-m-Y') ?>
-    </p>
+/* area konten */
+.content-area{
+    padding:30px;
+    max-width:1100px;
+    margin:0 auto;
+}
 
-    <form method="post">
-        <div class="mb-3">
-            <label>Materi</label>
-            <textarea name="materi" class="form-control" required></textarea>
-        </div>
+/* card form */
+.form-card{
+    background:white;
+    border-radius:12px;
+    padding:30px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.06);
+    max-width:700px;
+    max-height:700px;
+    width:100%;
+    margin-left: -350px;
+}
 
-        <div class="mb-3">
-            <label>Catatan</label>
-            <textarea name="catatan" class="form-control"></textarea>
-        </div>
+/* tombol simpan */
+.btn-simpan{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    font-weight:500;
+}
 
-        <h5>Absensi Siswa</h5>
+/* label */
+.form-label{
+    font-weight:500;
+}
 
-        <table class="table table-bordered">
-            <tr>
-                <th>Nama Siswa</th>
-                <th>Status</th>
-            </tr>
-            <?php while ($s = mysqli_fetch_assoc($siswa)): ?>
-            <tr>
-                <td><?= htmlspecialchars($s['nama_siswa']) ?></td>
-                <td>
-                    <select name="siswa[<?= $s['id_siswa'] ?>]" class="form-select">
-                        <option value="hadir">Hadir</option>
-                        <option value="izin">Izin</option>
-                        <option value="sakit">Sakit</option>
-                        <option value="alpa">Alpa</option>
-                    </select>
-                </td>
-            </tr>
-            <?php endwhile; ?>
-        </table>
+/* garis pemisah */
+.form-card hr{
+    opacity:0.1;
+}
 
-        <button name="simpan" class="btn btn-success">
-            Simpan Jurnal
-        </button>
+</style>
 
-    </form>
+
+<div class="content-area">
+
+<!-- Judul -->
+<h4 class="fw-bold">Isi Jurnal Harian</h4>
+<p class="text-muted">
+Catat kegiatan pembelajaran hari ini untuk dokumentasi akademik.
+</p>
+
+
+<!-- FORM -->
+<div class="d-flex justify-content-center mt-4">
+
+<div class="form-card">
+
+<form action="proses-simpan-jurnal.php" method="POST">
+
+<!-- tanggal -->
+<div class="mb-3">
+<label class="form-label">Tanggal Pelaksanaan</label>
+<input type="date" name="tanggal" class="form-control" required>
+</div>
+
+
+<!-- kegiatan -->
+<div class="mb-3">
+<label class="form-label">Kegiatan Pembelajaran</label>
+<textarea 
+    name="kegiatan"
+    class="form-control"
+    rows="4"
+    placeholder="Tuliskan materi, tujuan, dan aktivitas pembelajaran hari ini secara detail..."
+    required
+></textarea>
+</div>
+
+
+<div class="row">
+
+<!-- status guru -->
+<div class="col-md-6 mb-3">
+<label class="form-label">Status Kehadiran Guru</label>
+<select name="status_guru" class="form-select" required>
+<option value="hadir">Hadir</option>
+<option value="izin">Izin</option>
+<option value="sakit">Sakit</option>
+</select>
+</div>
+
+
+<!-- kelas -->
+<div class="col-md-6 mb-3">
+<label class="form-label">Kelas</label>
+
+<select name="kelas" class="form-select" required>
+
+<?php
+$kelas = mysqli_query($conn,"
+    SELECT k.id_kelas, k.nama_kelas
+    FROM kelas k
+    JOIN jadwal_mengajar jm ON k.id_kelas = jm.id_kelas
+    WHERE jm.id_guru='$id_guru'
+    GROUP BY k.id_kelas
+");
+
+while($k = mysqli_fetch_assoc($kelas)){
+    echo "<option value='{$k['id_kelas']}'>{$k['nama_kelas']}</option>";
+}
+?>
+
+</select>
+
+</div>
+
+</div>
+
+
+<!-- tombol -->
+<button type="submit" class="btn btn-primary btn-simpan mt-3">
+<i class="bi bi-floppy me-2"></i> Simpan Jurnal
+</button>
+
+
+</form>
+
+<hr class="mt-4">
+
+<!-- catatan -->
+<div class="text-center text-muted small">
+Jurnal yang telah disimpan akan otomatis masuk ke laporan bulanan kepala sekolah.
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 <?php include "../templates/footer.php"; ?>

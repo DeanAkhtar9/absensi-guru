@@ -75,6 +75,30 @@ $stmt->execute();
 $terbaru = $stmt->get_result();
 ?>
 
+<style>
+    
+.dashboard-wrapper{
+    display:flex;
+}
+
+.sidebar{
+    width:250px;
+    min-height:100vh;
+    position:fixed;
+    left:0;
+    top:0;
+}
+
+.main-content{
+    margin-left:250px;
+    width:100%;
+    background:#f5f6fa;
+}
+
+.content-area{
+    padding:30px;
+}
+</style>
 <div class="container">
 <h3>Dashboard Kehadiran Guru</h3>
 
