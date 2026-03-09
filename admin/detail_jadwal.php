@@ -4,7 +4,6 @@ require "../auth/role_check.php";
 checkRole('admin');
 
 require "../config/database.php";
-require "../vendor/autoload.php";
 
 date_default_timezone_set('Asia/Jakarta');
 
@@ -12,40 +11,51 @@ include "../templates/header.php";
 include "../sidebar.php";
 include "../header.php";
 
-/* =============================
-   VALIDASI PARAMETER
-============================= */
+/* VALIDASI PARAM */
 if (!isset($_GET['kelas']) || empty($_GET['kelas'])) {
     die("Kelas tidak ditemukan.");
 }
 
-$nama_kelas = trim($_GET['kelas']);
+$nama_kelas = $_GET['kelas'];
+// echo "Kelas dari URL: ".$nama_kelas."<br>";
 
-/* =============================
-   GOOGLE API SETUP
-============================= */
-$client = new Google_Client();
-$client->setAuthConfig('../config/credential2.json');
-$client->addScope(Google_Service_Sheets::SPREADSHEETS_READONLY);
+/* AMBIL DATA MASTER */
+$url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&single=true&output=csv";
 
-$service = new Google_Service_Sheets($client);
-$spreadsheetId = "1yeYr0ETjoEHmx5HYrS5j2pIu9MJSjotgkffn31JAd4I";
+$csv_master = file_get_contents($url_master);
+$rows_master = array_map("str_getcsv", explode("\n", $csv_master));
 
-$range = "'" . $nama_kelas . "'!A2:E";
+$sheetMap = [];
 
-/* =============================
-   AMBIL DATA SHEET
-============================= */
-try {
-    $response = $service->spreadsheets_values->get($spreadsheetId, $range);
-    $rows = $response->getValues();
-} catch (Exception $e) {
-    $rows = [];
+foreach ($rows_master as $i => $row) {
+
+    // if ($i == 0) continue; // skip header
+    if (count($row) < 2) continue;
+
+    $kelas = trim($row[0]);
+    $gid = trim($row[1]);
+
+    $sheetMap[$kelas] = $gid;
+}
+// echo "<pre>";
+// print_r($sheetMap);
+// echo "</pre>";
+// exit;
+
+/* CEK SHEET ADA */
+if (!isset($sheetMap[$nama_kelas])) {
+    die("Sheet tidak valid.");
 }
 
-/* =============================
-   AMBIL SEMUA DATA GURU (1x QUERY)
-============================= */
+
+/* URL CSV GOOGLE SHEET */
+$url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=".$sheetMap[$nama_kelas]."&single=true&output=csv";
+
+/* AMBIL DATA */
+$data = file_get_contents($url);
+$rows = array_map("str_getcsv", explode("\n", $data));
+
+/* AMBIL DATA GURU */
 $guruResult = mysqli_query($conn, "SELECT id_user, nama FROM users");
 $guruList = [];
 
@@ -60,38 +70,33 @@ while ($g = mysqli_fetch_assoc($guruResult)) {
 <h3 class="mb-3">Jadwal Kelas <?= htmlspecialchars($nama_kelas) ?></h3>
 
 <a href="jadwal2.php" class="btn btn-secondary mb-4">
-    ← Kembali
+← Kembali
 </a>
-
-<?php if (empty($rows)) : ?>
-
-<div class="alert alert-secondary">
-    Tidak ada jadwal untuk kelas ini.
-</div>
-
-<?php else: ?>
 
 <div class="card shadow-sm">
 <div class="card-body">
 
 <div class="table-responsive">
 <table class="table table-bordered table-striped align-middle">
-    <thead class="table-dark text-center">
-        <tr>
-            <th>No</th>
-            <th>Nama Guru</th>
-            <th>Mapel</th>
-            <th>Hari</th>
-            <th>Jam</th>
-        </tr>
-    </thead>
-    <tbody>
+
+<thead class="table-dark text-center">
+<tr>
+<th>No</th>
+<th>Nama Guru</th>
+<th>Mapel</th>
+<th>Hari</th>
+<th>Jam</th>
+</tr>
+</thead>
+
+<tbody>
 
 <?php
 $no = 1;
 
-foreach ($rows as $row) {
+foreach ($rows as $i => $row) {
 
+    if ($i == 0) continue;
     if (count($row) < 5) continue;
 
     $id_guru = intval($row[0]);
@@ -100,9 +105,9 @@ foreach ($rows as $row) {
     $jam_mulai = $row[3];
     $jam_selesai = $row[4];
 
-    $nama_guru = isset($guruList[$id_guru]) 
-        ? $guruList[$id_guru] 
-        : '<span class="text-danger">Tidak ditemukan</span>';
+    $nama_guru = isset($guruList[$id_guru])
+        ? $guruList[$id_guru]
+        : "<span class='text-danger'>Tidak ditemukan</span>";
 
     echo "<tr>";
     echo "<td class='text-center'>".$no++."</td>";
@@ -114,14 +119,12 @@ foreach ($rows as $row) {
 }
 ?>
 
-    </tbody>
+</tbody>
 </table>
 </div>
 
 </div>
 </div>
-
-<?php endif; ?>
 
 </div>
 </div>
