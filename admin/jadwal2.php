@@ -13,7 +13,7 @@ include "../header.php";
 
 /* GOOGLE API */
 $client = new Google_Client();
-$client->setAuthConfig('../config/credentials.json');
+$client->setAuthConfig('../config/credential2.json');
 $client->addScope(Google_Service_Sheets::SPREADSHEETS_READONLY);
 
 $service = new Google_Service_Sheets($client);
