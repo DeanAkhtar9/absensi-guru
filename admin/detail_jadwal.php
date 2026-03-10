@@ -18,13 +18,30 @@ if (!isset($_GET['kelas']) || empty($_GET['kelas'])) {
 }
 
 $nama_kelas = $_GET['kelas'];
+// echo "Kelas dari URL: ".$nama_kelas."<br>";
 
-/* MAPPING GID SHEET */
-$sheetMap = [
-    "Sheet1" => "0",
-    "Sheet2" => "527615816",
-    "Sheet3" => "1166029159"
-];
+/* AMBIL DATA MASTER */
+$url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&single=true&output=csv";
+
+$csv_master = file_get_contents($url_master);
+$rows_master = array_map("str_getcsv", explode("\n", $csv_master));
+
+$sheetMap = [];
+
+foreach ($rows_master as $i => $row) {
+
+    // if ($i == 0) continue; // skip header
+    if (count($row) < 2) continue;
+
+    $kelas = trim($row[0]);
+    $gid = trim($row[1]);
+
+    $sheetMap[$kelas] = $gid;
+}
+// echo "<pre>";
+// print_r($sheetMap);
+// echo "</pre>";
+// exit;
 
 /* CEK SHEET ADA */
 if (!isset($sheetMap[$nama_kelas])) {

@@ -10,14 +10,19 @@ include "../templates/header.php";
 include "../sidebar.php";
 include "../header.php";
 
-/* LIST SHEET (kelas) */
-$kelasList = [
-    "Sheet1",
-    "Sheet2",
-    "Sheet3"
+/* AMBIL LIST KELAS DARI SHEET MASTER */
+$url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&single=true&output=csv";
 
+$csv = file_get_contents($url_master);
+$rows = array_map("str_getcsv", explode("\n", $csv));
 
-];
+$kelasList = [];
+
+foreach ($rows as $row) {
+    if (!empty($row[0])) {
+        $kelasList[] = trim($row[0]);
+    }
+}
 
 /* Search */
 $search = isset($_GET['search']) ? strtolower($_GET['search']) : "";
