@@ -6,10 +6,7 @@
   font-family: Arial, sans-serif;
 }
 
-/* Body */
-body {
-  background: #f4f6f9;
-}
+
 
 /* Login Container */
 .login-container {
@@ -81,43 +78,18 @@ body {
 }
 
 
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-}
 
 /* Table */
-table {
-  width: 100%;
-  border-collapse: collapse;
+.card{
+  overflow-x:auto;
 }
 
-th,
-td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: center;
-}
 
 th {
   background: #1e90ff;
   color: white;
 }
 /* ===== Sidebar ===== */
-.sidebar {
-  width: 230px;
-  min-height: 100vh;
-  background: #1e1e2f;
-  color: #fff;
-  position: fixed;
-  top: 0;
-  left: 0;
-  padding-top: 25px;
-}
-
 .sidebar-header {
   text-align: center;
   margin-bottom: 25px;
@@ -181,11 +153,6 @@ body {
 }
 
 /* Statistic Cards */
-.stat-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-}
 
 .stat-card {
   background: #ffffff;
@@ -296,12 +263,6 @@ body {
 
   color: white;
   font-size: 20px;
-}
-.card {
-  background: #f8f9fb;
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid #e5e7eb;
 }
 
 /* Header flex */
@@ -432,7 +393,7 @@ body {
 }
 
 .sidebar-menu a:hover {
-  background:   #2e2e75;
+  background:   #115DDA;
   color: #fff;
 }
 
@@ -443,10 +404,9 @@ body {
 
 /* Content tidak ketimpa sidebar */
 .container {
+  margin-left: 250px;
+  width: calc(100% - 250px);
   padding: 25px;
-  max-width: calc(
-    100% - 250px
-  ); /* pastikan card tidak melebar melewati viewport */
 }
 
 .brand-icon img {
@@ -587,18 +547,6 @@ body {
   text-align: center;
 }
 
-.sidebar {
-  width: 250px;
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100vh;
-}
-
-.main-header {
-  position: relative;
-  z-index: 1;
-}
 /* HEADER */
 .main-header {
   margin-left: 250px; /* sama dengan width sidebar */
@@ -888,13 +836,6 @@ body {
   background: #dcfce7;
   color: #166534;
 }
-/* ROW untuk 2 card */
-.dashboard-row {
-  display: flex;
-  gap: 20px;
-  margin-top: 25px;
-}
-
 /* Card kiri & kanan */
 .dashboard-card {
   flex: 1;
@@ -1011,10 +952,6 @@ body {
 .bel {
   color: #a4472d;
 }
-.main-content {
-  padding: 25px;
-}
-
 .page-header {
   margin-bottom: 20px;
 }
@@ -1055,11 +992,6 @@ th,
 td {
   text-align: center;
   vertical-align: middle;
-}
-/* Wrapper content utama */
-.main-content {
-  margin-top: 80px; /* sama dengan tinggi header */
-  padding: 30px 40px; /* jarak dalam */
 }
 
 /* Container laporan */
@@ -1113,19 +1045,12 @@ td {
   border: none;
 }
 
-.page-header {
-  margin-left: 50px;
-  margin-top: -70px;
-}
-.main-content{
-    margin-top:80px;     /* sama dengan header */
-    padding:25px;
-}
 /* CONTENT FIX SIDEBAR + HEADER */
 .main-content{
-    margin-left: 250px;   /* sama dengan sidebar */
-    margin-top:7px;     /* sama dengan header */
-    padding:30px;
+  margin-left:250px;
+  margin-top:80px;
+  padding:30px;
+  width:calc(100% - 250px);
 }
 /* STAT CARDS */
 .stat-cards{
@@ -1135,9 +1060,10 @@ td {
 }
 /* ROW */
 .dashboard-row{
-    display:flex;
-    gap:20px;
-    margin-top:25px;
+  display:flex;
+  gap:20px;
+  margin-top:25px;
+  flex-wrap:wrap;
 }
 /* CARD */
 .dashboard-card{
@@ -1146,29 +1072,27 @@ td {
 .page-header{
   margin-left: 50px;
 }
-.container{
-  margin-left: 250px;
-}
 
 .update{
   border-radius: 8px;
-  background-color:#4c61a1;
+  background-color:#115DDA;
   padding: 5px;
   color:  white;
   border: none;
   text-decoration: none;
 } 
 .update:hover{
-  color: #5555a3;
+  color: #115DDA;
   background-color: #fff;
   text-decoration: none;
   border-radius: 8px;
   padding: 5px;
 }
 .update a:hover{
-  color: #5555a3;
+  color: #115DDA;
   background-color: #fff;
   text-decoration: none;
   border-radius: 8px;
   padding: 5px;
 }
+

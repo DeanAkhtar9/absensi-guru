@@ -18,6 +18,7 @@ $role = $_SESSION['role'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/absensi-guru/assets/css/style.css">
     <link rel="stylesheet" href="/absensi-guru/assets/css/responsive.css">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 </head>
 <body>
@@ -45,17 +46,20 @@ $role = $_SESSION['role'];
             </a>
         </li>
 
-        <!-- ================= GURU ================= -->
+        <!-- ================= SISWA ================= -->
         <?php if($role == 'siswa'): ?>
             <li><a href="/absensi-guru/siswa/buat_laporan.php"><i class="bi bi-send"></i><span>Buat Laporan</span></a></li>
             <li><a href="/absensi-guru/siswa/riwayat_laporan.php"><i class="bi bi-clock-history"></i><span>Riwayat Laporan</span></a></li>
+             <li><a href="/absensi-guru/siswa/profil.php"><i class="bi bi-person"></i><span>Profil</span></a></li>
         <?php endif; ?>
-
+       <!-- ================= GURU ================= -->
         <?php if($role == 'guru'): ?>
 
             <li><a href="/absensi-guru/guru/jurnal.php"><i class="bi bi-check2-square"></i><span>Jurnal</span></a></li>
             <li><a href="/absensi-guru/guru/riwayat-jadwal.php"><i class="bi bi-stopwatch"></i><span>Riwayat Jadwal</span></a></li>
             <li><a href="/absensi-guru/guru/konfirmasi.php"><i class="bi bi-shield-check"></i><span>Konfirmasi</span></a></li>
+             <li><a href="/absensi-guru/guru/profil.php"><i class="bi bi-person"></i><span>Profil</span></a></li>
+        </ul>
         <?php endif; ?>
 
         <!-- ================= ADMIN ================= -->
@@ -91,7 +95,7 @@ $role = $_SESSION['role'];
             <li><a href="/absensi-guru/admin/admin.php"><i class="bi bi-person-gear"></i><span>Manajemen Admin</span></a></li>
             <li><a href="/absensi-guru/admin/pengaturan.php"><i class="bi bi-gear"></i><span>Pengaturan</span></a></li>
         <?php endif; ?>
-
+        
     </ul>
 </div>
 
