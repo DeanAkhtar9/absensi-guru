@@ -1,192 +1,246 @@
 <?php
-require "../config/config.php";  
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('admin');
 
 require "../config/database.php";
-require "../config/functions.php";
 
-include "../templates/navbar.php";
 include "../templates/header.php";
 include "../sidebar.php";
 include "../header.php";
 
-$query_komplain = mysqli_query($conn, "
-    SELECT 
-        komplain.*, 
-        users.nama AS nama_siswa
-    FROM komplain
-    JOIN siswa 
-        ON komplain.id_siswa = siswa.id_siswa
-    JOIN users 
-        ON siswa.id_user = users.id_user
-    ORDER BY komplain.created_at DESC
-    LIMIT 3
+/* =========================
+   STATISTIK LAPORAN
+========================= */
+
+$total_laporan = $pdo->query("
+SELECT COUNT(*) 
+FROM komplain
+")->fetchColumn();
+
+$laporan_hari_ini = $pdo->query("
+SELECT COUNT(*) 
+FROM komplain 
+WHERE DATE(created_at)=CURDATE()
+")->fetchColumn();
+
+$laporan_minggu = $pdo->query("
+SELECT COUNT(*) 
+FROM komplain 
+WHERE YEARWEEK(created_at,1)=YEARWEEK(CURDATE(),1)
+")->fetchColumn();
+
+$laporan_bulan = $pdo->query("
+SELECT COUNT(*) 
+FROM komplain 
+WHERE MONTH(created_at)=MONTH(CURDATE())
+")->fetchColumn();
+
+
+/* =========================
+   LAPORAN TERBARU
+========================= */
+
+$stmt = $pdo->query("
+SELECT 
+komplain.*,
+users.nama,
+siswa.id_siswa
+FROM komplain
+JOIN siswa ON komplain.id_siswa = siswa.id_siswa
+JOIN users ON siswa.id_user = users.id_user
+ORDER BY komplain.created_at DESC
+LIMIT 5
 ");
-
-
-$query_jurnal = mysqli_query($conn, "
-    SELECT 
-        jurnal_mengajar.id_jurnal,
-        jurnal_mengajar.materi,
-        jurnal_mengajar.created_at,
-
-        users.nama AS nama_guru,
-        kelas.nama_kelas,
-        jadwal_mengajar.mapel
-
-    FROM jurnal_mengajar
-
-    JOIN absensi_guru 
-        ON jurnal_mengajar.id_absensi_guru = absensi_guru.id_absensi_guru
-
-    JOIN jadwal_mengajar 
-        ON absensi_guru.id_jadwal = jadwal_mengajar.id_jadwal
-
-    JOIN users 
-        ON jadwal_mengajar.id_guru = users.id_user
-
-    JOIN kelas
-        ON jadwal_mengajar.id_kelas = kelas.id_kelas
-
-    ORDER BY jurnal_mengajar.created_at DESC
-    LIMIT 3
-");
-
 
 ?>
 
+<style>
+    .card{
+border-radius:12px;
+}
 
-<link rel="stylesheet" href="../assets/css/responsive.css">
-<div class="container">
-    <div class="container dashboard-wrapper">
-    <div class="dashboard-header">
-        
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-    </div>
+.table th{
+font-size:12px;
+color:#6c757d;
+}
 
-    <!-- STATISTICS CARDS -->
-    <div class="stat-cards">
+.badge{
+border-radius:20px;
+padding:6px 12px;
+}
 
-        <div class="card">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Total Guru</h5>
-                <div class="icon-box-guru">
-                    <i class="orang bi bi-person"></i>
-                </div>
-            </div>
-            <div class="card-total">
-                <h3><?= getUserByRole("guru", $conn); ?></h3>
-            </div>
-        </div>
+</style>
 
-        <div class="card">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Pengumpulan Jurnal</h5>
-                <div class="icon-box-kelas">
-                    <i class="buku bi bi-book"></i>
-                </div>
-            </div>
-            <div class="card-total">
-                <h3><?= getTotal("kelas", $conn); ?></h3>
-            </div>
-        </div>
+<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+<div class="main-content">
 
-        <div class="card">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Total Siswa</h5>
-                <div class="icon-box-siswa">
-                    <i class="orang2 bi bi-people"></i>
-                </div>
-            </div>
-                <div class="card-total">
-                    <h3><?= getTotal("siswa", $conn); ?></h3>
-                </div>
-        </div>
-        
-        <div class="card">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Laporan</h5>
-            <div class="icon-box-laporan">
-                <i class="bel bi bi-bell"></i>
-            </div>
-        </div>
-            <div class="card-total">
-                <h3><?= getTotal("komplain", $conn); ?></h3>
-            </div>
-        </div>
+<div class="container-fluid py-4">
 
-    </div>
+<!-- HEADER -->
 
+<div class="d-flex justify-content-between align-items-center mb-4">
 
- <div class="dashboard-row">
+<div>
+<h4 class="fw-bold">Dashboard Admin</h4>
+<p class="text-muted mb-0">Ringkasan sistem dan aktivitas laporan sekolah</p>
+</div>
 
-    <!-- COMPLAINT -->
-    <div class="card dashboard-card">
-        <h3>Recent Complaints</h3>
-        <p class="sub-title">Komplain terbaru siswa</p>
+<div class="text-muted">
 
-        <?php while($row = mysqli_fetch_assoc($query_komplain)) { ?>
-            
-            <div class="list-item">
+<?php
+$hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+$bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
-                <div>
-                    <strong><?= $row['nama_siswa'] ?></strong>
-                    <p><?= $row['pesan'] ?></p>
-                    <small><?= date('d M Y', strtotime($row['tanggal'])) ?></small>
-                </div>
-
-                <span class="badge pending">pending</span>
-
-            </div>
-
-        <?php } ?>
-
-    </div>
-
-
-    <!-- JOURNAL -->
-    <div class="card dashboard-card">
-        <h3>Recent Journal Submissions</h3>
-        <p class="sub-title">Jurnal terbaru guru</p>
-
-        <?php while($jurnal = mysqli_fetch_assoc($query_jurnal)) { ?>
-
-        <div class="journal-item">
-
-                <div class="journal-left">
-
-                    <div class="journal-nama">
-                        <?= $jurnal['nama_guru'] ?>
-                    </div>
-
-                    <div class="journal-info">
-                        <?= $jurnal['mapel'] ?> - <?= $jurnal['nama_kelas'] ?>
-                    </div>
-
-                    <div class="journal-date">
-                        <?= date('Y-m-d', strtotime($jurnal['created_at'])) ?>
-                    </div>
-
-                </div>
-
-                <div class="journal-right">
-                    <span class="badge submitted">submitted</span>
-                </div>
-
-            </div>
-
-            <hr class="journal-divider">
-
-        <?php } ?>
-
-    </div>
-
+echo $hari[date('w')].', '.date('d').' '.$bulan[date('n')-1].' '.date('Y');
+?>
 
 </div>
 
 </div>
 
-<?php require "../templates/footer.php"; ?>
+<!-- CARD STATISTIK -->
+
+<div class="row mb-4">
+
+<div class="col-md-3">
+<div class="card shadow-sm border-0">
+<div class="card-body d-flex justify-content-between">
+
+<div>
+<div class="text-muted small">Total Laporan</div>
+<h4 class="fw-bold"><?=number_format($total_laporan)?></h4>
+</div>
+
+<i class="bi bi-file-earmark-text text-primary fs-3"></i>
+
+</div>
+</div>
+</div>
+
+
+<div class="col-md-3">
+<div class="card shadow-sm border-0">
+<div class="card-body d-flex justify-content-between">
+
+<div>
+<div class="text-muted small">Laporan Hari Ini</div>
+<h4 class="fw-bold"><?=$laporan_hari_ini?></h4>
+</div>
+
+<i class="bi bi-exclamation-circle text-danger fs-3"></i>
+
+</div>
+</div>
+</div>
+
+
+<div class="col-md-3">
+<div class="card shadow-sm border-0">
+<div class="card-body d-flex justify-content-between">
+
+<div>
+<div class="text-muted small">Minggu Ini</div>
+<h4 class="fw-bold"><?=$laporan_minggu?></h4>
+</div>
+
+<i class="bi bi-arrow-repeat text-warning fs-3"></i>
+
+</div>
+</div>
+</div>
+
+
+<div class="col-md-3">
+<div class="card shadow-sm border-0">
+<div class="card-body d-flex justify-content-between">
+
+<div>
+<div class="text-muted small">Bulan Ini</div>
+<h4 class="fw-bold"><?=$laporan_bulan?></h4>
+</div>
+
+<i class="bi bi-check-circle text-success fs-3"></i>
+
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- LAPORAN TERBARU -->
+
+<div class="card shadow-sm border-0">
+
+<div class="card-header bg-white d-flex justify-content-between">
+
+<h6 class="mb-0 fw-bold">Laporan Terbaru</h6>
+
+<a href="verifikasi_laporan.php" class="text-primary">
+Lihat Semua
+</a>
+
+</div>
+
+<div class="table-responsive">
+
+<table class="table align-middle mb-0">
+
+<thead class="table-light">
+
+<tr>
+<th>TANGGAL</th>
+<th>NAMA PELAPOR</th>
+<th>JENIS LAPORAN</th>
+<th>STATUS</th>
+<th>AKSI</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<?php while($row=$stmt->fetch()): ?>
+
+<tr>
+
+<td><?=date('d M Y',strtotime($row['created_at']))?></td>
+
+<td><?=$row['nama']?></td>
+
+<td>Keluhan Siswa</td>
+
+<td>
+<span class="badge bg-primary">
+BARU
+</span>
+</td>
+
+<td>
+
+<a href="detail_komplain.php?id=<?=$row['id_komplain']?>" 
+class="btn btn-sm btn-light">
+
+Detail
+
+</a>
+
+</td>
+
+</tr>
+
+<?php endwhile ?>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<?php include "../templates/footer.php"; ?>

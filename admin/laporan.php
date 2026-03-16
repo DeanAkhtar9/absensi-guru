@@ -1,168 +1,207 @@
 <?php
-require "../config/config.php";
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('admin');
 
 require "../config/database.php";
 
-
-/*
-|--------------------------------------------------------------------------
-| Ambil data komplain + nama siswa
-|--------------------------------------------------------------------------
-*/
-$query = mysqli_query($conn, "
-    SELECT 
-        komplain.id_komplain,
-        komplain.id_siswa,
-        komplain.pesan,
-        komplain.tanggal,
-        komplain.created_at,
-
-        pelapor.nama AS nama_siswa,
-        kelas.nama_kelas,
-        guru.nama AS nama_guru,
-
-        absensi_guru.status AS status_absensi
-
-    FROM komplain
-
-    -- Pelapor (Siswa)
-    JOIN users AS pelapor
-        ON komplain.id_siswa = pelapor.id_user
-
-    -- Jadwal
-    JOIN jadwal_mengajar 
-        ON komplain.id_jadwal = jadwal_mengajar.id_jadwal
-
-    -- Guru
-    JOIN users AS guru
-        ON jadwal_mengajar.id_guru = guru.id_user
-
-    -- Kelas
-    JOIN kelas
-        ON jadwal_mengajar.id_kelas = kelas.id_kelas
-
-    -- Absensi guru
-    LEFT JOIN absensi_guru
-        ON absensi_guru.id_jadwal = komplain.id_jadwal
-        AND DATE(absensi_guru.tanggal) = DATE(komplain.tanggal)
-
-    ORDER BY komplain.created_at DESC
-");
-
-
-
-
 include "../templates/header.php";
 include "../sidebar.php";
 include "../header.php";
+
+
+/* =========================
+   PAGINATION
+========================= */
+
+$limit = 5;
+
+$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+
+$offset = ($page - 1) * $limit;
+
+
+/* =========================
+   TOTAL DATA
+========================= */
+
+$totalData = mysqli_query($conn,"SELECT COUNT(*) as total FROM komplain");
+$totalData = mysqli_fetch_assoc($totalData)['total'];
+
+$totalPages = ceil($totalData / $limit);
+
+
+/* =========================
+   DATA KOMPLAIN
+========================= */
+
+$query = mysqli_query($conn,"
+SELECT 
+komplain.*,
+users.nama
+FROM komplain
+JOIN siswa ON komplain.id_siswa = siswa.id_siswa
+JOIN users ON siswa.id_user = users.id_user
+ORDER BY komplain.created_at DESC
+LIMIT $limit OFFSET $offset
+");
+
 ?>
+
+<style>
+    .table td{
+vertical-align:middle;
+}
+
+.badge{
+padding:6px 12px;
+border-radius:20px;
+font-size:12px;
+}
+
+.btn-sm{
+font-size:12px;
+}
+
+</style>
+
+<link rel="stylesheet" href="assets/css/bootstrap.min.css">
 
 <div class="main-content">
 
-    <!-- TITLE -->
-    <div class="page-header">
-        <h2>Laporan Komplain</h2>
-    </div>
+<div class="container py-4">
 
-    <!-- TABLE CARD -->
+<h4 class="mb-3 fw-bold">Verifikasi Laporan</h4>
 
-    <div class="laporan-container">
-    
-        <p class="sub-title">Daftar komplain dari siswa</p>
+<p class="text-muted">Kelola dan perbarui status laporan siswa</p>
 
-            <table class="laporan-table">
 
-                <tr>
-                    <th>Nama Siswa</th>
-                    <th>Kelas</th>
-                    <th>Tanggal</th>
-                    <th>Nama Guru</th>
-                    <th>Status</th>
-                    <th>Pesan</th>
-                    <th>Aksi</th>
-                    <th></th>
-                </tr>
-<tbody>
-<?php 
-$no = 1;
-while($row = mysqli_fetch_assoc($query)) { 
-?>
+<div class="card shadow-sm border-0">
+
+<div class="table-responsive">
+
+<table class="table align-middle">
+
+<thead class="table-light">
 
 <tr>
-    <td><?= $no++; ?></td>
-
-    <td><?= htmlspecialchars($row['id_siswa']); ?></td>
-
-<td><?= htmlspecialchars($row['nama_siswa']); ?></td>
-
-<td><?= htmlspecialchars($row['nama_kelas']); ?></td>
-
-<td><?= date('d M Y', strtotime($row['tanggal'])); ?></td>
-
-<td><?= htmlspecialchars($row['nama_guru']); ?></td>
-
-<td>
-<?php
-$status = $row['status_absensi'] ?? 'Belum Absen';
-
-if($status == 'Hadir') {
-    echo "<span class='badge bg-success'>Hadir</span>";
-} elseif($status == 'Izin') {
-    echo "<span class='badge bg-warning text-dark'>Izin</span>";
-} elseif($status == 'Alpha') {
-    echo "<span class='badge bg-danger'>Alpha</span>";
-} else {
-    echo "<span class='badge bg-secondary'>Belum Absen</span>";
-}
-?>
-</td>
-
-<td><?= htmlspecialchars($row['pesan']); ?></td>
-
-
-    <td>
-        <div class="dropdown">
-            <button class="btn btn-sm btn-primary dropdown-toggle" 
-                    type="button" 
-                    data-bs-toggle="dropdown">
-                Aksi
-            </button>
-            <ul class="dropdown-menu">
-                <li>
-                    <a class="dropdown-item" 
-                       href="detail_komplain.php?id=<?= $row['id_komplain']; ?>">
-                       Lihat Detail
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item text-success" 
-                       href="proses_komplain.php?id=<?= $row['id_komplain']; ?>&aksi=selesai">
-                       Tandai Selesai
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item text-danger" 
-                       href="hapus_komplain.php?id=<?= $row['id_komplain']; ?>"
-                       onclick="return confirm('Yakin ingin menghapus?')">
-                       Hapus
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </td>
+<th>TANGGAL</th>
+<th>NAMA PELAPOR</th>
+<th>JENIS LAPORAN</th>
+<th>DESKRIPSI</th>
+<th>STATUS</th>
+<th>AKSI</th>
 </tr>
 
-<?php } ?>
+</thead>
+
+<tbody>
+
+<?php while($row=mysqli_fetch_assoc($query)): ?>
+
+<tr>
+
+<td>
+<?=date('d M Y',strtotime($row['created_at']))?>
+</td>
+
+<td><?=$row['nama']?></td>
+
+<td>Sarana Prasarana</td>
+
+<td style="max-width:250px;">
+<?=substr($row['pesan'],0,50)?>...
+</td>
+
+<td>
+
+<?php
+$status=$row['status'];
+
+if($status=='baru'){
+echo "<span class='badge bg-primary'>Baru</span>";
+}
+
+elseif($status=='diverifikasi'){
+echo "<span class='badge bg-info'>Diverifikasi</span>";
+}
+
+elseif($status=='ditindaklanjuti'){
+echo "<span class='badge bg-warning text-dark'>Ditindaklanjuti</span>";
+}
+
+elseif($status=='selesai'){
+echo "<span class='badge bg-success'>Selesai</span>";
+}
+?>
+
+</td>
+
+<td>
+
+<a href="ulaporan.php?id=<?=$row['id_komplain']?>&status=diverifikasi"
+class="btn btn-sm btn-primary mb-1">
+Diverifikasi
+</a>
+
+<a href="ulaporan.php?id=<?=$row['id_komplain']?>&status=ditindaklanjuti"
+class="btn btn-sm btn-warning mb-1">
+Tindak
+</a>
+
+<a href="ulaporan.php?id=<?=$row['id_komplain']?>&status=selesai"
+class="btn btn-sm btn-success">
+Selesai
+</a>
+
+</td>
+
+</tr>
+
+<?php endwhile ?>
+
 </tbody>
 
-            </table>
+</table>
 
-        </div>
+</div>
 
-    </div>
+
+<!-- PAGINATION -->
+
+<div class="d-flex justify-content-between p-3">
+
+<div class="text-muted">
+
+Menampilkan <?= $offset+1 ?> - <?= min($offset+$limit,$totalData) ?> dari <?= $totalData ?> laporan
+
+</div>
+
+<nav>
+
+<ul class="pagination mb-0">
+
+<?php for($i=1;$i<=$totalPages;$i++): ?>
+
+<li class="page-item <?=($i==$page)?'active':''?>">
+
+<a class="page-link" href="?page=<?=$i?>">
+<?=$i?>
+</a>
+
+</li>
+
+<?php endfor ?>
+
+</ul>
+
+</nav>
+
+</div>
+
+</div>
+
+</div>
 
 </div>
 

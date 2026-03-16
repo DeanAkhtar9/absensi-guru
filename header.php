@@ -21,7 +21,7 @@ $username = $_SESSION['username'] ?? 'User';
 
     <!-- LEFT -->
     <div class="header-left">
-        <h2 class="header-title"><?= ucfirst($role) ?> Dashboard</h2>
+        <h2 class="header-title">Selamat Datang <?= ucfirst($role) ?></h2>
         <span class="header-subtitle">
             Welcome back! Here's what's happening today.
         </span>

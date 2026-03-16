@@ -6,9 +6,6 @@ checkRole('admin');
 
 date_default_timezone_set('Asia/Jakarta');
 
-include "../templates/header.php";
-include "../sidebar.php";
-include "../header.php";
 
 /* AMBIL LIST KELAS DARI SHEET MASTER */
 $url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&single=true&output=csv";
@@ -26,6 +23,11 @@ foreach ($rows as $row) {
 
 /* Search */
 $search = isset($_GET['search']) ? strtolower($_GET['search']) : "";
+
+
+include "../templates/header.php";
+include "../sidebar.php";
+include "../header.php";
 ?>
 
 <div class="main-content">

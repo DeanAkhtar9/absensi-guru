@@ -78,6 +78,12 @@ $role = $_SESSION['role'];
                     Jadwal Pelajaran
                 </a>
             </li>
+            </li>
+                <a href="/absensi-guru/admin/pengguna.php">
+                    <i class="bi bi-journal-text"></i>
+                    Pengguna
+                </a>
+            </li>
 
         <?php endif; ?>
 
