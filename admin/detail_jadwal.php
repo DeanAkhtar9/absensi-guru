@@ -64,22 +64,94 @@ while ($g = mysqli_fetch_assoc($guruResult)) {
 }
 ?>
 
+<style>
+
+/* CARD */
+.jadwal-card {
+    border: 1px solid #e3e6f0;
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 10px;
+}
+
+/* HEADER TABLE (THEAD) */
+.table-custom thead {
+    background: #eef2ff; /* biru sangat samar */
+}
+
+.table-custom thead th {
+    border-bottom: 1px solid #e3e6f0;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #3b5bdb;
+    font-weight: 600;
+    text-align: center;
+    padding: 14px;
+}
+
+/* TABLE BODY */
+.table-custom tbody td {
+    border-bottom: 1px solid #edf2f7; /* garis tipis */
+    padding: 14px;
+    font-size: 14px;
+}
+
+/* HOVER ROW */
+.table-custom tbody tr:hover {
+    background: #f8f9ff;
+}
+
+/* BUTTON KEMBALI (MINIMALIS) */
+.btn-kembali {
+    background: transparent;
+    border: none;
+    color: #4e73df;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+/* HOVER */
+.btn-kembali:hover {
+    background: #eef2ff;
+    color: #224abe;
+}
+
+/* FONT STYLE LEBIH HALUS */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+
+
+</style>
+
+<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+
 <div class="main-content">
 <div class="container py-4">
 
-<h3 class="mb-3">Jadwal Kelas <?= htmlspecialchars($nama_kelas) ?></h3>
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="fw-semibold mb-0">
+        Jadwal Kelas <?= htmlspecialchars($nama_kelas) ?>
+    </h5>
 
-<a href="jadwal2.php" class="btn btn-secondary mb-4">
-← Kembali
+    <a href="jadwal2.php" class="btn-kembali">
+    ← Kembali
 </a>
 
-<div class="card shadow-sm">
+</div>
+
+<!-- CARD -->
+<div class="card jadwal-card">
 <div class="card-body">
 
 <div class="table-responsive">
-<table class="table table-bordered table-striped align-middle">
+<table class="table align-middle table-custom">
 
-<thead class="table-dark text-center">
+<thead>
 <tr>
 <th>No</th>
 <th>Nama Guru</th>
@@ -108,16 +180,17 @@ foreach ($rows as $i => $row) {
     $nama_guru = isset($guruList[$id_guru])
         ? $guruList[$id_guru]
         : "<span class='text-danger'>Tidak ditemukan</span>";
-
-    echo "<tr>";
-    echo "<td class='text-center'>".$no++."</td>";
-    echo "<td>".htmlspecialchars($nama_guru)."</td>";
-    echo "<td>".htmlspecialchars($mapel)."</td>";
-    echo "<td class='text-center'>".htmlspecialchars($hari)."</td>";
-    echo "<td class='text-center'>".$jam_mulai." - ".$jam_selesai."</td>";
-    echo "</tr>";
-}
 ?>
+
+<tr>
+<td class="text-center"><?= $no++ ?></td>
+<td><?= htmlspecialchars($nama_guru) ?></td>
+<td><?= htmlspecialchars($mapel) ?></td>
+<td class="text-center"><?= htmlspecialchars($hari) ?></td>
+<td class="text-center"><?= $jam_mulai ?> - <?= $jam_selesai ?></td>
+</tr>
+
+<?php } ?>
 
 </tbody>
 </table>
@@ -128,5 +201,6 @@ foreach ($rows as $i => $row) {
 
 </div>
 </div>
+
 
 <?php include "../templates/footer.php"; ?>

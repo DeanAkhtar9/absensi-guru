@@ -3,186 +3,209 @@ require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('guru');
 
-include "../config/database.php";
+require "../config/database.php";
+
+date_default_timezone_set('Asia/Jakarta');
+
 include "../templates/header.php";
-include "../templates/navbar.php";
 include "../sidebar.php";
 include "../header.php";
 
-$id_guru = $_SESSION['id_user'];
+/* DATA USER */
+$id_user = $_SESSION['id_user'];
+$nama_user = $_SESSION['nama'];
 
-/* =========================
-   DATA RINGKASAN DASHBOARD
-========================= */
+/* HARI INI */
+$hari_ini = date('l');
+$hari_map = [
+    'Monday' => 'Senin',
+    'Tuesday' => 'Selasa',
+    'Wednesday' => 'Rabu',
+    'Thursday' => 'Kamis',
+    'Friday' => 'Jumat',
+    'Saturday' => 'Sabtu'
+];
+$hari_ini = $hari_map[$hari_ini];
 
-// jumlah kelas yang diajar
-$kelas = mysqli_query($conn,"
-    SELECT COUNT(DISTINCT id_kelas) as total_kelas
-    FROM jadwal_mengajar
-    WHERE id_guru='$id_guru'
+/* AMBIL MASTER SHEET */
+$url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&single=true&output=csv";
+
+$csv_master = file_get_contents($url_master);
+$rows_master = array_map("str_getcsv", explode("\n", $csv_master));
+
+$sheetMap = [];
+
+foreach ($rows_master as $row) {
+    if (count($row) < 2) continue;
+    $sheetMap[trim($row[0])] = trim($row[1]);
+}
+
+/* AMBIL SEMUA JADWAL */
+$jadwalHariIni = [];
+
+foreach ($sheetMap as $kelas => $gid) {
+
+    $url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=$gid&single=true&output=csv";
+
+    $csv = file_get_contents($url);
+    $rows = array_map("str_getcsv", explode("\n", $csv));
+
+    foreach ($rows as $i => $row) {
+        if ($i == 0 || count($row) < 5) continue;
+
+        if ((int)$row[0] == $id_user && $row[2] == $hari_ini) {
+            $jadwalHariIni[] = [
+                'kelas' => $kelas,
+                'mapel' => $row[1],
+                'jam_mulai' => $row[3],
+                'jam_selesai' => $row[4]
+            ];
+        }
+    }
+}
+
+/* HITUNG KELAS */
+$total_kelas = count($jadwalHariIni);
+
+/* HITUNG JURNAL */
+$qJurnal = mysqli_query($conn, "
+    SELECT COUNT(*) as total 
+    FROM jurnal_mengajar jm
+    JOIN absensi_guru ag ON jm.id_absensi_guru = ag.id_absensi_guru
+    WHERE ag.diinput_oleh = $id_user
+    AND DATE(ag.created_at) = CURDATE()
 ");
-$total_kelas = mysqli_fetch_assoc($kelas)['total_kelas'] ?? 0;
 
-// total siswa dari semua kelas yang diajar
-$siswa = mysqli_query($conn,"
-    SELECT COUNT(DISTINCT s.id_siswa) as total_siswa
-    FROM siswa s
-    JOIN jadwal_mengajar jm ON s.id_kelas = jm.id_kelas
-    WHERE jm.id_guru='$id_guru'
-");
-$total_siswa = mysqli_fetch_assoc($siswa)['total_siswa'] ?? 0;
+$jurnal = mysqli_fetch_assoc($qJurnal)['total'] ?? 0;
 
-// total jurnal minggu ini
-$jurnal = mysqli_query($conn,"
-    SELECT COUNT(*) as total_jurnal
-    FROM jurnal_mengajar j
-    JOIN absensi_guru ag ON j.id_absensi_guru = ag.id_absensi_guru
-    JOIN jadwal_mengajar jm ON ag.id_jadwal = jm.id_jadwal
-    WHERE jm.id_guru='$id_guru'
-      AND WEEK(ag.tanggal)=WEEK(CURDATE())
-");
-$total_jurnal = mysqli_fetch_assoc($jurnal)['total_jurnal'] ?? 0;
-
-// rata-rata kehadiran siswa
-$kehadiran = mysqli_query($conn,"
-    SELECT 
-    ROUND(
-        (SUM(CASE WHEN asw.status='hadir' THEN 1 ELSE 0 END)
-        / COUNT(asw.id_siswa))*100,2
-    ) as persen
-    FROM absensi_siswa asw
-    JOIN jurnal_mengajar j ON asw.id_jurnal=j.id_jurnal
-    JOIN absensi_guru ag ON j.id_absensi_guru=ag.id_absensi_guru
-    JOIN jadwal_mengajar jm ON ag.id_jadwal=jm.id_jadwal
-    WHERE jm.id_guru='$id_guru'
-");
-$rata_kehadiran = mysqli_fetch_assoc($kehadiran)['persen'] ?? 0;
+/* TOTAL SISWA */
+$qSiswa = mysqli_query($conn, "SELECT COUNT(*) as total FROM siswa");
+$total_siswa = mysqli_fetch_assoc($qSiswa)['total'];
 ?>
-<div class="dashboard-wrapper">
 
-    <?php include "../sidebar.php"; ?>
+<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 
-    <div class="main-content">
-
-        <div class="content-area">
+<div class="main-content">
+<div class="container py-4">
 
 <!-- WELCOME -->
-<div class="mb-4">
-    <h4 class="fw-bold">
-        Selamat datang kembali, <?= $_SESSION['nama_user'] ?? 'Guru' ?>!
-    </h4>
-    <p class="text-muted">
-        Berikut adalah ringkasan aktivitas pengajaran Anda hari ini.
-    </p>
-</div>
+<h5 class="fw-semibold">Selamat datang kembali, <?= htmlspecialchars($nama_user) ?>!</h5>
+<p class="text-muted mb-4">Berikut adalah ringkasan aktivitas mengajar Anda hari ini.</p>
 
-
-<!-- RINGKASAN -->
+<!-- CARD SUMMARY -->
 <div class="row g-3 mb-4">
 
-    <!-- Kelas Hari Ini -->
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <small class="text-muted">Kelas Hari Ini</small>
-                    <h4 class="fw-bold"><?= $total_kelas ?> Kelas</h4>
-                </div>
-                <div class="bg-light p-3 rounded">
-                    📘
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="col-md-3">
+<div class="summary-card">
+<h6>Kelas Hari Ini</h6>
+<h4><?= $total_kelas ?> Kelas</h4>
+</div>
+</div>
 
-    <!-- Jurnal Terisi -->
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <small class="text-muted">Jurnal Terisi</small>
-                    <h4 class="fw-bold"><?= $total_jurnal ?> / <?= $total_kelas ?></h4>
-                </div>
-                <div class="bg-light p-3 rounded">
-                    ✅
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="col-md-3">
+<div class="summary-card">
+<h6>Jurnal Terisi</h6>
+<h4><?= $jurnal ?> / <?= $total_kelas ?></h4>
+</div>
+</div>
 
-    <!-- Total Siswa -->
-    <div class="col-md-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body d-flex justify-content-between align-items-center">
-                <div>
-                    <small class="text-muted">Total Siswa</small>
-                    <h4 class="fw-bold"><?= $total_siswa ?> Siswa</h4>
-                </div>
-                <div class="bg-light p-3 rounded">
-                    👥
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="col-md-3">
+<div class="summary-card">
+<h6>Total Siswa</h6>
+<h4><?= $total_siswa ?> Siswa</h4>
+</div>
+</div>
 
 </div>
 
+<!-- JADWAL -->
+<div class="card jadwal-card">
+<div class="card-body">
 
-<!-- JADWAL MENGAJAR -->
-<div class="card shadow-sm border-0">
-    <div class="card-body">
-
-        <div class="d-flex justify-content-between mb-3">
-            <h6 class="fw-bold">Jadwal Mengajar Terdekat</h6>
-            <a href="#" class="text-decoration-none">Lihat Semua</a>
-        </div>
-
-        <!-- contoh jadwal -->
-        <div class="p-3 mb-2 border rounded d-flex justify-content-between align-items-center">
-
-            <div class="d-flex align-items-center">
-
-                <div class="bg-light p-2 rounded me-3 text-center">
-                    <small>JAM</small><br>
-                    <b>08:00</b>
-                </div>
-
-                <div>
-                    <b>Matematika - Kelas 10-A</b><br>
-                    <small class="text-muted">Ruang Laboratorium 1</small>
-                </div>
-
-            </div>
-
-            <span class="badge bg-success">Selesai</span>
-
-        </div>
-
-
-        <div class="p-3 border rounded d-flex justify-content-between align-items-center">
-
-            <div class="d-flex align-items-center">
-
-                <div class="bg-light p-2 rounded me-3 text-center">
-                    <small>JAM</small><br>
-                    <b>10:30</b>
-                </div>
-
-                <div>
-                    <b>Matematika - Kelas 12-C</b><br>
-                    <small class="text-muted">Gedung B, Ruang 204</small>
-                </div>
-
-            </div>
-
-            <span class="badge bg-primary">Sedang Berlangsung</span>
-
-        </div>
-
-    </div>
+<div class="d-flex justify-content-between mb-3">
+<h6 class="fw-semibold">Jadwal Mengajar Terdekat</h6>
 </div>
-        </div>
-    </div>
+
+<?php if (empty($jadwalHariIni)) { ?>
+<p class="text-muted">Tidak ada jadwal hari ini.</p>
+<?php } ?>
+
+<?php foreach ($jadwalHariIni as $j) { ?>
+
+<div class="jadwal-item">
+<div>
+<div class="jam-box">
+<?= substr($j['jam_mulai'],0,5) ?>
+</div>
+</div>
+
+<div class="flex-grow-1 ms-3">
+<strong><?= $j['mapel'] ?> - <?= $j['kelas'] ?></strong><br>
+<small class="text-muted">Jam <?= $j['jam_mulai'] ?> - <?= $j['jam_selesai'] ?></small>
+</div>
+
+<div>
+<span class="badge bg-success">Jadwal</span>
+</div>
+</div>
+
+<?php } ?>
 
 </div>
 </div>
+
+</div>
+</div>
+
+
+
+<?php include "../templates/footer.php"; ?>
+
+
+
+<style>
+
+        /* SUMMARY CARD */
+.summary-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid #e3e6f0;
+}
+
+.summary-card h6 {
+    font-size: 13px;
+    color: #858796;
+}
+
+.summary-card h4 {
+    font-weight: bold;
+}
+
+/* JADWAL CARD */
+.jadwal-card {
+    border-radius: 12px;
+    border: 1px solid #e3e6f0;
+}
+
+/* ITEM */
+.jadwal-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #edf2f7;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* JAM BOX */
+.jam-box {
+    background: #eef2ff;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    text-align: center;
+}
+
+
+</style>

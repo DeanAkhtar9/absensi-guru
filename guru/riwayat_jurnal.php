@@ -1,49 +1,184 @@
 <?php
+session_start();
+
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('guru');
 
 include "../config/database.php";
-include "../templates/header.php";
-include "../templates/navbar.php";
 
 $id_guru = $_SESSION['id_user'];
 
-$query = mysqli_query($conn,"
-    SELECT ag.tanggal,k.nama_kelas,m.nama_mapel,
-           j.topik,j.tujuan,j.aktivitas,j.pr
-    FROM jurnal_mengajar j
-    JOIN absensi_guru ag ON j.id_absensi_guru=ag.id_absensi_guru
-    JOIN jadwal_mengajar jm ON ag.id_jadwal=jm.id_jadwal
-    JOIN kelas k ON jm.id_kelas=k.id_kelas
-    JOIN mapel m ON jm.id_mapel=m.id_mapel
-    WHERE jm.id_guru='$id_guru'
-    ORDER BY ag.tanggal DESC
+/* =========================
+   FILTER
+========================= */
+$search = $_GET['search'] ?? '';
+$bulan  = $_GET['bulan'] ?? '';
+
+$where = "WHERE diisi_oleh = '$id_guru'";
+
+if (!empty($search)) {
+    $where .= " AND kegiatan LIKE '%$search%'";
+}
+
+if (!empty($bulan)) {
+    $where .= " AND MONTH(tanggal) = '$bulan'";
+}
+
+/* =========================
+   QUERY
+========================= */
+$query = mysqli_query($conn, "
+    SELECT * FROM jurnal_mengajar
+    $where
+    ORDER BY tanggal DESC
 ");
 ?>
 
-<div class="container mt-4">
-<h3>Riwayat Jurnal</h3>
+<?php include "../templates/header.php"; ?>
+<?php include "../sidebar.php"; ?>
+<?php include "../header.php"; ?>
 
-<table class="table table-bordered">
+<!-- =========================
+     CONTENT ONLY
+========================= -->
+<div class="main-content p-4">
+
+<h4 class="fw-bold mb-3">Riwayat Jurnal</h4>
+
+<!-- FILTER -->
+<div class="card shadow-sm mb-4">
+<div class="card-body">
+
+<form method="GET">
+<div class="row g-2">
+
+<div class="col-md-4">
+<input type="text" name="search" class="form-control"
+placeholder="Cari kegiatan..."
+value="<?= htmlspecialchars($search) ?>">
+</div>
+
+<div class="col-md-3">
+<select name="bulan" class="form-select">
+<option value="">Semua Bulan</option>
+
+<?php
+
+$namaBulan = [
+    1 => 'Januari',
+    2 => 'Februari',
+    3 => 'Maret',
+    4 => 'April',
+    5 => 'Mei',
+    6 => 'Juni',
+    7 => 'Juli',
+    8 => 'Agustus',
+    9 => 'September',
+    10 => 'Oktober',
+    11 => 'November',
+    12 => 'Desember'
+];
+
+foreach($namaBulan as $key => $nama){
+    $selected = ($bulan == $key) ? "selected" : "";
+    echo "<option value='$key' $selected>$nama</option>";
+}
+
+
+?>
+
+</select>
+</div>
+
+<div class="col-md-2">
+<button class="btn btn-primary w-100">Filter</button>
+</div>
+
+</div>
+</form>
+
+</div>
+</div>
+
+<!-- TABLE -->
+<div class="card shadow-sm">
+<div class="card-body">
+
+<div class="table-responsive">
+<table class="table align-middle">
+
+<thead style="background:#f4f7ff;">
 <tr>
 <th>Tanggal</th>
-<th>Kelas</th>
-<th>Mapel</th>
-<th>Topik</th>
-<th>PR</th>
+<th>Kegiatan</th>
+<th>Kehadiran</th>
+<th>Status</th>
+<th class="text-center">Detail</th>
+</tr>
+</thead>
+
+<tbody>
+
+<?php if(mysqli_num_rows($query) > 0): ?>
+<?php while($row = mysqli_fetch_assoc($query)): ?>
+
+<?php
+$status = $row['status_verifikasi'];
+
+if($status == 'diverifikasi'){
+    $badge = "bg-success-subtle text-success";
+}elseif($status == 'draft'){
+    $badge = "bg-secondary-subtle text-dark";
+}else{
+    $badge = "bg-warning-subtle text-warning";
+}
+?>
+
+<tr>
+<td><?= date('d F Y', strtotime($row['tanggal'])) ?>
+</td>
+
+<td><?= htmlspecialchars($row['materi']) ?></td>
+
+<td>
+<span class="badge bg-primary">
+<?= ucfirst($row['status_verifikasi']) ?>
+</span>
+</td>
+
+<td>
+<span class="badge <?= $badge ?>">
+<?= ucfirst($status) ?>
+</span>
+</td>
+
+<td class="text-center">
+<a href="detail_jurnal.php?id=<?= $row['id_jurnal'] ?>"
+class="btn btn-sm btn-outline-primary">
+Detail
+</a>
+</td>
 </tr>
 
-<?php while($r=mysqli_fetch_assoc($query)): ?>
-<tr>
-<td><?= date('d-m-Y',strtotime($r['tanggal'])) ?></td>
-<td><?= $r['nama_kelas'] ?></td>
-<td><?= $r['nama_mapel'] ?></td>
-<td><?= $r['topik'] ?></td>
-<td><?= $r['pr'] ?></td>
-</tr>
 <?php endwhile; ?>
+
+<?php else: ?>
+<tr>
+<td colspan="5" class="text-center text-muted">
+Belum ada data jurnal
+</td>
+</tr>
+<?php endif; ?>
+
+</tbody>
+
 </table>
+</div>
+
+</div>
+</div>
+
 </div>
 
 <?php include "../templates/footer.php"; ?>
