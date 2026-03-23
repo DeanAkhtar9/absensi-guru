@@ -66,20 +66,21 @@ $tanpa_ket = hitung($conn, $id_siswa, "alpa");
 
 
 /* =========================
-   5 LAPORAN TERBARU
+   5 LAPORAN TERBARU SISWA (FIX)
 ========================= */
 $stmt = $conn->prepare("
     SELECT 
-        jm.tanggal,
-        jm.materi,
-        u.nama
-    FROM jurnal_mengajar jm
-    JOIN users u ON jm.diisi_oleh = u.id_user
-    WHERE DATE(jm.tanggal) = CURDATE()
-    ORDER BY jm.tanggal DESC
+        k.created_at,
+        k.jenis_laporan,
+        k.pesan,
+        k.status
+    FROM komplain k
+    WHERE k.id_siswa = ?
+    ORDER BY k.created_at DESC
     LIMIT 5
 ");
 
+$stmt->bind_param("i", $id_siswa);
 $stmt->execute();
 $terbaru = $stmt->get_result();
 ?>
@@ -150,9 +151,9 @@ $terbaru = $stmt->get_result();
 <section class="space-y-4">
     <div class="flex items-center justify-between">
         <h3 class="text-xl font-bold text-slate-900 dark:text-white">Laporan Terbaru Anda</h3>
-    <button class="text-blue-500 hover:text-blue-700 transition-colors text-sm font-semibold flex items-center gap-1">
+    <a class="text-blue-500 hover:text-blue-700 transition-colors text-sm font-semibold flex items-center gap-1" href="riwayat_laporan.php" >
         Lihat Semua
-    </button>
+    </a>
     </div>
 
     <!-- Card / container table -->
@@ -161,27 +162,30 @@ $terbaru = $stmt->get_result();
             <thead>
                 <tr>
                     <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Tanggal</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Guru</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Mapel</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Jenis Lapoan</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Deskripsi</th>
                     <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Status</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
                 <?php while($row = $terbaru->fetch_assoc()): ?>
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                        <td class="px-6 py-4 text-sm" style="color: #475569;"><?= htmlspecialchars($row['tanggal']) ?></td>
-                        <td class="px-6 py-4 text-sm font-bold" style="color: #434e5f;"><?= htmlspecialchars($row['nama']) ?></td>
-                        <td class="px-6 py-4 text-sm" style="color: #475569;"><?= htmlspecialchars($row['materi']) ?></td>
+                        <td class="px-6 py-4 text-sm" style="color: #475569;"><?= date('d M Y', strtotime($row['created_at'])) ?></td>
+                        <td class="px-6 py-4 text-sm font-bold" style="color: #434e5f;"><?= htmlspecialchars($row['jenis_laporan']) ?></td>
+                        <td class="px-6 py-4 text-sm" style="color: #475569;"><?= htmlspecialchars(substr($row['pesan'],0,50)) ?>...</td>
                         <td class="px-6 py-4">
                             <?php
-                                $status = $row['-'];
-                                if($status == "Hadir"){
-                                    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">Hadir</span>';
-                                } elseif($status == "Tidak Hadir"){
-                                    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300">Tidak Hadir</span>';
-                                } else {
-                                    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300">Tanpa Keterangan</span>';
-                                }
+                                $status = strtolower($row['status'] ?? '');
+                                if($status == "baru"){
+    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Baru</span>';
+} elseif($status == "diverifikasi"){
+    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info text-dark">Diverifikasi</span>';
+} elseif($status == "ditindaklanjuti"){
+    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning text-dark">Ditindaklanjuti</span>';
+} else {
+    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Selesai</span>';
+}
+
                             ?>
                         </td>
                     </tr>
