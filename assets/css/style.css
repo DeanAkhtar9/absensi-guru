@@ -553,7 +553,6 @@ body {
   padding: 18px 25px;
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
-
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1048,9 +1047,9 @@ td {
 /* CONTENT FIX SIDEBAR + HEADER */
 .main-content{
   margin-left:250px;
-  margin-top:80px;
   padding:30px;
   width:calc(100% - 250px);
+  background-color: #ffff;
 }
 /* STAT CARDS */
 .stat-cards{
@@ -1096,3 +1095,11 @@ td {
   padding: 5px;
 }
 
+
+.main-content{
+  margin-left:250px;
+  padding:30px;
+  width:calc(100% - 250px);
+  background-color: #f5f7fb; /* abu muda seperti figma */
+  min-height:100vh;
+}

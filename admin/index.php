@@ -63,6 +63,7 @@ border-radius:12px;
 .table th{
 font-size:12px;
 color:#6c757d;
+text-align: center;
 }
 
 .badge{
@@ -72,28 +73,24 @@ padding:6px 12px;
 
 </style>
 
+<link rel="stylesheet" href="../assets/css/style.css">
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 <div class="main-content">
 
-<div class="container-fluid py-4">
 
+
+<div class="container-fluid py-4">
+<div >
+<h4 class="fw-bold">Dashboard Admin</h4>
+<p class="text-muted mb-0">Ringkasan sistem dan aktivitas laporan sekolah</p>
+</div>
 <!-- HEADER -->
 
 <div class="d-flex justify-content-between align-items-center mb-4">
 
-<div>
-<h4 class="fw-bold">Dashboard Admin</h4>
-<p class="text-muted mb-0">Ringkasan sistem dan aktivitas laporan sekolah</p>
-</div>
+
 
 <div class="text-muted">
-
-<?php
-$hari=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
-$bulan=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
-
-echo $hari[date('w')].', '.date('d').' '.$bulan[date('n')-1].' '.date('Y');
-?>
 
 </div>
 
