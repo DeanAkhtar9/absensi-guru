@@ -109,8 +109,8 @@ font-size:12px;
 
 <td>Sarana Prasarana</td>
 
-<td style="max-width:250px;">
-<?=substr($row['pesan'],0,50)?>...
+<td style="max-width:260px;">
+<?=substr($row['pesan'],0,60)?>...
 </td>
 
 <td>
