@@ -104,11 +104,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     /* CEK ABSENSI */
     $cek = mysqli_query($conn, "
-        SELECT id_absensi_guru, status
-        FROM absensi_guru
-        WHERE id_user='$id_user'
-        AND DATE(tanggal)='$tanggal'
-    ");
+    SELECT id_absensi_guru, status
+    FROM absensi_guru
+    WHERE id_user='$id_user'
+    AND DATE(tanggal)='$tanggal'
+    ORDER BY tanggal DESC
+    LIMIT 1
+");
 
     $absen = mysqli_fetch_assoc($cek);
 

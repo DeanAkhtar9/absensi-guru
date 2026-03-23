@@ -15,23 +15,28 @@ $id_guru = $_SESSION['id_user'];
 $search = $_GET['search'] ?? '';
 $bulan  = $_GET['bulan'] ?? '';
 
-$where = "WHERE diisi_oleh = '$id_guru'";
+$where = "WHERE jm.diisi_oleh = '$id_guru'";
 
 if (!empty($search)) {
-    $where .= " AND kegiatan LIKE '%$search%'";
+    $where .= " AND jm.materi LIKE '%$search%'";
 }
 
 if (!empty($bulan)) {
-    $where .= " AND MONTH(tanggal) = '$bulan'";
+    $where .= " AND MONTH(jm.tanggal) = '$bulan'";
 }
 
 /* =========================
-   QUERY
+   QUERY (JOIN ABSENSI)
 ========================= */
 $query = mysqli_query($conn, "
-    SELECT * FROM jurnal_mengajar
+    SELECT 
+        jm.*,
+        ag.status AS kehadiran
+    FROM jurnal_mengajar jm
+    JOIN absensi_guru ag 
+        ON jm.id_absensi_guru = ag.id_absensi_guru
     $where
-    ORDER BY tanggal DESC
+    ORDER BY jm.tanggal DESC
 ");
 ?>
 
@@ -39,14 +44,13 @@ $query = mysqli_query($conn, "
 <?php include "../sidebar.php"; ?>
 <?php include "../header.php"; ?>
 
-<!-- =========================
-     CONTENT ONLY
-========================= -->
 <div class="main-content p-4">
 
 <h4 class="fw-bold mb-3">Riwayat Jurnal</h4>
 
-<!-- FILTER -->
+<!-- =========================
+     FILTER
+========================= -->
 <div class="card shadow-sm mb-4">
 <div class="card-body">
 
@@ -64,30 +68,18 @@ value="<?= htmlspecialchars($search) ?>">
 <option value="">Semua Bulan</option>
 
 <?php
-
 $namaBulan = [
-    1 => 'Januari',
-    2 => 'Februari',
-    3 => 'Maret',
-    4 => 'April',
-    5 => 'Mei',
-    6 => 'Juni',
-    7 => 'Juli',
-    8 => 'Agustus',
-    9 => 'September',
-    10 => 'Oktober',
-    11 => 'November',
-    12 => 'Desember'
+    1 => 'Januari', 2 => 'Februari', 3 => 'Maret',
+    4 => 'April', 5 => 'Mei', 6 => 'Juni',
+    7 => 'Juli', 8 => 'Agustus', 9 => 'September',
+    10 => 'Oktober', 11 => 'November', 12 => 'Desember'
 ];
 
 foreach($namaBulan as $key => $nama){
     $selected = ($bulan == $key) ? "selected" : "";
     echo "<option value='$key' $selected>$nama</option>";
 }
-
-
 ?>
-
 </select>
 </div>
 
@@ -101,7 +93,9 @@ foreach($namaBulan as $key => $nama){
 </div>
 </div>
 
-<!-- TABLE -->
+<!-- =========================
+     TABLE
+========================= -->
 <div class="card shadow-sm">
 <div class="card-body">
 
@@ -113,7 +107,7 @@ foreach($namaBulan as $key => $nama){
 <th>Tanggal</th>
 <th>Kegiatan</th>
 <th>Kehadiran</th>
-<th>Status</th>
+<th>Status Jurnal</th>
 <th class="text-center">Detail</th>
 </tr>
 </thead>
@@ -124,31 +118,43 @@ foreach($namaBulan as $key => $nama){
 <?php while($row = mysqli_fetch_assoc($query)): ?>
 
 <?php
+/* STATUS JURNAL */
 $status = $row['status_verifikasi'];
 
 if($status == 'diverifikasi'){
-    $badge = "bg-success-subtle text-success";
+    $badgeStatus = "bg-success-subtle text-success";
 }elseif($status == 'draft'){
-    $badge = "bg-secondary-subtle text-dark";
+    $badgeStatus = "bg-secondary-subtle text-dark";
 }else{
-    $badge = "bg-warning-subtle text-warning";
+    $badgeStatus = "bg-warning-subtle text-warning";
+}
+
+/* KEHADIRAN */
+$hadir = $row['kehadiran'];
+
+if($hadir == 'hadir'){
+    $badgeHadir = "bg-success";
+}elseif($hadir == 'izin'){
+    $badgeHadir = "bg-warning";
+}else{
+    $badgeHadir = "bg-danger";
 }
 ?>
 
 <tr>
-<td><?= date('d F Y', strtotime($row['tanggal'])) ?>
-</td>
+
+<td><?= date('d F Y', strtotime($row['tanggal'])) ?></td>
 
 <td><?= htmlspecialchars($row['materi']) ?></td>
 
 <td>
-<span class="badge bg-primary">
-<?= ucfirst($row['status_verifikasi']) ?>
+<span class="badge <?= $badgeHadir ?>">
+<?= ucfirst($hadir) ?>
 </span>
 </td>
 
 <td>
-<span class="badge <?= $badge ?>">
+<span class="badge <?= $badgeStatus ?>">
 <?= ucfirst($status) ?>
 </span>
 </td>
@@ -159,6 +165,7 @@ class="btn btn-sm btn-outline-primary">
 Detail
 </a>
 </td>
+
 </tr>
 
 <?php endwhile; ?>
