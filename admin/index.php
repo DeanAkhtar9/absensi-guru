@@ -173,7 +173,7 @@ padding:6px 12px;
 
 <h6 class="mb-0 fw-bold">Laporan Terbaru</h6>
 
-<a href="verifikasi_laporan.php" class="text-primary">
+<a href="laporan.php" class="text-primary">
 Lihat Semua
 </a>
 
@@ -205,13 +205,25 @@ Lihat Semua
 
 <td><?=$row['nama']?></td>
 
-<td>Keluhan Siswa</td>
+<td><?= ucfirst($row['jenis_laporan'] ?? '-') ?></td>
 
 <td>
-<span class="badge bg-primary">
-BARU
+<?php
+$status = $row['status'];
+
+$badge = "secondary";
+
+if($status == 'baru') $badge = "primary";
+elseif($status == 'diverifikasi') $badge = "info text-dark";
+elseif($status == 'ditindaklanjuti') $badge = "warning";
+elseif($status == 'selesai') $badge = "success";
+?>
+
+<span class="badge bg-<?= $badge ?>">
+<?= ucfirst($status) ?>
 </span>
 </td>
+
 
 <td>
 
