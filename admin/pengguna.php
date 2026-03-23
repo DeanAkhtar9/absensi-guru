@@ -125,27 +125,25 @@ value="<?=htmlspecialchars($search)?>">
 <table class="table align-middle">
 
 <thead class="table-light">
-
 <tr>
 <th>NAMA</th>
+<th>ID</th> <!-- TAMBAHAN -->
 <th>ROLE</th>
 <th>EMAIL</th>
 <th>NO TELP</th>
 <th>AKSI</th>
 </tr>
-
 </thead>
 
 <tbody>
 
 <?php while($row=mysqli_fetch_assoc($query)): ?>
-
 <tr>
-
 <td><?=$row['nama']?></td>
 
-<td>
+<td><?=$row['id_user']?></td> <!-- TAMBAHAN -->
 
+<td>
 <?php
 $role = $row['role'];
 
