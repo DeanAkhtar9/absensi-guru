@@ -38,10 +38,14 @@ $id_siswa = $dataSiswa['id_siswa'];
 $stmt->close();
 
 /* =========================
-   STATISTIK KEHADIRAN
+   STATISTIK KEHADIRAN (FIX)
 ========================= */
 function hitung($conn, $id_siswa, $status) {
-    $stmt = $conn->prepare("SELECT COUNT(*) as total FROM komplain WHERE id_siswa=? AND pesan=?");
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) as total 
+        FROM absensi_siswa 
+        WHERE id_siswa=? AND status=?
+    ");
     $stmt->bind_param("is", $id_siswa, $status);
     $stmt->execute();
     $res = $stmt->get_result()->fetch_assoc()['total'];
@@ -49,24 +53,33 @@ function hitung($conn, $id_siswa, $status) {
     return $res;
 }
 
-$total = $conn->query("SELECT COUNT(*) as total FROM komplain WHERE id_siswa='$id_siswa'")->fetch_assoc()['total'];
-$hadir = hitung($conn, $id_siswa, "Hadir");
-$tidak_hadir = hitung($conn, $id_siswa, "Tidak Hadir");
-$tanpa_ket = hitung($conn, $id_siswa, "Tidak Ada Keterangan");
+$total = $conn->query("
+    SELECT COUNT(*) as total 
+    FROM komplain 
+    WHERE id_siswa='$id_siswa'
+")->fetch_assoc()['total'];
+
+
+$hadir = hitung($conn, $id_siswa, "hadir");
+$tidak_hadir = hitung($conn, $id_siswa, "tidak_hadir");
+$tanpa_ket = hitung($conn, $id_siswa, "alpa");
+
 
 /* =========================
    5 LAPORAN TERBARU
 ========================= */
 $stmt = $conn->prepare("
-    SELECT k.tanggal, k.pesan, u.nama, jm.mapel
-    FROM komplain k
-    JOIN jadwal_mengajar jm ON k.id_jadwal = jm.id_jadwal
-    JOIN users u ON jm.id_guru = u.id_user
-    WHERE k.id_siswa = ?
-    ORDER BY k.created_at DESC
+    SELECT 
+        jm.tanggal,
+        jm.materi,
+        u.nama
+    FROM jurnal_mengajar jm
+    JOIN users u ON jm.diisi_oleh = u.id_user
+    WHERE DATE(jm.tanggal) = CURDATE()
+    ORDER BY jm.tanggal DESC
     LIMIT 5
 ");
-$stmt->bind_param("i", $id_siswa);
+
 $stmt->execute();
 $terbaru = $stmt->get_result();
 ?>
@@ -103,7 +116,7 @@ $terbaru = $stmt->get_result();
         <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-start">
             <div class="space-y-1">
                 <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Laporan</p>
-                <p class="text-4xl font-black text-slate-900 dark:text-white leading-tight"><?= $total ?></p>
+                <p class="text-4xl font-black text-balck-600 leading-tight"><?= $total ?></p>
             </div>
             <div class="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg flex items-center justify-center">
                 <img src="/absensi-guru/assets/img/doc.png" alt="Total Laporan" class="w-10 h-10">
@@ -158,10 +171,10 @@ $terbaru = $stmt->get_result();
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                         <td class="px-6 py-4 text-sm" style="color: #475569;"><?= htmlspecialchars($row['tanggal']) ?></td>
                         <td class="px-6 py-4 text-sm font-bold" style="color: #434e5f;"><?= htmlspecialchars($row['nama']) ?></td>
-                        <td class="px-6 py-4 text-sm" style="color: #475569;"><?= htmlspecialchars($row['mapel']) ?></td>
+                        <td class="px-6 py-4 text-sm" style="color: #475569;"><?= htmlspecialchars($row['materi']) ?></td>
                         <td class="px-6 py-4">
                             <?php
-                                $status = $row['pesan'];
+                                $status = $row['-'];
                                 if($status == "Hadir"){
                                     echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300">Hadir</span>';
                                 } elseif($status == "Tidak Hadir"){

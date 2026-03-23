@@ -11,13 +11,35 @@ include "../templates/header.php";
 include "../sidebar.php";
 include "../header.php";
 
-/* DATA USER */
+/* =========================
+   FUNCTION AMBIL CSV (WAJIB)
+========================= */
+function getCSV($url){
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // penting
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+
+    $output = curl_exec($ch);
+    curl_close($ch);
+
+    return $output;
+}
+
+/* =========================
+   DATA USER
+========================= */
 $id_user = $_SESSION['id_user'];
 $nama_user = $_SESSION['nama'];
 
-/* HARI INI */
-$hari_ini = date('l');
+/* =========================
+   HARI INI
+========================= */
 $hari_map = [
+    'Sunday' => 'Minggu',
     'Monday' => 'Senin',
     'Tuesday' => 'Selasa',
     'Wednesday' => 'Rabu',
@@ -25,62 +47,84 @@ $hari_map = [
     'Friday' => 'Jumat',
     'Saturday' => 'Sabtu'
 ];
-$hari_ini = $hari_map[$hari_ini];
 
-/* AMBIL MASTER SHEET */
+$hari_ini = $hari_map[date('l')];
+
+/* =========================
+   AMBIL MASTER SHEET
+========================= */
 $url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&single=true&output=csv";
 
-$csv_master = file_get_contents($url_master);
+$csv_master = getCSV($url_master);
 $rows_master = array_map("str_getcsv", explode("\n", $csv_master));
 
 $sheetMap = [];
 
 foreach ($rows_master as $row) {
     if (count($row) < 2) continue;
-    $sheetMap[trim($row[0])] = trim($row[1]);
+
+    $kelas = trim($row[0]);
+    $gid   = trim($row[1]);
+
+    if ($kelas && $gid) {
+        $sheetMap[$kelas] = $gid;
+    }
 }
 
-/* AMBIL SEMUA JADWAL */
+/* =========================
+   AMBIL JADWAL HARI INI
+========================= */
 $jadwalHariIni = [];
 
 foreach ($sheetMap as $kelas => $gid) {
 
-    $url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=$gid&single=true&output=csv";
+    $url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=$gid&output=csv";
 
-    $csv = file_get_contents($url);
+    $csv = getCSV($url);
+    
+
     $rows = array_map("str_getcsv", explode("\n", $csv));
 
     foreach ($rows as $i => $row) {
+
         if ($i == 0 || count($row) < 5) continue;
 
-        if ((int)$row[0] == $id_user && $row[2] == $hari_ini) {
+        $id_sheet  = intval(trim($row[0]));
+        $hari_sheet = strtolower(trim($row[2]));
+
+        if (
+            $id_sheet == intval($id_user) &&
+            $hari_sheet == strtolower(trim($hari_ini))
+        ) {
             $jadwalHariIni[] = [
                 'kelas' => $kelas,
-                'mapel' => $row[1],
-                'jam_mulai' => $row[3],
-                'jam_selesai' => $row[4]
+                'mapel' => trim($row[1]),
+                'jam_mulai' => substr(trim($row[3]),0,5),
+                'jam_selesai' => substr(trim($row[4]),0,5)
             ];
         }
     }
 }
 
-/* HITUNG KELAS */
+/* =========================
+   HITUNG DATA
+========================= */
 $total_kelas = count($jadwalHariIni);
 
-/* HITUNG JURNAL */
+/* JURNAL */
 $qJurnal = mysqli_query($conn, "
     SELECT COUNT(*) as total 
     FROM jurnal_mengajar jm
     JOIN absensi_guru ag ON jm.id_absensi_guru = ag.id_absensi_guru
-    WHERE ag.diinput_oleh = $id_user
+    WHERE ag.id_user = '$id_user'
     AND DATE(ag.created_at) = CURDATE()
 ");
 
 $jurnal = mysqli_fetch_assoc($qJurnal)['total'] ?? 0;
 
-/* TOTAL SISWA */
+/* SISWA */
 $qSiswa = mysqli_query($conn, "SELECT COUNT(*) as total FROM siswa");
-$total_siswa = mysqli_fetch_assoc($qSiswa)['total'];
+$total_siswa = mysqli_fetch_assoc($qSiswa)['total'] ?? 0;
 ?>
 
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
@@ -88,11 +132,15 @@ $total_siswa = mysqli_fetch_assoc($qSiswa)['total'];
 <div class="main-content">
 <div class="container py-4">
 
-<!-- WELCOME -->
-<h5 class="fw-semibold">Selamat datang kembali, <?= htmlspecialchars($nama_user) ?>!</h5>
-<p class="text-muted mb-4">Berikut adalah ringkasan aktivitas mengajar Anda hari ini.</p>
+<!-- HEADER -->
+<h5 class="fw-semibold">
+Selamat datang kembali, <?= htmlspecialchars($nama_user) ?>!
+</h5>
+<p class="text-muted mb-4">
+Ringkasan aktivitas mengajar hari ini
+</p>
 
-<!-- CARD SUMMARY -->
+<!-- CARD -->
 <div class="row g-3 mb-4">
 
 <div class="col-md-3">
@@ -122,31 +170,37 @@ $total_siswa = mysqli_fetch_assoc($qSiswa)['total'];
 <div class="card jadwal-card">
 <div class="card-body">
 
-<div class="d-flex justify-content-between mb-3">
-<h6 class="fw-semibold">Jadwal Mengajar Terdekat</h6>
-</div>
+<h6 class="fw-semibold mb-3">Jadwal Mengajar Hari Ini</h6>
 
 <?php if (empty($jadwalHariIni)) { ?>
-<p class="text-muted">Tidak ada jadwal hari ini.</p>
+
+<div class="alert alert-warning">
+Tidak ada jadwal hari ini
+</div>
+
 <?php } ?>
 
 <?php foreach ($jadwalHariIni as $j) { ?>
 
 <div class="jadwal-item">
+
 <div>
 <div class="jam-box">
-<?= substr($j['jam_mulai'],0,5) ?>
+<?= $j['jam_mulai'] ?>
 </div>
 </div>
 
 <div class="flex-grow-1 ms-3">
 <strong><?= $j['mapel'] ?> - <?= $j['kelas'] ?></strong><br>
-<small class="text-muted">Jam <?= $j['jam_mulai'] ?> - <?= $j['jam_selesai'] ?></small>
+<small class="text-muted">
+<?= $j['jam_mulai'] ?> - <?= $j['jam_selesai'] ?>
+</small>
 </div>
 
 <div>
 <span class="badge bg-success">Jadwal</span>
 </div>
+
 </div>
 
 <?php } ?>
@@ -157,15 +211,9 @@ $total_siswa = mysqli_fetch_assoc($qSiswa)['total'];
 </div>
 </div>
 
-
-
 <?php include "../templates/footer.php"; ?>
 
-
-
 <style>
-
-        /* SUMMARY CARD */
 .summary-card {
     background: #fff;
     border-radius: 12px;
@@ -182,13 +230,11 @@ $total_siswa = mysqli_fetch_assoc($qSiswa)['total'];
     font-weight: bold;
 }
 
-/* JADWAL CARD */
 .jadwal-card {
     border-radius: 12px;
     border: 1px solid #e3e6f0;
 }
 
-/* ITEM */
 .jadwal-item {
     display: flex;
     align-items: center;
@@ -198,7 +244,6 @@ $total_siswa = mysqli_fetch_assoc($qSiswa)['total'];
     margin-bottom: 10px;
 }
 
-/* JAM BOX */
 .jam-box {
     background: #eef2ff;
     padding: 8px;
@@ -206,6 +251,4 @@ $total_siswa = mysqli_fetch_assoc($qSiswa)['total'];
     font-size: 12px;
     text-align: center;
 }
-
-
 </style>

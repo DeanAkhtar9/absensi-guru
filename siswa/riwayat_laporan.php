@@ -12,269 +12,222 @@ include "../header.php";
 /* =========================
 AMBIL ID SISWA
 ========================= */
-
 $id_user = $_SESSION['id_user'];
 
-$getSiswa = mysqli_query($conn,"
-SELECT id_siswa 
-FROM siswa 
-WHERE id_user='$id_user'
-");
+$stmt = $conn->prepare("SELECT id_siswa FROM siswa WHERE id_user=?");
+$stmt->bind_param("i", $id_user);
+$stmt->execute();
+$result = $stmt->get_result();
 
-$dataSiswa = mysqli_fetch_assoc($getSiswa);
-$id_siswa = $dataSiswa['id_siswa'];
+if($result->num_rows == 0){
+    die("Data siswa tidak ditemukan");
+}
 
+$id_siswa = $result->fetch_assoc()['id_siswa'];
 
 /* =========================
-SEARCH & FILTER
+FILTER
 ========================= */
-
-$search = isset($_GET['search']) ? $_GET['search'] : "";
-$mapel  = isset($_GET['mapel']) ? $_GET['mapel'] : "";
-$status = isset($_GET['status']) ? $_GET['status'] : "";
-
+$search = $_GET['search'] ?? "";
+$status = $_GET['status'] ?? "";
 
 /* =========================
 PAGINATION
 ========================= */
-
 $limit = 5;
-
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-
 $offset = ($page - 1) * $limit;
 
-
 /* =========================
-QUERY FILTER
+QUERY DINAMIS
 ========================= */
-
-$where = "WHERE k.id_siswa='$id_siswa'";
+$where = "WHERE id_siswa=?";
+$params = [$id_siswa];
+$types = "i";
 
 if($search){
-$where .= " AND (k.pesan LIKE '%$search%' OR u.nama LIKE '%$search%' OR jm.mapel LIKE '%$search%')";
-}
-
-if($mapel){
-$where .= " AND jm.mapel='$mapel'";
+    $where .= " AND (pesan LIKE ? OR jenis_laporan LIKE ?)";
+    $params[] = "%$search%";
+    $params[] = "%$search%";
+    $types .= "ss";
 }
 
 if($status){
-$where .= " AND k.status='$status'";
+    $where .= " AND status=?";
+    $params[] = $status;
+    $types .= "s";
 }
-
 
 /* =========================
 TOTAL DATA
 ========================= */
-
-$total = mysqli_query($conn,"
-SELECT COUNT(*) as total
-FROM komplain k
-JOIN jadwal_mengajar jm ON k.id_jadwal = jm.id_jadwal
-JOIN users u ON jm.id_guru = u.id_user
-$where
-");
-
-$total = mysqli_fetch_assoc($total)['total'];
+$sql_total = "SELECT COUNT(*) as total FROM komplain $where";
+$stmt = $conn->prepare($sql_total);
+$stmt->bind_param($types, ...$params);
+$stmt->execute();
+$total = $stmt->get_result()->fetch_assoc()['total'] ?? 0;
 
 $totalPages = ceil($total / $limit);
 
-
 /* =========================
-AMBIL DATA LAPORAN
+AMBIL DATA
 ========================= */
-
-$query = mysqli_query($conn,"
-SELECT k.*, jm.mapel, u.nama AS guru
-FROM komplain k
-JOIN jadwal_mengajar jm ON k.id_jadwal = jm.id_jadwal
-JOIN users u ON jm.id_guru = u.id_user
+$sql = "
+SELECT *
+FROM komplain
 $where
-ORDER BY k.tanggal DESC
+ORDER BY created_at DESC
 LIMIT $limit OFFSET $offset
-");
+";
 
-
-/* =========================
-LIST MAPEL
-========================= */
-
-$mapelList = mysqli_query($conn,"
-SELECT DISTINCT mapel 
-FROM jadwal_mengajar
-");
-
+$stmt = $conn->prepare($sql);
+$stmt->bind_param($types, ...$params);
+$stmt->execute();
+$query = $stmt->get_result();
 ?>
 
-<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+<style>
+.card-custom{
+    border-radius:16px;
+    border:none;
+    box-shadow:0 4px 12px rgba(0,0,0,0.05);
+}
 
+.table thead{
+    background:#f1f5f9;
+}
+
+.badge-status{
+    padding:6px 10px;
+    border-radius:8px;
+    font-size:12px;
+}
+</style>
+<link rel="stylesheet" href="assets/css/bootstrap.min.css">
 <div class="main-content">
-
 <div class="container py-4">
 
-<h4 class="fw-bold mb-2">Riwayat Laporan</h4>
+<h4 class="fw-bold">Riwayat Laporan</h4>
+<p class="text-muted">Lihat semua laporan yang pernah kamu kirim</p>
 
-<p class="text-muted">
-Lihat laporan kehadiran guru yang pernah kamu kirim
-</p>
-
-
-<div class="card shadow-sm border-0">
-
+<div class="card card-custom mt-3">
 <div class="card-body">
 
-<!-- SEARCH -->
-
+<!-- FILTER -->
 <form method="GET">
-
 <div class="row mb-3">
 
-<div class="col-md-4">
-
-<input type="text" 
-name="search" 
-class="form-control"
-placeholder="Cari laporan..."
-value="<?=htmlspecialchars($search)?>">
-
+<div class="col-md-5">
+<input type="text" name="search" class="form-control"
+placeholder="Cari jenis laporan / deskripsi..."
+value="<?= htmlspecialchars($search) ?>">
 </div>
+
 <div class="col-md-3">
-
 <select name="status" class="form-select">
-
 <option value="">Semua Status</option>
-
 <option value="baru">Baru</option>
 <option value="diverifikasi">Diverifikasi</option>
 <option value="ditindaklanjuti">Ditindaklanjuti</option>
 <option value="selesai">Selesai</option>
-
 </select>
-
 </div>
 
-
-<div class="col-md-2 d-flex gap-2">
-
-<button class="btn btn-primary">
-Filter
-</button>
-
-<a href="riwayat_laporan.php" class="btn btn-secondary">
-Reset
-</a>
-
+<div class="col-md-4 d-flex gap-2">
+<button class="btn btn-primary w-100">Filter</button>
+<a href="riwayat_laporan.php" class="btn btn-light w-100">Reset</a>
 </div>
 
 </div>
-
 </form>
 
-
 <!-- TABLE -->
-
+<div class="table-responsive">
 <table class="table align-middle">
 
-<thead class="table-light">
-
+<thead>
 <tr>
-
-<th>TANGGAL</th>
-<th>GURU</th>
-<th>MAPEL</th>
-<th>LAPORAN</th>
-<th>STATUS</th>
-
+<th>Tanggal</th>
+<th>Jenis Laporan</th>
+<th>Deskripsi</th>
+<th>Status</th>
 </tr>
-
 </thead>
 
 <tbody>
 
-<?php if(mysqli_num_rows($query)>0): ?>
-
-<?php while($row=mysqli_fetch_assoc($query)): ?>
+<?php if($query->num_rows > 0): ?>
+<?php while($row = $query->fetch_assoc()): ?>
 
 <tr>
 
-<td><?=$row['tanggal']?></td>
-
-<td><?=$row['guru']?></td>
-
-<td><?=$row['mapel']?></td>
-
-<td><?=$row['pesan']?></td>
+<td><?= date('d M Y', strtotime($row['created_at'])) ?></td>
 
 <td>
+<span class="fw-semibold">
+<?= htmlspecialchars($row['jenis_laporan'] ?? '-') ?>
+</span>
+</td>
 
+<td><?= htmlspecialchars($row['pesan']) ?></td>
+
+<td>
 <?php
-
-$status = $row['status'];
-
-if($status=='baru'){
-echo "<span class='badge bg-primary'>Baru</span>";
+switch($row['status']){
+    case 'baru':
+        echo "<span class='badge bg-primary badge-status'>Baru</span>";
+        break;
+    case 'diverifikasi':
+        echo "<span class='badge bg-warning text-dark badge-status'>Diverifikasi</span>";
+        break;
+    case 'ditindaklanjuti':
+        echo "<span class='badge bg-info badge-status'>Diproses</span>";
+        break;
+    case 'selesai':
+        echo "<span class='badge bg-success badge-status'>Selesai</span>";
+        break;
+    default:
+        echo "<span class='badge bg-secondary badge-status'>-</span>";
 }
-elseif($status=='diverifikasi'){
-echo "<span class='badge bg-warning text-dark'>Diverifikasi</span>";
-}
-elseif($status=='ditindaklanjuti'){
-echo "<span class='badge bg-info'>Ditindaklanjuti</span>";
-}
-elseif($status=='selesai'){
-echo "<span class='badge bg-success'>Selesai</span>";
-}
-
 ?>
-
 </td>
 
 </tr>
 
-<?php endwhile ?>
-
+<?php endwhile; ?>
 <?php else: ?>
 
 <tr>
-<td colspan="5" class="text-center text-muted">
+<td colspan="4" class="text-center text-muted py-4">
 Belum ada laporan
 </td>
 </tr>
 
-<?php endif ?>
+<?php endif; ?>
 
 </tbody>
-
 </table>
-
+</div>
 
 <!-- PAGINATION -->
+<nav class="mt-3">
+<ul class="pagination justify-content-end">
 
-<nav>
-
-<ul class="pagination">
-
-<?php for($i=1;$i<=$totalPages;$i++): ?>
-
+<?php for($i=1; $i<=$totalPages; $i++): ?>
 <li class="page-item <?=($i==$page)?'active':''?>">
-
 <a class="page-link"
-href="?page=<?=$i?>&search=<?=$search?>&mapel=<?=$mapel?>&status=<?=$status?>">
-
+href="?page=<?=$i?>&search=<?=$search?>&status=<?=$status?>">
 <?=$i?>
-
 </a>
-
 </li>
-
-<?php endfor ?>
+<?php endfor; ?>
 
 </ul>
-
 </nav>
 
 </div>
 </div>
+
 </div>
 </div>
 

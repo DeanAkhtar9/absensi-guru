@@ -65,11 +65,12 @@ font-size:12px;
 
 </style>
 
+<link rel="stylesheet" href="assets/css/style.css">
 <link rel="stylesheet" href="assets/css/bootstrap.min.css">
 
 <div class="main-content">
 
-<div class="container py-4">
+<div class="container-fluid py-4">
 
 <h4 class="mb-3 fw-bold">Verifikasi Laporan</h4>
 
