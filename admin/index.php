@@ -185,11 +185,11 @@ Lihat Semua
 <thead class="table-light">
 
 <tr>
-<th>TANGGAL</th>
-<th>NAMA PELAPOR</th>
-<th>JENIS LAPORAN</th>
-<th>STATUS</th>
-<th>AKSI</th>
+<th style="width:25%; text-align:start;">TANGGAL</th>
+<th style="width:20%; text-align:start;">NAMA PELAPOR</th>
+<th style="width:25%; text-align:start;">JENIS LAPORAN</th>
+<th style="width:15%; text-align:start;">STATUS</th>
+<th style="width:15%; text-align:start;">AKSI</th>
 </tr>
 
 </thead>
@@ -218,7 +218,7 @@ elseif($status == 'ditindaklanjuti') $badge = "warning";
 elseif($status == 'selesai') $badge = "success";
 ?>
 
-<span class="badge bg-<?= $badge ?>">
+<span class="badge bg-<?= $badge ?>" style="height:30px; padding-top:8px;">
 <?= ucfirst($status) ?>
 </span>
 </td>
@@ -227,10 +227,8 @@ elseif($status == 'selesai') $badge = "success";
 <td>
 
 <a href="detail_komplain.php?id=<?=$row['id_komplain']?>" 
-class="btn btn-sm btn-light">
-
+class="btn btn-sm btn-light" style="background-color: #21a9cf; height:30px; width:60px; color: #ffff;">
 Detail
-
 </a>
 
 </td>
