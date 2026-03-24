@@ -54,9 +54,9 @@ $search = isset($_GET['search']) ? strtolower($_GET['search']) : "";
                 value="<?= htmlspecialchars($search) ?>">
         </div>
 
-        <div class="col-md-2">
-            <button class="btn-filter w-100">Filter</button>
-        </div>
+        <button class="btn btn-primary" style="width:140px; height:45px;">
+            <i class="bi bi-funnel"></i> Filter
+        </button>
     </div>
 </form>
 

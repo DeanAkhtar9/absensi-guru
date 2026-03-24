@@ -152,12 +152,12 @@ td .btn {
 
 <thead class="table-light">
 <tr>
-<th>TANGGAL</th>
-<th>NAMA</th>
-<th>JENIS</th>
-<th>DESKRIPSI</th>
-<th>STATUS</th>
-<th>AKSI</th>
+<th style="width:12%;">TANGGAL</th>
+<th style="width:18%;">NAMA</th>
+<th style="width:15%;">JENIS</th>
+<th style="width:30%;">DESKRIPSI</th>
+<th style="width:15%;">STATUS</th>
+<th style="width:10%;">AKSI</th>
 </tr>
 </thead>
 
@@ -192,7 +192,7 @@ elseif($statusRow=='selesai'){
 echo "<span class='badge bg-success'>Selesai</span>";
 }
 ?><td>
-    <div class="aksi-group" style="justify-content:flex-end;">
+    <div class="aksi-group">
 
         <a href="ulaporan.php?id=<?=$row['id_komplain']?>&status=diverifikasi"
         class="btn btn-primary btn-aksi">
