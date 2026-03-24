@@ -129,7 +129,7 @@ include "../header.php";
 <!-- HEADER -->
 <div class="d-flex justify-content-between mb-4">
 <h5 class="fw-bold">Detail Kelas <?= htmlspecialchars($nama_kelas) ?></h5>
-<a href="jadwal2.php" class="btn btn-secondary btn-sm">← Kembali</a>
+<a href="jadwal2.php" class="btn btn-secondary btn-sm" style="width:120px; background-color: #067b9b; padding-top:11px;">←  Kembali</a>
 </div>
 
 <!-- INFO KELAS -->

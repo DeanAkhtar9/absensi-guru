@@ -64,10 +64,17 @@ value="<?=$data['no_telp']?>">
 <input class="form-control mb-2" name="email"
 value="<?=$data['email']?>">
 
-<button name="update" class="btn btn-success">
-Update
-</button>
+<div class="d-flex justify-content-between mt-3">
+    
+        <button name="update" class="btn btn-success">
+            Update  
+        </button>
+        
+        <a href="pengguna.php" class="btn btn-secondary btn-sm " style="width:120px; background-color: #067b9b; padding-top:11px;">←  Kembali</a>
+   
 
+</div>
+</div>
 </form>
 
 </div>
