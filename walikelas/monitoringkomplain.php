@@ -8,37 +8,62 @@ checkRole('walikelas');
 include "../config/database.php";
 
 /* =========================
+   AMBIL KELAS WALIKELAS
+========================= */
+$id_user = $_SESSION['id_user'];
+
+$kelasWalikelas = [];
+$qKelas = mysqli_query($conn, "
+    SELECT id_kelas 
+    FROM kelas 
+    WHERE id_walikelas='$id_user'
+");
+
+while($k = mysqli_fetch_assoc($qKelas)){
+    $kelasWalikelas[] = $k['id_kelas'];
+}
+
+if(empty($kelasWalikelas)){
+    $kelasWalikelas[] = 0;
+}
+
+$kelasIDs = implode(',', $kelasWalikelas);
+
+/* =========================
    PARAMETER FILTER
 ========================= */
 $search = $_GET['search'] ?? '';
 $status = $_GET['status'] ?? '';
 $tanggal = $_GET['tanggal'] ?? '';
 
-$page = $_GET['page'] ?? 1;
+$page = max(1, intval($_GET['page'] ?? 1));
 $limit = 5;
 $offset = ($page - 1) * $limit;
 
 /* =========================
-   QUERY DASAR
+   WHERE
 ========================= */
-$where = "WHERE 1=1";
+$where = "WHERE s.id_kelas IN ($kelasIDs)";
 
 /* search */
 if (!empty($search)) {
+    $search_safe = mysqli_real_escape_string($conn, $search);
     $where .= " AND (
-        u.nama LIKE '%$search%' OR
-        k.pesan LIKE '%$search%'
+        u.nama LIKE '%$search_safe%' OR
+        k.pesan LIKE '%$search_safe%'
     )";
 }
 
-/* filter status */
+/* status */
 if (!empty($status)) {
-    $where .= " AND k.status = '$status'";
+    $status_safe = mysqli_real_escape_string($conn, $status);
+    $where .= " AND k.status = '$status_safe'";
 }
 
-/* filter tanggal */
+/* tanggal */
 if (!empty($tanggal)) {
-    $where .= " AND DATE(k.created_at) = '$tanggal'";
+    $tanggal_safe = mysqli_real_escape_string($conn, $tanggal);
+    $where .= " AND DATE(k.created_at) = '$tanggal_safe'";
 }
 
 /* =========================
@@ -47,7 +72,8 @@ if (!empty($tanggal)) {
 $totalData = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT COUNT(*) as total
     FROM komplain k
-    JOIN users u ON k.id_siswa = u.id_user
+    JOIN siswa s ON k.id_siswa = s.id_siswa
+    JOIN users u ON s.id_user = u.id_user
     $where
 "))['total'];
 
@@ -59,7 +85,8 @@ $totalPage = ceil($totalData / $limit);
 $query = mysqli_query($conn, "
     SELECT k.*, u.nama 
     FROM komplain k
-    JOIN users u ON k.id_siswa = u.id_user
+    JOIN siswa s ON k.id_siswa = s.id_siswa
+    JOIN users u ON s.id_user = u.id_user
     $where
     ORDER BY k.created_at DESC
     LIMIT $limit OFFSET $offset

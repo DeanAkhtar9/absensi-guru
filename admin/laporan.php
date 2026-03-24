@@ -161,13 +161,8 @@ value="<?= htmlspecialchars($search) ?>">
 
 <td><?= ucfirst($row['jenis_laporan']) ?></td>
 
-<<<<<<< HEAD
 <td style="max-width:260px;">
 <?=substr($row['pesan'],0,60)?>...
-=======
-<td style="max-width:250px;">
-<?= substr($row['pesan'],0,50) ?>...
->>>>>>> 17bdfc499572291b023db8e75439d3f9e2ea705b
 </td>
 
 <td>

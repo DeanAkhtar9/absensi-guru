@@ -103,8 +103,8 @@ include "../header.php";
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold">Daftar Jadwal Per Kelas</h4>
 
-    <a href="tambah_jadwal" class="btn btn-primary btn-custom">
-        + Tambah Jadwal
+    <a href="tambah_kelas.php" class="btn btn-primary btn-custom">
+        + Tambah Kelas
     </a>
 </div>
 
