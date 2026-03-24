@@ -1,8 +1,13 @@
-jadwal2:
 <?php
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('admin');
+
+require "../config/database.php";
+
+include "../templates/header.php";
+include "../sidebar.php";
+include "../header.php";
 
 date_default_timezone_set('Asia/Jakarta');
 
@@ -25,77 +30,9 @@ foreach ($rows as $row) {
 $search = isset($_GET['search']) ? strtolower($_GET['search']) : "";
 
 
-include "../templates/header.php";
-include "../sidebar.php";
-include "../header.php";
 ?>
-
-<style>
-
-/* CARD */
-.kelas-card {
-    border: none;
-    border-radius: 16px;
-    padding: 20px;
-    background: #ffffff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: 0.3s;
-}
-
-.kelas-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-}
-
-/* TITLE */
-.kelas-title {
-    font-weight: 600;
-    font-size: 18px;
-}
-
-/* BUTTON LIHAT */
-.btn-lihat {
-    background: linear-gradient(135deg, #4e73df, #224abe);
-    color: #fff;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 14px;
-    border: none;
-    transition: 0.3s;
-}
-
-.btn-lihat:hover {
-    background: linear-gradient(135deg, #224abe, #1a3aa8);
-    color: #fff;
-}
-
-/* BUTTON TAMBAH */
-.btn-custom {
-    border-radius: 10px;
-    padding: 8px 16px;
-}
-
-/* SEARCH BOX */
-.search-box {
-    border-radius: 10px;
-    padding: 10px;
-}
-
-/* FILTER BUTTON */
-.btn-filter {
-    background: #4e73df;
-    color: white;
-    border-radius: 10px;
-}
-
-.btn-filter:hover {
-    background: #2e59d9;
-}
-
-
-</style>
-
-<!-- <link rel="stylesheet" href="../assets/css/bootstrap.min.css"> -->
+<link rel="stylesheet" href="../assets/css/style.css">
+<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 <div class="main-content">
 <div class="container py-4">
 
@@ -118,7 +55,7 @@ include "../header.php";
         </div>
 
         <div class="col-md-2">
-            <button class="btn btn-filter w-100">Filter</button>
+            <button class="btn-filter w-100">Filter</button>
         </div>
     </div>
 </form>
@@ -141,7 +78,7 @@ foreach ($kelasList as $nama_kelas) {
             <h5 class="kelas-title"><?= htmlspecialchars($nama_kelas) ?></h5>
 
             <a href="detail_jadwal.php?kelas=<?= urlencode($nama_kelas) ?>"
-               class="btn btn-lihat mt-3">
+               class="btn-lihat mt-3">
                Lihat Jadwal
             </a>
 

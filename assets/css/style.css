@@ -1103,3 +1103,210 @@ td {
   background-color: #f5f7fb; /* abu muda seperti figma */
   min-height:100vh;
 }
+.table-light{
+  text-align: start;
+}
+td{
+  text-align: start;
+}
+.table-light tr th{
+  color: #5f72a5;
+}
+
+/* SEARCH */
+.search-box {
+    height: 45px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding-left: 15px;
+    transition: 0.3s;
+}
+
+.search-box:focus {
+    border-color: #4e73df;
+    box-shadow: 0 0 0 2px rgba(78,115,223,0.15);
+}
+
+/* BUTTON */
+.btn-filter {
+    height: 45px;
+    border-radius: 10px;
+    background: #4e73df;
+    color: white;
+    font-weight: 500;
+}
+
+.btn-filter:hover {
+    background: #2e59d9;
+}
+
+/* CARD */
+.kelas-card {
+    border-radius: 16px;
+    border: none;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #ffffff, #f8f9fc);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.kelas-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+/* TITLE */
+.kelas-title {
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+}
+
+/* BUTTON LIHAT */
+.btn-lihat {
+    border-radius: 10px;
+    background: linear-gradient(135deg, #4e73df, #224abe);
+    color: white;
+    padding: 8px 20px;
+    font-size: 14px;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.btn-lihat:hover {
+    background: linear-gradient(135deg, #2e59d9, #1c3faa);
+    color: #fff;
+}
+
+/* HEADER */
+.btn-custom {
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-weight: 500;
+}
+.trash{
+  color:#d1333b
+}
+.pencil{
+text-decoration: none;
+}
+/* BASE BADGE */
+.badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* ROLE COLORS */
+.role-admin {
+    background-color: #1e3a8a;
+    color: #fff;
+}
+
+.role-guru {
+    background-color: #3b82f6;
+    color: #fff;
+}
+
+.role-siswa {
+    background-color: #10b981;
+    color: #fff;
+}
+
+.role-walikelas {
+    background-color: #a855f7;
+    color: #fff;
+}
+.main-content {
+    margin-left: 250px;
+    background: #f5f7fb;
+    min-height: 100vh;
+}
+
+.card {
+    border-radius: 14px;
+}
+
+.form-control, .form-select {
+    height: 45px;
+}
+
+.btn {
+    height: 45px;
+    border-radius: 10px;
+}
+
+/* ROLE BADGE */
+.badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.role-admin { background:#1e3a8a; color:white; }
+.role-guru { background:#3b82f6; color:white; }
+.role-siswa { background:#10b981; color:white; }
+.role-walikelas { background:#a855f7; color:white; }
+
+.search-modern {
+    height: 45px;
+    border-radius: 10px;
+}
+
+.filter-select {
+    width: 180px;
+    height: 45px;
+    border-radius: 10px;
+}
+
+.btn-filter {
+    height: 45px;
+    border-radius: 10px;
+    padding: 0 20px;
+}
+.main-content {
+    margin-left: 250px;
+    background: #f5f7fb;
+    min-height: 100vh;
+}
+
+.card {
+    border-radius: 14px;
+}
+
+/* ROLE BADGE */
+.badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.btn {
+    height: 45px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+.form-select {
+    color: #575f65;
+}
+
+.form-select option {
+    color: #000;
+}
+
+.search-input {
+    line-height: 45px; /* ini yang bikin teks sejajar */
+}
+
+.role-admin { background:#1e3a8a; color:white; }
+.role-guru { background:#3b82f6; color:white; }
+.role-siswa { background:#10b981; color:white; }
+.role-walikelas { background:#a855f7; color:white; }
+
+tr th{
+  text-align: start;
+}

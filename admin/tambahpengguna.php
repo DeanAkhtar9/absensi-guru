@@ -47,7 +47,7 @@ include "../templates/header.php";
 include "../sidebar.php";
 include "../header.php";
 ?>
-
+<link rel="stylesheet" href="../assets/css/style.css">
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 <style>
 .main-content { padding:30px; }
@@ -79,7 +79,7 @@ include "../header.php";
             <input class="form-control" name="nama" placeholder="Nama" value="<?= htmlspecialchars($_POST['nama'] ?? '') ?>" required>
 
             <select class="form-select" name="role" required>
-                <option value="">-- Pilih Role --</option>
+                <option value="">Pilih Role</option>
                 <?php 
                 $roles = ['admin','guru','siswa','walikelas'];
                 foreach($roles as $r):

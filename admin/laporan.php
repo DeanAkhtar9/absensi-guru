@@ -75,6 +75,7 @@ LIMIT $limit OFFSET $offset
 ");
 ?>
 
+<link rel="stylesheet" href="../assets/css/style.css">
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 
 <div class="main-content">
@@ -83,9 +84,9 @@ LIMIT $limit OFFSET $offset
 <h4 class="mb-3 fw-bold">Verifikasi Laporan</h4>
 <p class="text-muted">Kelola dan perbarui status laporan siswa</p>
 
+
 <div class="card shadow-sm border-0">
 <div class="card-body">
-
 <!-- =========================
      FORM FILTER
 ========================= -->
@@ -127,6 +128,12 @@ value="<?= htmlspecialchars($search) ?>">
 </form>
 
 </div>
+</div>
+</div>
+
+<div class="card shadow-sm border-0">
+<div class="card-body">
+
 
 <!-- =========================
      TABLE

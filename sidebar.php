@@ -76,26 +76,22 @@ $role = $_SESSION['role'];
          <li>
             <a href="/absensi-guru/admin/laporan.php">
                 <i class="bi bi-shield-check"></i>
-                Verifikasi Laporan
+                 Verifikasi Laporan
             </a>
         </li>
             <li>
                 <a href="/absensi-guru/admin/jadwal2.php">
                     <i class="bi bi-calendar"></i>
-                    Kelola Jadwal Guru
+                     Kelola Jadwal Pelajaran
                 </a>
             </li>
-                <a href="/absensi-guru/admin/jadwal2.php">
-                    <i class="bi bi-journal-text"></i>
-                    Jadwal Pelajaran
-                </a>
-            </li>
-            </li>
+            <li>
                 <a href="/absensi-guru/admin/pengguna.php">
                     <i class="bi bi-journal-text"></i>
-                    Pengguna
+                     Pengguna
                 </a>
             </li>
+
 
         <?php endif; ?>
 
