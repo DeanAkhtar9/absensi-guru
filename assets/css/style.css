@@ -1310,3 +1310,31 @@ text-decoration: none;
 tr th{
   text-align: start;
 }
+
+.card {
+    border-radius: 14px;
+}
+
+.form-control, .form-select {
+    height: 45px;
+}
+
+.main-content {
+    background: #f5f7fb;
+}
+.aksi-group {
+    display: flex;
+    gap: 6px;
+}
+
+.btn-aksi {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+}
+
+/* biar warning tetap putih */
+.btn-warning {
+    color: #fff !important;
+}
