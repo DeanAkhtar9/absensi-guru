@@ -92,7 +92,14 @@ include "../header.php";
             <input class="form-control" name="telp" placeholder="No Telp" value="<?= htmlspecialchars($_POST['telp'] ?? '') ?>">
             <input class="form-control" type="email" name="email" placeholder="Email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
 
-            <button name="simpan" class="btn btn-primary btn-submit mt-2">Simpan</button>
+            
+
+            <div class="d-flex justify-content-between mt-3">
+
+                <button name="simpan" class="btn btn-primary btn-submit mt-2">Simpan</button>
+                <a href="pengguna.php" class="btn btn-secondary btn-sm " style="width:120px; background-color: #067b9b; padding-top:11px; margin-top:9px;">←  Kembali</a>
+        
+            </div>
         </form>
     </div>
 
