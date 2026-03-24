@@ -6,8 +6,7 @@ checkRole('admin');
 require "../config/database.php";
 
 include "../templates/header.php";
-include "../sidebar.php";
-include "../header.php";
+
 
 /* =========================
    AMBIL ID
@@ -59,7 +58,12 @@ if(isset($_POST['status'])){
     exit;
 }
 ?>
+<?php
 
+include "../sidebar.php";
+include "../header.php";
+
+?>
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 
 <div class="main-content">
