@@ -73,7 +73,6 @@ padding:6px 12px;
 
 </style>
 
-<link rel="stylesheet" href="../assets/css/style.css">
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 <div class="main-content">
 
@@ -172,7 +171,7 @@ padding:6px 12px;
 
 <h6 class="mb-0 fw-bold">Laporan Terbaru</h6>
 
-<a href="laporan.php" class="text-primary">
+<a href="laporan.php" class="text-primary" style="text-decoration:none;">
 Lihat Semua
 </a>
 

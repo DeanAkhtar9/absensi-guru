@@ -105,56 +105,61 @@ $query = $stmt->get_result();
 </style>
 <link rel="stylesheet" href="assets/css/bootstrap.min.css">
 <div class="main-content">
-<div class="container py-4">
-
-<h4 class="fw-bold">Riwayat Laporan</h4>
-<p class="text-muted">Lihat semua laporan yang pernah kamu kirim</p>
-
-<div class="card card-custom mt-3">
-<div class="card-body">
-
-<!-- FILTER -->
-<form method="GET">
-<div class="row mb-3">
-
-<div class="col-md-5">
-<input type="text" name="search" class="form-control"
-placeholder="Cari jenis laporan / deskripsi..."
-value="<?= htmlspecialchars($search) ?>">
+    
+    <div class="px-4 py-3 w-100">
+<div class="mb-4">
+    <div class="page-title" style="font-size:30px;">Riwayat Laporan</div>
+    <div class="page-subtitle">Lihat semua laporan yang telah Anda kirim ke pihak sekolah</div>
 </div>
 
-<div class="col-md-3">
-<select name="status" class="form-select">
+<div class="mb-4">
+<form method="GET">
+<div class="d-flex gap-3">
+
+<input type="text" name="search"
+class="form-control"
+placeholder="Cari laporan..."
+value="<?= htmlspecialchars($search) ?>"
+style="border-radius:10px; height:45px; border:none;">
+
+<select name="status" class="form-select"
+style="max-width:200px; border-radius:10px; border:none;">
 <option value="">Semua Status</option>
 <option value="baru">Baru</option>
 <option value="diverifikasi">Diverifikasi</option>
 <option value="ditindaklanjuti">Ditindaklanjuti</option>
 <option value="selesai">Selesai</option>
 </select>
-</div>
 
-<div class="col-md-4 d-flex gap-2">
-<button class="btn btn-primary w-100">Filter</button>
-<a href="riwayat_laporan.php" class="btn btn-light w-100">Reset</a>
-</div>
+<button class="btn btn-primary px-4"
+style="border-radius:10px;">
+Filter
+</button>
 
 </div>
 </form>
+
+</div>
+<div class="card-custom p-4">
+
 
 <!-- TABLE -->
 <div class="table-responsive">
 <table class="table align-middle">
 
-<thead>
+<div class="table-responsive">
+<table class="table align-middle">
+
+<thead style="background:#f1f5f9;">
 <tr>
-<th>Tanggal</th>
-<th>Jenis Laporan</th>
-<th>Deskripsi</th>
-<th>Status</th>
+<th style="color:#64748B;">Tanggal</th>
+<th style="color:#64748B;">Jenis Laporan</th>
+<th style="color:#64748B;">Deskripsi</th>
+<th style="color:#64748B;">Status</th>
 </tr>
 </thead>
 
-<tbody>
+<tbody style="background:white;">
 
 <?php if($query->num_rows > 0): ?>
 <?php while($row = $query->fetch_assoc()): ?>
@@ -172,24 +177,21 @@ value="<?= htmlspecialchars($search) ?>">
 <td><?= htmlspecialchars($row['pesan']) ?></td>
 
 <td>
+    
 <?php
-switch($row['status']){
-    case 'baru':
-        echo "<span class='badge bg-primary badge-status'>Baru</span>";
-        break;
-    case 'diverifikasi':
-        echo "<span class='badge bg-warning text-dark badge-status'>Diverifikasi</span>";
-        break;
-    case 'ditindaklanjuti':
-        echo "<span class='badge bg-info badge-status'>Diproses</span>";
-        break;
-    case 'selesai':
-        echo "<span class='badge bg-success badge-status'>Selesai</span>";
-        break;
-    default:
-        echo "<span class='badge bg-secondary badge-status'>-</span>";
+$status = strtolower($row['status']);
+
+if($status == "baru"){
+    echo '<span style="background:#DBEAFE; color:#1D4ED8; padding:5px 10px; border-radius:999px; font-size:12px;">Baru</span>';
+} elseif($status == "diverifikasi"){
+    echo '<span style="background:#E0E7FF; color:#3730A3; padding:5px 10px; border-radius:999px; font-size:12px;">Diverifikasi</span>';
+} elseif($status == "ditindaklanjuti"){
+    echo '<span style="background:#FEF3C7; color:#92400E; padding:5px 10px; border-radius:999px; font-size:12px;">Ditindaklanjuti</span>';
+} else {
+    echo '<span style="background:#D1FAE5; color:#065F46; padding:5px 10px; border-radius:999px; font-size:12px;">Selesai</span>';
 }
 ?>
+
 </td>
 
 </tr>
@@ -210,12 +212,13 @@ Belum ada laporan
 </div>
 
 <!-- PAGINATION -->
-<nav class="mt-3">
+<nav class="mt-4">
 <ul class="pagination justify-content-end">
 
 <?php for($i=1; $i<=$totalPages; $i++): ?>
 <li class="page-item <?=($i==$page)?'active':''?>">
 <a class="page-link"
+style="border-radius:8px; margin:0 2px;"
 href="?page=<?=$i?>&search=<?=$search?>&status=<?=$status?>">
 <?=$i?>
 </a>

@@ -49,25 +49,25 @@ $role = $_SESSION['role'];
         <!-- ================= SISWA ================= -->
         <?php if($role == 'siswa'): ?>
 
-            <li><a href="/absensi-guru/siswa/absen_guru.php"><i class="bi bi-check2-square"></i><span>Absen Guru</span></a></li>
-            <li><a href="/absensi-guru/siswa/buat_laporan.php"><i class="bi bi-send"></i><span>Buat Laporan</span></a></li>
-            <li><a href="/absensi-guru/siswa/riwayat_laporan.php"><i class="bi bi-clock-history"></i><span>Riwayat Laporan</span></a></li>
-             <li><a href="/absensi-guru/siswa/profil.php"><i class="bi bi-person"></i><span>Profil</span></a></li>
+            <li><a href="/absensi-guru/siswa/absen_guru.php"><i class="bi bi-check2-square"></i><span> Absen Guru</span></a></li>
+            <li><a href="/absensi-guru/siswa/buat_laporan.php"><i class="bi bi-send"></i><span> Buat Laporan</span></a></li>
+            <li><a href="/absensi-guru/siswa/riwayat_laporan.php"><i class="bi bi-clock-history"></i><span> Riwayat Laporan</span></a></li>
+             <li><a href="/absensi-guru/siswa/profil.php"><i class="bi bi-person"></i><span> Profil</span></a></li>
         <?php endif; ?>
        <!-- ================= GURU ================= -->
         <?php if($role == 'guru'): ?>
 
-            <li><a href="/absensi-guru/guru/jurnal.php"><i class="bi bi-check2-square"></i><span>Jurnal</span></a></li>
-            <li><a href="/absensi-guru/guru/riwayat_jurnal.php"><i class="bi bi-stopwatch"></i><span>Riwayat Jurnal</span></a></li>
-            <li><a href="/absensi-guru/guru/profile.php"><i class="bi bi-shield-check"></i><span>Profile</span></a></li>
+            <li><a href="/absensi-guru/guru/jurnal.php"><i class="bi bi-check2-square"></i><span> Jurnal</span></a></li>
+            <li><a href="/absensi-guru/guru/riwayat_jurnal.php"><i class="bi bi-stopwatch"></i><span> Riwayat Jurnal</span></a></li>
+            <li><a href="/absensi-guru/guru/profile.php"><i class="bi bi-shield-check"></i><span> Profile</span></a></li>
         <?php endif; ?>
 
        <!-- ================= Walikelas ================= -->
         <?php if($role == 'walikelas'): ?>
 
-            <li><a href="/absensi-guru/walikelas/monitoringkomplain.php"><i class="bi bi-check2-square"></i><span>Monitoing Laporan</span></a></li>
-            <li><a href="/absensi-guru/walikelas/monitoringjurnal.php"><i class="bi bi-stopwatch"></i><span>Monitoing Jurnal</span></a></li>
-            <li><a href="/absensi-guru/walikelas/profile.php"><i class="bi bi-shield-check"></i><span>Profile</span></a></li>
+            <li><a href="/absensi-guru/walikelas/monitoringkomplain.php"><i class="bi bi-check2-square"></i><span> Monitoing Laporan</span></a></li>
+            <li><a href="/absensi-guru/walikelas/monitoringjurnal.php"><i class="bi bi-stopwatch"></i><span> Monitoing Jurnal</span></a></li>
+            <li><a href="/absensi-guru/walikelas/profile.php"><i class="bi bi-shield-check"></i><span> Profile</span></a></li>
         <?php endif; ?>
 
         <!-- ================= ADMIN ================= -->

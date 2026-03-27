@@ -1338,3 +1338,161 @@ tr th{
 .btn-warning {
     color: #ffffff !important;
 }
+
+.view{
+  font-size: 24px;
+}
+/* DASHBOARD SISWA STYLE */
+.dashboard-container{
+  margin-left: 250px;
+  padding: 30px;
+  background: #f5f7fb;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.dashboard-title{
+  font-size: 26px;
+  font-weight: 700;
+  color: #2b2f4c;
+}
+
+.dashboard-subtitle{
+  color: #8a8fa3;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* WELCOME CARD */
+.welcome-card{
+  background: #fff;
+  border-radius: 14px;
+  padding: 25px;
+  position: relative;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}
+
+.welcome-card h4{
+  color: #1E3A8A;
+  font-weight: 600;
+}
+
+/* STAT */
+.stat-grid{
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 20px;
+}
+
+.stat-box{
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-box h3{
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.stat-box p{
+  font-size: 12px;
+  color: #8a8fa3;
+}
+
+/* TABLE */
+.table-modern{
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-modern th{
+  background: #f1f5f9;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.table-modern td{
+  font-size: 14px;
+}
+.main-content {
+    margin-left: 250px; /* sesuai sidebar */
+    padding: 30px;
+    width: calc(100% - 250px);
+    min-height: 100vh; /* INI YANG BIKIN KEBAWAH */
+    background: #f5f7fb;
+}
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.stat-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    min-height: 100px; /* BIKIN NAFAS */
+}
+.table-modern {
+    margin-top: 20px;
+}
+.main-content {
+    margin-left: 250px; /* sidebar */
+    padding: 30px;
+    width: calc(100% - 250px);
+    min-height: 100vh;
+    background: #f5f7fb;
+}
+
+.main-content > * {
+    margin-bottom: 25px;
+}
+.laporan-card {
+    background:#fff;
+    border-radius:16px;
+    padding:40px; /* dari 30 → 40 */
+    min-height:420px; /* bikin tinggi */
+    box-shadow:0 6px 20px rgba(0,0,0,0.05);
+    border:1px solid #eee;
+}
+textarea.form-control {
+    height: 180px;
+}
+.page-wrapper{
+    padding-top:15px;
+    padding-left:40px;
+    padding-right:40px;
+    padding-bottom:40px;
+}
+.page-title{
+    font-weight:700;
+    font-size:22px;
+    margin-bottom:4px;
+}
+.page-subtitle{
+    color:#6b7280;
+    font-size:14px;
+    margin-bottom:20px;
+}
+.card-custom{
+    border-radius:16px;
+    background:white;
+    box-shadow:0 6px 20px rgba(0,0,0,0.05);
+    border:1px solid #eee;
+}
+
+.table td{
+    padding:14px 10px;
+    color:#475569;
+}
+
+.table th{
+    font-size:12px;
+    text-transform:uppercase;
+    padding:12px 10px;
+}

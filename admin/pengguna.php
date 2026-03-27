@@ -54,7 +54,6 @@ LIMIT $limit OFFSET $offset
 ?>
 
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-<link rel="stylesheet" href="../assets/css/style.css">
 
 <div class="main-content">
 <div class="container-fluid py-4 px-4">

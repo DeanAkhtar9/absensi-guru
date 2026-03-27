@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <style>
 .page-wrapper{padding:40px;}
 .laporan-card{background:#fff;border-radius:16px;padding:30px;box-shadow:0 6px 20px rgba(0,0,0,0.05);border:1px solid #eee;}
-.page-title{font-weight:700;font-size:22px;}
+.page-title{font-weight:700;font-size:18px;margin-top:-40px;}
 .page-subtitle{color:#6b7280;font-size:14px;}
 .form-label{font-size:13px;font-weight:600;color:#374151;}
 .form-control, .form-select{border-radius:10px;padding:10px 12px;border:1px solid #e5e7eb;font-size:14px;}
@@ -97,11 +97,11 @@ textarea.form-control{resize:none;}
 <div class="main-content">
 <div class="page-wrapper">
 
-<div class="row justify-content-center">
-<div class="col-md-8">
+<div class="row">
+<div class="col-md-12">
 
 <div class="mb-4">
-    <div class="page-title">Buat Laporan</div>
+    <div class="page-title" style="font-size:30px;">Buat Laporan</div>
     <div class="page-subtitle">Laporkan kejadian yang terjadi di sekolah dengan detail dan akurat</div>
 </div>
 
@@ -135,7 +135,7 @@ textarea.form-control{resize:none;}
 
 <div class="mb-3">
 <label class="form-label">Deskripsi</label>
-<textarea name="pesan" class="form-control" rows="5" placeholder="Tuliskan detail laporan..." required><?= htmlspecialchars($pesan) ?></textarea>
+<textarea name="pesan" class="form-control" rows="7" placeholder="Tuliskan detail laporan..." required><?= htmlspecialchars($pesan) ?></textarea>
 </div>
 
 <button type="submit" class="btn-submit w-100 mt-2">➤ Kirim Laporan</button>
