@@ -163,7 +163,7 @@ while($u = mysqli_fetch_assoc($qUser)){
 
 <div class="main-content p-4">
 
-<h5 class="fw-bold">Dashboard</h5>
+<h2 class="fw-bold" style="margin-bottom:3px;">Dashboard</h2>
 
 <p class="text-muted">
 Selamat datang kembali, <?= $_SESSION['nama'] ?? 'User' ?>!
@@ -175,55 +175,87 @@ Selamat datang kembali, <?= $_SESSION['nama'] ?? 'User' ?>!
 <div class="row g-3 mb-4">
 
 <div class="col-md-3">
-<div class="stat-card">
-<div class="stat-title">Total Laporan Kelas</div>
-<div class="stat-value"><?= $totalLaporan ?></div>
+<div class="card shadow-sm border-0">
+<div class="card-body d-flex align-items-center gap-3">
+
+<i class="bi bi-file-earmark-text text-primary fs-3"></i>
+
+<div>
+<div class="text-muted small">Total Laporan Kelas</div>
+<h4 class="fw-bold mb-0"><?= $totalLaporan ?></h4>
+</div>
+
+</div>
 </div>
 </div>
 
 <div class="col-md-3">
-<div class="stat-card">
-<div class="stat-title">Laporan Baru</div>
-<div class="stat-value"><?= $laporanBaru ?></div>
+<div class="card shadow-sm border-0">
+<div class="card-body d-flex align-items-center gap-3">
+
+<i class="bi bi-exclamation-circle text-danger fs-3"></i>
+
+<div>
+<div class="text-muted small">Laporan Baru</div>
+<h4 class="fw-bold mb-0"><?= $laporanBaru ?></h4>
+</div>
+
+</div>
 </div>
 </div>
 
 <div class="col-md-3">
-<div class="stat-card">
-<div class="stat-title">Total Jurnal Guru</div>
-<div class="stat-value"><?= $totalJurnal ?></div>
+<div class="card shadow-sm border-0">
+<div class="card-body d-flex align-items-center gap-3">
+
+<i class="bi bi-journal-text text-warning fs-3"></i>
+
+<div>
+<div class="text-muted small">Total Jurnal Guru</div>
+<h4 class="fw-bold mb-0"><?= $totalJurnal ?></h4>
+</div>
+
+</div>
 </div>
 </div>
 
 <div class="col-md-3">
-<div class="stat-card">
-<div class="stat-title">Persentase Kehadiran</div>
-<div class="stat-value"><?= $persentase ?>%</div>
+<div class="card shadow-sm border-0">
+<div class="card-body d-flex align-items-center gap-3">
+
+<i class="bi bi-bar-chart text-success fs-3"></i>
+
+<div>
+<div class="text-muted small">Persentase Kehadiran</div>
+<h4 class="fw-bold mb-0"><?= $persentase ?>%</h4>
+</div>
+
+</div>
 </div>
 </div>
 
 </div>
-
 
 <!-- =========================
      AKTIVITAS TERBARU
 ========================= -->
-<div class="card shadow-sm card-dashboard">
-<div class="card-body">
 
-<div class="d-flex justify-content-between mb-3">
-<h6 class="fw-bold">Aktivitas Terbaru Kelas</h6>
+<div class="card shadow-sm border-0">
+
+<div class="card-header bg-white d-flex justify-content-between">
+<h6 class="mb-0 fw-bold">Aktivitas Terbaru Kelas</h6>
 </div>
 
 <div class="table-responsive">
-<table class="table align-middle">
 
-<thead>
+<table class="table align-middle mb-0">
+
+<thead class="table-light">
 <tr>
-<th>Tanggal</th>
-<th>Nama</th>
-<th>Jenis Aktivitas</th>
-<th>Status</th>
+<th style="width:25%; text-align:start;">TANGGAL</th>
+<th style="width:25%; text-align:start;">NAMA</th>
+<th style="width:25%; text-align:start;">JENIS AKTIVITAS</th>
+<th style="width:15%; text-align:start;">STATUS</th>
 </tr>
 </thead>
 
@@ -236,24 +268,27 @@ $nama = $userList[$row['user_id']] ?? 'Tidak diketahui';
 
 $status = strtolower($row['status']);
 
-if($status == 'diverifikasi'){
-    $badge = "bg-success-subtle text-success";
-}elseif($status == 'baru'){
-    $badge = "bg-primary-subtle text-primary";
-}else{
-    $badge = "bg-warning-subtle text-warning";
-}
+$badge = "secondary";
+
+if($status == 'diverifikasi') $badge = "success";
+elseif($status == 'baru') $badge = "primary";
+else $badge = "warning";
 ?>
 
 <tr>
+
 <td><?= date('d M Y', strtotime($row['tanggal'])) ?></td>
+
 <td><?= htmlspecialchars($nama) ?></td>
+
 <td><?= $row['jenis'] ?></td>
+
 <td>
-<span class="badge <?= $badge ?>">
+<span class="badge bg-<?= $badge ?>" style="height:30px; padding-top:8px;">
 <?= ucfirst($row['status']) ?>
 </span>
 </td>
+
 </tr>
 
 <?php endwhile; ?>
@@ -261,11 +296,8 @@ if($status == 'diverifikasi'){
 </tbody>
 
 </table>
-</div>
 
 </div>
-</div>
-
 </div>
 
 <?php include "../templates/footer.php"; ?>

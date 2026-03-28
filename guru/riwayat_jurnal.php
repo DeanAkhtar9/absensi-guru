@@ -44,37 +44,31 @@ $query = mysqli_query($conn, "
 <?php include "../sidebar.php"; ?>
 <?php include "../header.php"; ?>
 
-<div class="main-content p-4">
+<div class="main-content"><div class="px-4 py-3 w-100">
 
-<h4 class="fw-bold mb-3">Riwayat Jurnal</h4>
+<div class="mb-4">
+    <div class="page-title" style="font-size:26px; margin-bottom:24px;">Riwayat Jurnal</div>
 
-<!-- =========================
-     FILTER
-========================= -->
-<div class="card shadow-sm mb-4">
-<div class="card-body">
+  <form method="GET" class="mb-4">
 
-<form method="GET">
-<div class="row g-2">
+<div class="row g-3">
 
-<div class="col-md-4">
-<input type="text" name="search" class="form-control"
+<!-- SEARCH -->
+<div class="col-md-6">
+<input type="text" name="search"
+class="form-control"
 placeholder="Cari kegiatan..."
-value="<?= htmlspecialchars($search) ?>">
+value="<?= htmlspecialchars($search) ?>"
+style="height:48px; border-radius:10px; border-color: #d0d0d0;">
 </div>
 
+<!-- BULAN -->
 <div class="col-md-3">
-<select name="bulan" class="form-select">
+<select name="bulan" class="form-select"
+style="height:48px; border-radius:10px; border-color: #d0d0d0;">
 <option value="">Semua Bulan</option>
 
 <?php
-$namaBulan = [
-    1 => 'Januari', 2 => 'Februari', 3 => 'Maret',
-    4 => 'April', 5 => 'Mei', 6 => 'Juni',
-    7 => 'Juli', 8 => 'Agustus', 9 => 'September',
-    10 => 'Oktober', 11 => 'November', 12 => 'Desember'
-];
-
 foreach($namaBulan as $key => $nama){
     $selected = ($bulan == $key) ? "selected" : "";
     echo "<option value='$key' $selected>$nama</option>";
@@ -83,15 +77,17 @@ foreach($namaBulan as $key => $nama){
 </select>
 </div>
 
-<div class="col-md-2">
-<button class="btn btn-primary w-100">Filter</button>
+<!-- BUTTON -->
+<div class="col-md-3">
+<button class="btn btn-primary w-100"
+style="height:48px; border-radius:10px;">
+Filter
+</button>
 </div>
 
 </div>
-</form>
 
-</div>
-</div>
+</form> 
 
 <!-- =========================
      TABLE
@@ -186,6 +182,7 @@ Belum ada data jurnal
 </div>
 </div>
 
+</div>
 </div>
 
 <?php include "../templates/footer.php"; ?>

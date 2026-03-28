@@ -130,35 +130,38 @@ $total_siswa = mysqli_fetch_assoc($qSiswa)['total'] ?? 0;
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 
 <div class="main-content">
-<div class="container py-4">
+<div class="px-5 py-4 w-100">
 
 <!-- HEADER -->
-<h5 class="fw-semibold">
-Selamat datang kembali, <?= htmlspecialchars($nama_user) ?>!
-</h5>
+<h4 class="fw-bold">Dashboard Admin</h4>    
 <p class="text-muted mb-4">
 Ringkasan aktivitas mengajar hari ini
 </p>
 
-<!-- CARD -->
-<div class="row g-3 mb-4">
+<div class="d-flex gap-3 mb-4 flex-wrap">
 
-<div class="col-md-3">
-<div class="summary-card">
+<!-- Kelas -->
+<div class="summary-card flex-fill d-flex align-items-center gap-3">
+<i class="bi bi-easel text-primary fs-2"></i>
+<div>
 <h6>Kelas Hari Ini</h6>
 <h4><?= $total_kelas ?> Kelas</h4>
 </div>
 </div>
 
-<div class="col-md-3">
-<div class="summary-card">
+<!-- Jurnal -->
+<div class="summary-card flex-fill d-flex align-items-center gap-3">
+<i class="bi bi-journal-check text-success fs-2"></i>
+<div>
 <h6>Jurnal Terisi</h6>
 <h4><?= $jurnal ?> / <?= $total_kelas ?></h4>
 </div>
 </div>
 
-<div class="col-md-3">
-<div class="summary-card">
+<!-- Siswa -->
+<div class="summary-card flex-fill d-flex align-items-center gap-3">
+<i class="bi bi-people text-warning fs-2"></i>
+<div>
 <h6>Total Siswa</h6>
 <h4><?= $total_siswa ?> Siswa</h4>
 </div>

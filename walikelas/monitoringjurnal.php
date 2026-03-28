@@ -132,57 +132,124 @@ $query = mysqli_query($conn,"
 <h5 class="fw-bold">Monitoring Jurnal Guru</h5>
 
 <!-- SEARCH -->
-<form method="GET" class="row g-2 mb-3">
-<div class="col-md-4">
-<input type="text" name="search" class="form-control"
-placeholder="Cari materi..." value="<?= htmlspecialchars($search) ?>">
+<form method="GET" class="mb-4">
+<div class="row g-2">
+
+<div class="col-md-10">
+<input type="text" name="search" class="form-control border-0 border-bottom"
+placeholder="Cari materi..." 
+value="<?= htmlspecialchars($search) ?>">
 </div>
+
 <div class="col-md-2">
 <button class="btn btn-primary w-100">Cari</button>
+</div>
+
 </div>
 </form>
 
 <!-- STAT CARD -->
-<div class="row g-3 mb-4">
-<div class="col-md-4"><div class="card-stat">Total Jurnal Minggu Ini<br><h5><?= $totalJurnal ?></h5></div></div>
-<div class="col-md-4"><div class="card-stat">Guru Mengajar Hari Ini<br><h5><?= $guruHariIni ?></h5></div></div>
-<div class="col-md-4"><div class="card-stat">Guru Tidak Hadir<br><h5><?= $tidakHadir ?></h5></div></div>
+<div class="d-flex gap-3 mb-4 flex-wrap">
+
+<div class="stat-card flex-fill">
+    <div class="stat-icon icon-primary">
+        <i class="bi bi-journal-text"></i>
+    </div>
+    <div>
+        <div class="text-muted small">Jurnal Minggu Ini</div>
+        <h5 class="fw-bold mb-0"><?= $totalJurnal ?></h5>
+    </div>
+</div>
+
+<div class="stat-card flex-fill">
+    <div class="stat-icon icon-success">
+        <i class="bi bi-person-check"></i>
+    </div>
+    <div>
+        <div class="text-muted small">Guru Hari Ini</div>
+        <h5 class="fw-bold mb-0"><?= $guruHariIni ?></h5>
+    </div>
+</div>
+
+<div class="stat-card flex-fill">
+    <div class="stat-icon icon-danger">
+        <i class="bi bi-person-x"></i>
+    </div>
+    <div>
+        <div class="text-muted small">Tidak Hadir</div>
+        <h5 class="fw-bold mb-0"><?= $tidakHadir ?></h5>
+    </div>
+</div>
+
 </div>
 
 <!-- TABLE -->
-<div class="card shadow-sm">
-<div class="card-body">
-<table class="table table-bordered table-striped">
-<thead>
+ <div class="card shadow-sm border-0">
+
+<div class="card-header bg-white d-flex justify-content-between">
+<h6 class="mb-0 fw-bold">Data Jurnal Guru</h6>
+</div>
+
+<div class="table-responsive">
+
+<table class="table align-middle mb-0">
+
+<thead class="table-light">
 <tr>
-<th>Tanggal</th>
-<th>Nama Guru</th>
-<th>Kelas</th>
-<th>Materi</th>
-<th>Kehadiran</th>
+<th style="width:20%;">TANGGAL</th>
+<th style="width:20%;">NAMA GURU</th>
+<th style="width:15%;">KELAS</th>
+<th style="width:25%;">MATERI</th>
+<th style="width:20%;">KEHADIRAN</th>
 </tr>
 </thead>
+
 <tbody>
+
 <?php if(mysqli_num_rows($query) == 0): ?>
-<tr><td colspan="5" class="text-center">Tidak ada data</td></tr>
+<tr>
+<td colspan="5" class="text-center text-muted">
+Tidak ada data
+</td>
+</tr>
 <?php endif; ?>
 
-<?php while($r = mysqli_fetch_assoc($query)): 
-$status = $r['status'] ?? '-';
-$color = ($status=='hadir')?'green':(($status=='izin')?'orange':'red');
-$nama_guru = $r['nama_guru'] ?? '-';
-$nama_kelas = $r['nama_kelas'] ?? '-';
+<?php while($r = mysqli_fetch_assoc($query)): ?>
+
+<?php
+$status = $r['status'] ?? '';
+
+$badge = "secondary";
+if($status == 'hadir') $badge = "success";
+elseif($status == 'izin') $badge = "warning";
+elseif($status == 'alpha') $badge = "danger";
 ?>
+
 <tr>
+
 <td><?= date('d M Y', strtotime($r['tanggal'])) ?></td>
-<td><?= htmlspecialchars($nama_guru) ?></td>
-<td><?= htmlspecialchars($nama_kelas) ?></td>
+
+<td><?= htmlspecialchars($r['nama_guru']) ?></td>
+
+<td><?= htmlspecialchars($r['nama_kelas']) ?></td>
+
 <td><?= htmlspecialchars($r['materi']) ?></td>
-<td><span style="color:<?= $color ?>">●</span> <?= ucfirst($status) ?></td>
+
+<td>
+<span class="badge bg-<?= $badge ?>">
+<?= ucfirst($status) ?>
+</span>
+</td>
+
 </tr>
+
 <?php endwhile; ?>
+
 </tbody>
 </table>
+
+</div>
+</div>
 
 <!-- PAGINATION -->
 <ul class="pagination mt-3">

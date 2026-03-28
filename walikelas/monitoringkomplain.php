@@ -115,23 +115,18 @@ $query = mysqli_query($conn, "
     border-radius:8px;
 }
 
-.filter-box{
-    background:#f8f9fc;
-    padding:15px;
-    border-radius:12px;
-}
 </style>
 
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 <div class="main-content p-4">
 
-<h5 class="fw-bold">Monitoring Laporan Siswa</h5>
-<p class="text-muted">Pantau semua laporan dari siswa di kelas Anda.</p>
+<h4 class="fw-bold">Monitoring Laporan Siswa</h4>
+<p class="text-muted" style="margin-top:-18px;">Pantau semua laporan dari siswa di kelas Anda.</p>
 
 <!-- =========================
      FILTER
 ========================= -->
-<form method="GET" class="filter-box mb-4">
+<form method="GET" class="mb-4">
 <div class="row g-2">
 
 <div class="col-md-2">
@@ -149,7 +144,8 @@ $query = mysqli_query($conn, "
 </div>
 
 <div class="col-md-5">
-<input type="text" name="search" class="form-control"
+<input type="text" name="search"
+class="form-control border-0 shadow-none"
 placeholder="Cari laporan berdasarkan nama siswa atau deskripsi..."
 value="<?= htmlspecialchars($search) ?>">
 </div>
@@ -164,18 +160,22 @@ value="<?= htmlspecialchars($search) ?>">
 <!-- =========================
      TABLE
 ========================= -->
-<div class="card shadow-sm card-box">
-<div class="card-body">
+<div class="card shadow-sm border-0">
+
+<div class="card-header bg-white d-flex justify-content-between">
+<h6 class="mb-0 fw-bold">Data Laporan Siswa</h6>
+</div>
 
 <div class="table-responsive">
-<table class="table align-middle">
 
-<thead>
+<table class="table align-middle mb-0">
+
+<thead class="table-light">
 <tr>
-<th>Tanggal</th>
-<th>Nama Siswa</th>
-<th>Deskripsi</th>
-<th>Status</th>
+<th style="width:20%; text-align:start;">TANGGAL</th>
+<th style="width:20%; text-align:start;">NAMA SISWA</th>
+<th style="width:40%; text-align:start;">DESKRIPSI</th>
+<th style="width:20%; text-align:start;">STATUS</th>
 </tr>
 </thead>
 
@@ -194,26 +194,28 @@ Tidak ada data ditemukan
 <?php
 $status = strtolower($row['status']);
 
-if($status == 'baru'){
-    $badge = "bg-primary-subtle text-primary";
-}elseif($status == 'diverifikasi'){
-    $badge = "bg-info-subtle text-info";
-}elseif($status == 'ditindaklanjuti'){
-    $badge = "bg-warning-subtle text-warning";
-}else{
-    $badge = "bg-success-subtle text-success";
-}
+$badge = "secondary";
+
+if($status == 'baru') $badge = "primary";
+elseif($status == 'diverifikasi') $badge = "info text-dark";
+elseif($status == 'ditindaklanjuti') $badge = "warning";
+elseif($status == 'selesai') $badge = "success";
 ?>
 
 <tr>
+
 <td><?= date('d M Y', strtotime($row['created_at'])) ?></td>
+
 <td><?= htmlspecialchars($row['nama']) ?></td>
-<td><?= htmlspecialchars(substr($row['pesan'],0,50)) ?>...</td>
+
+<td><?= htmlspecialchars(substr($row['pesan'],0,60)) ?>...</td>
+
 <td>
-<span class="badge <?= $badge ?>">
+<span class="badge bg-<?= $badge ?>" style="height:30px; padding-top:8px;">
 <?= ucfirst($status) ?>
 </span>
 </td>
+
 </tr>
 
 <?php endwhile; ?>
@@ -221,6 +223,7 @@ if($status == 'baru'){
 </tbody>
 
 </table>
+
 </div>
 
 <!-- =========================

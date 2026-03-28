@@ -41,17 +41,27 @@ if (!$data) {
 ========================= -->
 <div class="main-content p-4">
 
-<h4 class="fw-bold mb-3">Detail Jurnal</h4>
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-start mb-4">
 
-<!-- tombol kembali -->
-<a href="riwayat_jurnal.php" 
-class="btn btn-light border mb-4">
-← Kembali
-</a>
+    <!-- KIRI -->
+    <div>
+        <h5 class="fw-bold mb-1" style="font-size:28px;">Detail Jurnal</h5>
+        <p class="text-muted mb-0">Jurnal Kegiatan Pembelajaran</p>
+    </div>
+
+    <!-- KANAN -->
+    <a href="riwayat_jurnal.php" 
+       class="btn btn-secondary btn-sm"
+       style="width:120px; background-color:#067b9b;">
+       ← Kembali
+    </a>
+
+</div>
 
 <!-- CARD -->
-<div class="card shadow-sm">
-<div class="card-body">
+<div class="card shadow-sm border-0">
+<div class="card-body p-4">
 
 <?php
 $status = $data['status_verifikasi'];
@@ -65,45 +75,54 @@ if($status == 'diverifikasi'){
 }
 ?>
 
-<div class="row mb-3">
-<div class="col-md-6">
-<label class="text-muted small">Tanggal</label>
-<div class="fw-semibold">
-<?= date('d M Y H:i', strtotime($data['tanggal'])) ?>
-</div>
+<!-- INFO UTAMA -->
+<div class="row mb-4">
+
+<div class="col-md-6 mb-3">
+    <label class="text-muted small">Tanggal</label>
+    <div class="fw-semibold">
+        <?= date('d M Y H:i', strtotime($data['tanggal'])) ?>
+    </div>
 </div>
 
-<div class="col-md-6">
-<label class="text-muted small">Status</label><br>
-<span class="badge <?= $badge ?>">
-<?= ucfirst($status) ?>
-</span>
-</div>
-</div>
-
-<div class="row mb-3">
-<div class="col-md-6">
-<label class="text-muted small">Kehadiran</label>
-<div class="fw-semibold">
-<?= ucfirst($data['status_verifikasi']) ?>
-</div>
+<div class="col-md-6 mb-3">
+    <label class="text-muted small">Status</label><br>
+    <span class="badge <?= $badge ?>">
+        <?= ucfirst($status) ?>
+    </span>
 </div>
 
-<div class="col-md-6">
-<label class="text-muted small">Kelas</label>
-<div class="fw-semibold">
-<?= htmlspecialchars($data['kelas']) ?>
+<div class="col-md-6 mb-3">
+    <label class="text-muted small">Kehadiran</label>
+    <div class="fw-semibold">
+        <?= ucfirst($data['status_verifikasi']) ?>
+    </div>
 </div>
+
+<div class="col-md-6 mb-3">
+    <label class="text-muted small">Kelas</label>
+    <div class="fw-semibold">
+        <?= htmlspecialchars($data['kelas']) ?>
+    </div>
 </div>
+
 </div>
 
 <hr>
 
-<div class="mb-2">
-<label class="text-muted small">Kegiatan Pembelajaran</label>
-<div class="p-3 bg-light rounded mt-1" style="white-space: pre-line;">
-<?= htmlspecialchars($data['materi']) ?>
-</div>
+<!-- MATERI -->
+<div>
+    <label class="text-muted small">Kegiatan Pembelajaran</label>
+
+    <div class="mt-2 p-3"
+         style="
+            background:#f8fafc;
+            border-radius:12px;
+            border:1px solid #e5e7eb;
+            white-space:pre-line;
+         ">
+        <?= htmlspecialchars($data['materi']) ?>
+    </div>
 </div>
 
 </div>

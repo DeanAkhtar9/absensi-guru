@@ -45,7 +45,7 @@ $query = mysqli_query($conn,"
 <td><?= $r['created_at'] ?></td>
 </tr>
 <?php endwhile; ?>
-</table>
+</table>    
 </div>
 
 <?php include "../templates/footer.php"; ?>
