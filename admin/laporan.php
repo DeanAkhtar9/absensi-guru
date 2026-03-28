@@ -71,7 +71,6 @@ LIMIT $limit OFFSET $offset
 ?>
 
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-<link rel="stylesheet" href="../assets/css/style.css">
 
 <style>
 /* 🔥 Fix warna warning */

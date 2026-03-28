@@ -153,9 +153,19 @@ include "../header.php";
 <!-- =========================
      CONTENT (AMAN SIDEBAR)
 ========================= -->
-<div class="content-area">
+<div class="main-content">
+<div class="page-wrapper">
 
-<h4 class="fw-bold mb-3">Isi Jurnal Mengajar</h4>
+<div class="row">
+<div class="col-md-12">
+
+<!-- HEADER -->
+<div class="mb-4">
+    <div class="page-title" style="font-size:26px; margin-top:-15px;">Isi Jurnal Mengajar</div>
+    <div class="page-subtitle">
+        Isi jurnal sesuai dengan kegiatan pembelajaran hari ini
+    </div>
+</div>
 
 <?php if(isset($_SESSION['error'])): ?>
 <div class="alert alert-danger"><?= $_SESSION['error']; ?></div>
@@ -168,43 +178,44 @@ include "../header.php";
 
 <?php if($kelas_aktif): ?>
 
-<!-- CARD JADWAL -->
-<div class="card mb-4 shadow-sm">
-    <div class="card-body">
-        <h5 class="fw-bold">Jadwal Aktif</h5>
-        <p class="mb-1"><b>Kelas:</b> <?= $kelas_aktif ?></p>
-        <p class="mb-1"><b>Jam:</b> <?= $jam_mulai_fix ?> - <?= $jam_selesai_fix ?></p>
-    </div>
-</div>
-
 <!-- FORM -->
-<form method="POST" class="card p-4 shadow-sm">
+<div class="laporan-card">
+<form method="POST">
 
-<div class="mb-3">
-<label>Tanggal</label>
+<div class="row">
+<div class="col-md-6 mb-3">
+<h4 class="fw-bold mb-2" style="font-size:24px; margin-bottom:16px;">Jadwal Aktif</h5>
+    <p class="mb-1"><b>Kelas:</b> <?= $kelas_aktif ?></p>
+    <p class="mb-0"><b>Jam:</b> <?= $jam_mulai_fix ?> - <?= $jam_selesai_fix ?></p>
+<label class="form-label" style="margin-top:35px;">Tanggal</label>
 <input type="date" name="tanggal" class="form-control" required>
 </div>
-
-<div class="mb-3">
-<label>Materi</label>
-<textarea name="materi" class="form-control" rows="4" required></textarea>
 </div>
 
-<button type="submit" class="btn btn-primary w-100">
+<div class="mb-3">
+<label class="form-label">Materi</label>
+<textarea name="materi" class="form-control" rows="6" placeholder="Tuliskan materi pembelajaran..." required></textarea>
+</div>
+
+<button type="submit" class="btn-submit w-100 mt-2" style="background-color: #3364ce; height:37px; color: #fff; border-radius:4px;">
 Simpan Jurnal
 </button>
 
 </form>
+</div>
 
 <?php else: ?>
 
-<!-- ALERT JIKA TIDAK ADA JADWAL -->
 <div class="alert alert-warning">
-    ❗ Saat ini tidak ada jadwal mengajar
+❗ Saat ini tidak ada jadwal mengajar
 </div>
 
 <?php endif; ?>
 
+</div>
+</div>
+
+</div>
 </div>
 
 <style>

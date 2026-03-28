@@ -31,14 +31,13 @@ $search = isset($_GET['search']) ? strtolower($_GET['search']) : "";
 
 
 ?>
-<link rel="stylesheet" href="../assets/css/style.css">
-<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+<link rel="stylesheet" href="../assets/css/boostrap.min.css">
 <div class="main-content">
 <div class="container py-4">
 
 <!-- HEADER -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold">Daftar Jadwal Per Kelas</h4>
+    <h1 class="view fw-bold">Daftar Jadwal Per Kelas</h1>
 
     <a href="tambah_kelas.php" class="btn btn-primary btn-custom">
         + Tambah Kelas

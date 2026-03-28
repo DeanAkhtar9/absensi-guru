@@ -27,7 +27,7 @@ function getCSV($url){
 /* =========================
    DATA USER
 ========================= */
-$id_user = $_SESSION['id_user']; // siswa login
+$id_user = $_SESSION['id_user'];
 
 $q = mysqli_query($conn,"SELECT id_siswa FROM siswa WHERE id_user='$id_user'");
 $data = mysqli_fetch_assoc($q);
@@ -46,7 +46,7 @@ $hari_map = [
 $hari_ini = strtolower($hari_map[date('l')]);
 $jam_sekarang = date("H:i");
 
-/* MASTER */
+/* MASTER CSV */
 $url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&output=csv";
 
 $csv_master = getCSV($url_master);
@@ -118,7 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    /* CEK SUDAH ABSEN BELUM */
     $cek = mysqli_query($conn,"
         SELECT * FROM absensi_guru 
         WHERE id_jadwal='$id_jadwal'
@@ -131,20 +130,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         exit;
     }
 
-    /* INSERT */
     $stmt = $conn->prepare("
         INSERT INTO absensi_guru 
         (id_jadwal, id_user, diinput_oleh, status, tanggal)
         VALUES (?, ?, ?, ?, NOW())
     ");
 
-    $stmt->bind_param(
-        "siis",
-        $id_jadwal,
-        $id_guru,      // guru
-        $id_user,      // siswa (fix FK)
-        $status
-    );
+    $stmt->bind_param("siis", $id_jadwal, $id_guru, $id_user, $status);
 
     if($stmt->execute()){
         $_SESSION['success'] = "✅ Absensi berhasil!";
@@ -161,9 +153,65 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php include "../sidebar.php"; ?>
 <?php include "../header.php"; ?>
 
-<div class="content-area">
+<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 
-<h4 class="fw-bold mb-3">Absensi Guru</h4>
+<style>
+.page-wrapper{
+    padding:40px;
+}
+
+.laporan-card{
+    background:#fff;
+    border-radius:16px;
+    padding:24px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.05);
+    border:1px solid #eee;
+    height:100%;
+}
+
+.page-title{
+    font-weight:550;
+    margin-top:-30px;
+}
+
+.page-subtitle{
+    color:#6b7280;
+    font-size:14px;
+}
+
+.form-select{
+    border-radius:10px;
+    padding:10px;
+    border:1px solid #e5e7eb;
+}
+
+.form-select:focus{
+    border-color:#3B82F6;
+    box-shadow:0 0 0 2px rgba(59,130,246,0.15);
+}
+
+.btn-submit{
+    background:linear-gradient(90deg,#3B82F6,#2563EB);
+    border:none;
+    border-radius:10px;
+    padding:12px;
+    font-weight:500;
+    color:white;
+    transition:0.3s;
+}
+
+.btn-submit:hover{
+    opacity:0.9;
+}
+</style>
+
+<div class="main-content">
+<div class="page-wrapper">
+
+<div class="mb-4">
+    <div class="page-title" style="font-size:26px;">Absensi Guru</div>
+    <div class="page-subtitle">Lakukan absensi guru sesuai jadwal saat ini</div>
+</div>
 
 <?php if(isset($_SESSION['error'])): ?>
 <div class="alert alert-danger"><?= $_SESSION['error']; ?></div>
@@ -175,33 +223,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <?php if(empty($jadwalHariIni)): ?>
 
-<div class="alert alert-warning">
-    ❗ Tidak ada jadwal saat ini
+<div class="laporan-card text-center">
+    <p class="text-muted mb-0">❗ Tidak ada jadwal saat ini</p>
 </div>
 
 <?php else: ?>
 
+<div class="row">
+
 <?php foreach($jadwalHariIni as $j): ?>
 
-<div class="card mb-3 shadow-sm">
-<div class="card-body">
+<div class="col-md-6 mb-4">
+<div class="laporan-card">
 
-<h5><?= htmlspecialchars($j['mapel']) ?> - <?= htmlspecialchars($j['kelas']) ?></h5>
-<p><?= $j['jam_mulai'] ?> - <?= $j['jam_selesai'] ?></p>
+<h5 class="fw-bold mb-1">
+    <?= htmlspecialchars($j['mapel']) ?>
+</h5>
+
+<p class="text-muted mb-3" style="margin-top:10px;">
+    <?= htmlspecialchars($j['kelas']) ?> • 
+    <?= $j['jam_mulai'] ?> - <?= $j['jam_selesai'] ?>
+</p>
 
 <form method="POST">
 
 <input type="hidden" name="id_jadwal" value="<?= $j['id_jadwal'] ?>">
 <input type="hidden" name="id_guru" value="<?= $j['id_guru'] ?>">
 
-<select name="status" class="form-control mb-2" required>
-    <option value="">-- Pilih Status --</option>
+<select name="status" class="form-select mb-3" required style="margin-top:20px;">
+    <option value="">Pilih Status</option>
     <option value="hadir">Hadir</option>
     <option value="tidak_hadir">Tidak Hadir</option>
     <option value="izin">Izin</option>
 </select>
 
-<button class="btn btn-primary w-100">Kirim Absensi</button>
+<button class="btn-submit w-100" style="margin-top:200px;">Kirim Absensi</button>
 
 </form>
 
@@ -210,16 +266,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <?php endforeach; ?>
 
+</div>
+
 <?php endif; ?>
 
 </div>
-
-<style>
-.content-area{
-    padding:20px;
-    max-width:800px;
-    margin:auto;
-}
-</style>
+</div>
 
 <?php include "../templates/footer.php"; ?>

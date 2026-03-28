@@ -87,11 +87,10 @@ $terbaru = $stmt->get_result();
 
 <!-- Tailwind CSS -->
 
-<main class="flex-1 overflow-y-auto bg-background-light dark:bg-background-dark p-8 max-w-7xl mx-auto space-y-8">
-
+<main class="main-content">
     <!-- Page Header -->
     <header class="flex flex-col gap-1">
-        <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Dashboard Siswa</h2>
+        <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white" style="color: #202020;">Dashboard Siswa</h2>
         <p class="text-slate-500 dark:text-slate-400">Ringkasan laporan dan aktivitas Anda hari ini.</p>
     </header>
 
@@ -101,7 +100,7 @@ $terbaru = $stmt->get_result();
             <h3 class="text-2xl font-bold mb-2" style="color: #1E3A8A;">
                 Selamat Datang, <?= htmlspecialchars($_SESSION['nama'] ?? 'Siswa'); ?> 👋
             </h3>
-            <p class="text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p class="text-slate-600 dark:text-slate-300 leading-relaxed" style="color: #4f6584;">
                 Pantau dan kelola laporan akademik serta administratif Anda dengan mudah
                 melalui sistem manajemen terpadu ini.
             </p>
@@ -127,7 +126,7 @@ $terbaru = $stmt->get_result();
     <!-- Laporan Diproses -->
     <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-start">
         <div class="space-y-1">
-            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Laporan Diproses</p>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider" style="color: #4f6584;">Laporan Diproses</p>
             <p class="text-4xl font-black text-balck-600 leading-tight"><?= $hadir ?></p>
         </div>
         <div class=" p-3 rounded-lg flex items-center justify-center">
@@ -138,7 +137,7 @@ $terbaru = $stmt->get_result();
     <!-- Laporan Selesai -->
     <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-start">
         <div class="space-y-1">
-            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Laporan Selesai</p>
+            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider" style="color: #4f6584;">Laporan Selesai</p>
             <p class="text-4xl font-black text-balck-600 leading-tight"><?= $tidak_hadir ?></p>
         </div>
         <div class="p-3 rounded-lg flex items-center justify-center">
@@ -150,21 +149,21 @@ $terbaru = $stmt->get_result();
  <!-- Recent Activity / Laporan Terbaru -->
 <section class="space-y-4">
     <div class="flex items-center justify-between">
-        <h3 class="text-xl font-bold text-slate-900 dark:text-white">Laporan Terbaru Anda</h3>
+        <h3 class="text-xl font-bold text-slate-900 dark:text-white" style="color: #202020;">Laporan Terbaru Anda</h3>
     <a class="text-blue-500 hover:text-blue-700 transition-colors text-sm font-semibold flex items-center gap-1" href="riwayat_laporan.php" >
         Lihat Semua
     </a>
     </div>
 
     <!-- Card / container table -->
-    <div class="laporan-table-container overflow-x-auto rounded-xl p-6">
+     <div class="laporan-table-container w-100 p-0 mt-3">
         <table class="laporan-table w-full text-left border-collapse">
             <thead>
                 <tr>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Tanggal</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Jenis Lapoan</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Deskripsi</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #64748B;">Status</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #4f6584;">Tanggal</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #4f6584;">Jenis Lapoan</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #4f6584;">Deskripsi</th>
+                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #4f6584;">Status</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
