@@ -6,8 +6,7 @@ checkRole('admin');
 require "../config/database.php";
 
 include "../templates/header.php";
-include "../sidebar.php";
-include "../header.php";
+
 
 $id=$_GET['id'];
 
@@ -37,6 +36,10 @@ header("Location: pengguna.php");
 }
 ?>
 
+<?php
+include "../sidebar.php";
+include "../header.php";
+?>
 <link rel="stylesheet" href="../assets/css/style.css">
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 
