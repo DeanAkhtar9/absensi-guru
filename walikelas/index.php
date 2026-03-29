@@ -163,7 +163,7 @@ while($u = mysqli_fetch_assoc($qUser)){
 
 <div class="main-content p-4">
 
-<h2 class="fw-bold" style="margin-bottom:3px;">Dashboard</h2>
+<h2 class="fw-bold" style="margin-bottom:3px;">Dashboard Walikelas</h2>
 
 <p class="text-muted">
 Selamat datang kembali, <?= $_SESSION['nama'] ?? 'User' ?>!
