@@ -221,7 +221,7 @@ include "../header.php";
                 
             <button name="simpan" class="btn btn-primary">Simpan</button>
             
-            <a href="pengguna.php" class="btn btn-secondary btn-sm " style="width:120px; background-color: #067b9b; padding-top:11px;">←  Kembali</a>
+            <a href="jadwal2.php" class="btn btn-secondary btn-sm " style="width:120px; background-color: #067b9b; padding-top:11px;">←  Kembali</a>
     
 
 </div>
