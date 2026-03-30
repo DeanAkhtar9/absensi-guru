@@ -49,7 +49,7 @@ $search = isset($_GET['search']) ? strtolower($_GET['search']) : "";
                 value="<?= htmlspecialchars($search) ?>">
         </div>
 
-        <button class="btn btn-primary" style="width:140px; height:45px;">
+        <button class="btn btn-primary" style="width:140px; height:45px; margin-right:10px; margin-left:5px;">
             <i class="bi bi-funnel"></i> Filter
         </button>
 

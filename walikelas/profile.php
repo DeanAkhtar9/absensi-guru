@@ -100,18 +100,9 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 </h5>
 
 <div class="text-primary small">
-WALAS - <?= htmlspecialchars($nama_kelas) ?>
+<?= htmlspecialchars($role) ?><?= htmlspecialchars($nama_kelas) ?>
 </div>
 
-<div class="mt-1">
-<span class="badge bg-primary-subtle text-primary">
-NIP: 123456789
-</span>
-
-<span class="badge bg-success-subtle text-success">
-Status: Aktif
-</span>
-</div>
 
 </div>
 

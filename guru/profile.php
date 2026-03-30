@@ -100,7 +100,7 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 </h5>
 
 <div class="text-primary small">
-WALAS - <?= htmlspecialchars($nama_kelas) ?>
+<?= htmlspecialchars($role) ?>
 </div>
 
 <div class="mt-1">
