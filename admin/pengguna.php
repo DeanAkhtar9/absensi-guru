@@ -102,6 +102,11 @@ LIMIT $limit OFFSET $offset
                 <i class="bi bi-funnel"></i> Filter
             </button>
 
+            <!-- ✅ TOMBOL RESET (BARU) -->
+            <a href="?" class="btn btn-secondary" style="width:140px; height:45px; display:flex; align-items:center; justify-content:center; gap:6px; text-decoration:none;">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset
+            </a>
+
         </form>
 
 
@@ -116,8 +121,8 @@ LIMIT $limit OFFSET $offset
 
 <thead class="table-light">
 <tr>
-<th>NAMA</th>
 <th>ID</th>
+<th>NAMA</th>
 <th>ROLE</th>
 <th>EMAIL</th>
 <th>NO TELP</th>
@@ -131,8 +136,9 @@ LIMIT $limit OFFSET $offset
 <?php while($row=mysqli_fetch_assoc($query)): ?>
 
 <tr>
-<td><?= htmlspecialchars($row['nama']) ?></td>
 <td><?= $row['id_user'] ?></td>
+<td><?= htmlspecialchars($row['nama']) ?></td>
+
 
 <td>
 <?php

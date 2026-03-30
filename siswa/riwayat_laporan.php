@@ -103,18 +103,21 @@ $query = $stmt->get_result();
     font-size:12px;
 }
 </style>
+
 <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
 <div class="main-content">
-    
-    <div class="px-4 py-3 w-100">
+<div class="px-4 py-3 w-100">
+
 <div class="mb-4">
     <div class="page-title" style="font-size:30px;">Riwayat Laporan</div>
     <div class="page-subtitle">Lihat semua laporan yang telah Anda kirim ke pihak sekolah</div>
 </div>
 
+<!-- FILTER -->
 <div class="mb-4">
 <form method="GET">
-<div class="d-flex gap-3">
+<div class="d-flex gap-3 align-items-center">
 
 <input type="text" name="search"
 class="form-control"
@@ -125,28 +128,35 @@ style="border-radius:10px; height:45px; border:none;">
 <select name="status" class="form-select"
 style="max-width:200px; border-radius:10px; border:none;">
 <option value="">Semua Status</option>
-<option value="baru">Baru</option>
-<option value="diverifikasi">Diverifikasi</option>
-<option value="ditindaklanjuti">Ditindaklanjuti</option>
-<option value="selesai">Selesai</option>
+<option value="baru" <?=($status=='baru')?'selected':''?>>Baru</option>
+<option value="diverifikasi" <?=($status=='diverifikasi')?'selected':''?>>Diverifikasi</option>
+<option value="ditindaklanjuti" <?=($status=='ditindaklanjuti')?'selected':''?>>Ditindaklanjuti</option>
+<option value="selesai" <?=($status=='selesai')?'selected':''?>>Selesai</option>
 </select>
 
+<!-- TOMBOL FILTER + RESET -->
+<div class="d-flex gap-2">
+
 <button class="btn btn-primary px-4"
-style="border-radius:10px;">
+style="border-radius:10px; height:45px;">
 Filter
 </button>
 
+<a href="?"
+class="btn btn-secondary px-4"
+style="border-radius:10px; height:45px; display:flex; align-items:center; justify-content:center;">
+Reset
+</a>
+
+</div>
+
 </div>
 </form>
-
 </div>
+
 <div class="card-custom p-4">
 
-
 <!-- TABLE -->
-<div class="table-responsive">
-<table class="table align-middle">
-
 <div class="table-responsive">
 <table class="table align-middle">
 
@@ -177,21 +187,19 @@ Filter
 <td><?= htmlspecialchars($row['pesan']) ?></td>
 
 <td>
-    
 <?php
-$status = strtolower($row['status']);
+$status_row = strtolower($row['status']);
 
-if($status == "baru"){
+if($status_row == "baru"){
     echo '<span style="background:#DBEAFE; color:#1D4ED8; padding:5px 10px; border-radius:999px; font-size:12px;">Baru</span>';
-} elseif($status == "diverifikasi"){
+} elseif($status_row == "diverifikasi"){
     echo '<span style="background:#E0E7FF; color:#3730A3; padding:5px 10px; border-radius:999px; font-size:12px;">Diverifikasi</span>';
-} elseif($status == "ditindaklanjuti"){
+} elseif($status_row == "ditindaklanjuti"){
     echo '<span style="background:#FEF3C7; color:#92400E; padding:5px 10px; border-radius:999px; font-size:12px;">Ditindaklanjuti</span>';
 } else {
     echo '<span style="background:#D1FAE5; color:#065F46; padding:5px 10px; border-radius:999px; font-size:12px;">Selesai</span>';
 }
 ?>
-
 </td>
 
 </tr>
@@ -230,7 +238,6 @@ href="?page=<?=$i?>&search=<?=$search?>&status=<?=$status?>">
 
 </div>
 </div>
-
 </div>
 </div>
 

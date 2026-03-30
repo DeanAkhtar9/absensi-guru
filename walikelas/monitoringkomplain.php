@@ -114,10 +114,10 @@ $query = mysqli_query($conn, "
     padding:6px 10px;
     border-radius:8px;
 }
-
 </style>
 
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+
 <div class="main-content p-4">
 
 <h4 class="fw-bold">Monitoring Laporan Siswa</h4>
@@ -127,7 +127,7 @@ $query = mysqli_query($conn, "
      FILTER
 ========================= -->
 <form method="GET" class="mb-4">
-<div class="row g-2">
+<div class="row g-2 align-items-center">
 
 <div class="col-md-2">
 <select name="status" class="form-select">
@@ -143,15 +143,27 @@ $query = mysqli_query($conn, "
 <input type="date" name="tanggal" class="form-control" value="<?= $tanggal ?>">
 </div>
 
-<div class="col-md-5">
+<div class="col-md-4">
 <input type="text" name="search"
 class="form-control border-0 shadow-none"
 placeholder="Cari laporan berdasarkan nama siswa atau deskripsi..."
 value="<?= htmlspecialchars($search) ?>">
 </div>
 
-<div class="col-md-2">
-<button class="btn btn-primary w-100">Terapkan</button>
+<!-- TOMBOL -->
+<div class="col-md-3">
+<div class="d-flex gap-2">
+
+<button class="btn btn-primary w-50">
+Terapkan
+</button>
+
+<a href="?"
+class="btn btn-secondary w-50 d-flex align-items-center justify-content-center">
+Reset
+</a>
+
+</div>
 </div>
 
 </div>
@@ -192,14 +204,14 @@ Tidak ada data ditemukan
 <?php while($row = mysqli_fetch_assoc($query)): ?>
 
 <?php
-$status = strtolower($row['status']);
+$status_row = strtolower($row['status']);
 
 $badge = "secondary";
 
-if($status == 'baru') $badge = "primary";
-elseif($status == 'diverifikasi') $badge = "info text-dark";
-elseif($status == 'ditindaklanjuti') $badge = "warning";
-elseif($status == 'selesai') $badge = "success";
+if($status_row == 'baru') $badge = "primary";
+elseif($status_row == 'diverifikasi') $badge = "info text-dark";
+elseif($status_row == 'ditindaklanjuti') $badge = "warning";
+elseif($status_row == 'selesai') $badge = "success";
 ?>
 
 <tr>
@@ -212,7 +224,7 @@ elseif($status == 'selesai') $badge = "success";
 
 <td>
 <span class="badge bg-<?= $badge ?>" style="height:30px; padding-top:8px;">
-<?= ucfirst($status) ?>
+<?= ucfirst($status_row) ?>
 </span>
 </td>
 
