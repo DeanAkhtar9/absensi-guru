@@ -248,19 +248,24 @@ elseif($status == 'alpha') $badge = "danger";
 </tbody>
 </table>
 
+<!-- PAGINATION -->
+<div class="d-flex justify-content-end mt-3">
+    <ul class="pagination mb-0">
+
+    <?php for($i=1; $i<=$totalPage; $i++): ?>
+    <li class="page-item <?= ($i==$page)?'active':'' ?>">
+        <a class="page-link"
+        href="?page=<?= $i ?>&search=<?= urlencode($search) ?>&status=<?= $status ?>&tanggal=<?= $tanggal ?>">
+        <?= $i ?>
+        </a>
+    </li>
+    <?php endfor; ?>
+
+    </ul>
 </div>
 </div>
 
-<!-- PAGINATION -->
-<ul class="pagination mt-3">
-<?php for($i=1; $i<=$totalPage; $i++): ?>
-<li class="page-item <?= $i==$page?'active':'' ?>">
-<a class="page-link" href="?page=<?= $i ?>&search=<?= urlencode($search) ?>">
-<?= $i ?>
-</a>
-</li>
-<?php endfor; ?>
-</ul>
+
 
 </div>
 </div>
