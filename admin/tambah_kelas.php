@@ -217,8 +217,14 @@ include "../header.php";
 
 </select>
 
-<button name="simpan" class="btn btn-primary">Simpan</button>
+<div class="d-flex justify-content-between mt-3" style="margin-top:30px;">
+                
+            <button name="simpan" class="btn btn-primary">Simpan</button>
+            
+            <a href="jadwal2.php" class="btn btn-secondary btn-sm " style="width:120px; background-color: #067b9b; padding-top:11px;">←  Kembali</a>
+    
 
+</div>
 </form>
 
 </div>
