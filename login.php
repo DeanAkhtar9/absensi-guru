@@ -42,7 +42,6 @@ if (isset($_POST['login'])) {
             $_SESSION['id_user'] = $user['id_user'];
             $_SESSION['nama']    = $user['nama'];
             $_SESSION['role']    = $user['role'];
-            $_SESSION['email']   = $user['email'];
 
             switch ($user['role']) {
                 case 'admin':

@@ -3,7 +3,7 @@ session_start();
 
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
-checkRole('walikelas');
+checkRole('admin');
 
 include "../config/database.php";
 

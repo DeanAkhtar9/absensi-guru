@@ -37,7 +37,7 @@ while($s = mysqli_fetch_assoc($qSiswa)){
 $siswaIDs = !empty($siswaList) ? implode(',', $siswaList) : '0';
 
 /* =========================
-   TOTAL LAPORAN (komplain)
+   TOTAL LAPORAN
 ========================= */
 $totalLaporan = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT COUNT(*) as total 
@@ -56,7 +56,7 @@ $laporanBaru = mysqli_fetch_assoc(mysqli_query($conn, "
 "))['total'];
 
 /* =========================
-   TOTAL JURNAL (guru di kelas ini)
+   TOTAL JURNAL
 ========================= */
 $totalJurnal = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT COUNT(*) as total 
@@ -89,10 +89,14 @@ $persentase = $totalAbsensi > 0
     : 0;
 
 /* =========================
-   AKTIVITAS TERBARU
+   AKTIVITAS TERBARU (FIX)
 ========================= */
 $aktivitas = mysqli_query($conn, "
-    SELECT 'Jurnal Mengajar' as jenis, jm.created_at as tanggal, jm.diisi_oleh as user_id, jm.status_verifikasi as status
+    SELECT 
+        'Jurnal Mengajar' as jenis, 
+        jm.created_at as tanggal, 
+        jm.diisi_oleh as user_id, 
+        jm.status_verifikasi as status
     FROM jurnal_mengajar jm
     JOIN absensi_guru ag ON jm.id_absensi_guru = ag.id_absensi_guru
     JOIN jadwal_mengajar j ON ag.id_jadwal = j.id_jadwal
@@ -100,8 +104,13 @@ $aktivitas = mysqli_query($conn, "
 
     UNION
 
-    SELECT 'Komplain Siswa', k.created_at, k.id_siswa, 'Baru'
+    SELECT 
+        'Komplain Siswa' as jenis, 
+        k.created_at as tanggal, 
+        s.id_user as user_id, 
+        k.status
     FROM komplain k
+    JOIN siswa s ON k.id_siswa = s.id_siswa
     WHERE k.id_siswa IN ($siswaIDs)
 
     ORDER BY tanggal DESC
@@ -160,7 +169,6 @@ while($u = mysqli_fetch_assoc($qUser)){
 
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 
-
 <div class="main-content p-4">
 
 <h2 class="fw-bold" style="margin-bottom:3px;">Dashboard Walikelas</h2>
@@ -169,22 +177,17 @@ while($u = mysqli_fetch_assoc($qUser)){
 Selamat datang kembali, <?= $_SESSION['nama'] ?? 'User' ?>!
 </p>
 
-<!-- =========================
-     STATISTIK
-========================= -->
+<!-- STATISTIK -->
 <div class="row g-3 mb-4">
 
 <div class="col-md-3">
 <div class="card shadow-sm border-0">
 <div class="card-body d-flex align-items-center gap-3">
-
 <i class="bi bi-file-earmark-text text-primary fs-3"></i>
-
 <div>
 <div class="text-muted small">Total Laporan Kelas</div>
 <h4 class="fw-bold mb-0"><?= $totalLaporan ?></h4>
 </div>
-
 </div>
 </div>
 </div>
@@ -192,14 +195,11 @@ Selamat datang kembali, <?= $_SESSION['nama'] ?? 'User' ?>!
 <div class="col-md-3">
 <div class="card shadow-sm border-0">
 <div class="card-body d-flex align-items-center gap-3">
-
 <i class="bi bi-exclamation-circle text-danger fs-3"></i>
-
 <div>
 <div class="text-muted small">Laporan Baru</div>
 <h4 class="fw-bold mb-0"><?= $laporanBaru ?></h4>
 </div>
-
 </div>
 </div>
 </div>
@@ -207,14 +207,11 @@ Selamat datang kembali, <?= $_SESSION['nama'] ?? 'User' ?>!
 <div class="col-md-3">
 <div class="card shadow-sm border-0">
 <div class="card-body d-flex align-items-center gap-3">
-
 <i class="bi bi-journal-text text-warning fs-3"></i>
-
 <div>
 <div class="text-muted small">Total Jurnal Guru</div>
 <h4 class="fw-bold mb-0"><?= $totalJurnal ?></h4>
 </div>
-
 </div>
 </div>
 </div>
@@ -222,24 +219,18 @@ Selamat datang kembali, <?= $_SESSION['nama'] ?? 'User' ?>!
 <div class="col-md-3">
 <div class="card shadow-sm border-0">
 <div class="card-body d-flex align-items-center gap-3">
-
 <i class="bi bi-bar-chart text-success fs-3"></i>
-
 <div>
 <div class="text-muted small">Persentase Kehadiran</div>
 <h4 class="fw-bold mb-0"><?= $persentase ?>%</h4>
 </div>
-
 </div>
 </div>
 </div>
 
 </div>
 
-<!-- =========================
-     AKTIVITAS TERBARU
-========================= -->
-
+<!-- AKTIVITAS TERBARU -->
 <div class="card shadow-sm border-0">
 
 <div class="card-header bg-white d-flex justify-content-between">
@@ -252,10 +243,10 @@ Selamat datang kembali, <?= $_SESSION['nama'] ?? 'User' ?>!
 
 <thead class="table-light">
 <tr>
-<th style="width:25%; text-align:start;">TANGGAL</th>
-<th style="width:25%; text-align:start;">NAMA</th>
-<th style="width:25%; text-align:start;">JENIS AKTIVITAS</th>
-<th style="width:15%; text-align:start;">STATUS</th>
+<th style="width:25%;">TANGGAL</th>
+<th style="width:25%;">NAMA</th>
+<th style="width:25%;">JENIS AKTIVITAS</th>
+<th style="width:15%;">STATUS</th>
 </tr>
 </thead>
 
@@ -267,20 +258,18 @@ Selamat datang kembali, <?= $_SESSION['nama'] ?? 'User' ?>!
 $nama = $userList[$row['user_id']] ?? 'Tidak diketahui';
 
 $status = strtolower($row['status']);
-
 $badge = "secondary";
 
 if($status == 'diverifikasi') $badge = "success";
 elseif($status == 'baru') $badge = "primary";
+elseif($status == 'selesai') $badge = "success";
 else $badge = "warning";
 ?>
 
 <tr>
 
 <td><?= date('d M Y', strtotime($row['tanggal'])) ?></td>
-
 <td><?= htmlspecialchars($nama) ?></td>
-
 <td><?= $row['jenis'] ?></td>
 
 <td>

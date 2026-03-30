@@ -51,7 +51,7 @@ if(!empty($search)){
 }
 
 /* =========================
-   TOTAL DATA (FIX JOIN)
+   TOTAL DATA
 ========================= */
 $totalData = mysqli_fetch_assoc(mysqli_query($conn,"
     SELECT COUNT(*) as total
@@ -64,7 +64,7 @@ $totalData = mysqli_fetch_assoc(mysqli_query($conn,"
 $totalPage = ceil($totalData / $limit);
 
 /* =========================
-   STATISTIK (FIX JOIN)
+   STATISTIK
 ========================= */
 $totalJurnal = mysqli_fetch_assoc(mysqli_query($conn,"
     SELECT COUNT(*) as total 
@@ -90,7 +90,7 @@ $tidakHadir = mysqli_fetch_assoc(mysqli_query($conn,"
 "))['total'];
 
 /* =========================
-   QUERY UTAMA (FIX TOTAL)
+   QUERY UTAMA
 ========================= */
 $query = mysqli_query($conn,"
     SELECT 
@@ -111,6 +111,7 @@ $query = mysqli_query($conn,"
 ?>
 
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+
 <style>
 .card-stat{
     background:white;
@@ -133,16 +134,25 @@ $query = mysqli_query($conn,"
 
 <!-- SEARCH -->
 <form method="GET" class="mb-4">
-<div class="row g-2">
+<div class="row g-2 align-items-center">
 
-<div class="col-md-10">
+<div class="col-md-9">
 <input type="text" name="search" class="form-control border-0 border-bottom"
 placeholder="Cari materi..." 
 value="<?= htmlspecialchars($search) ?>">
 </div>
 
-<div class="col-md-2">
-<button class="btn btn-primary w-100">Cari</button>
+<div class="col-md-3">
+<div class="d-flex gap-2">
+
+<button class="btn btn-primary w-50">Cari</button>
+
+<a href="?"
+class="btn btn-secondary w-50 d-flex align-items-center justify-content-center">
+Reset
+</a>
+
+</div>
 </div>
 
 </div>
@@ -184,7 +194,7 @@ value="<?= htmlspecialchars($search) ?>">
 </div>
 
 <!-- TABLE -->
- <div class="card shadow-sm border-0">
+<div class="card shadow-sm border-0">
 
 <div class="card-header bg-white d-flex justify-content-between">
 <h6 class="mb-0 fw-bold">Data Jurnal Guru</h6>
@@ -267,8 +277,6 @@ elseif($status == 'alpha') $badge = "danger";
 
 
 
-</div>
-</div>
 </div>
 
 <?php include "../templates/footer.php"; ?>

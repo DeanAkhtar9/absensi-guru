@@ -49,12 +49,12 @@ $query = mysqli_query($conn, "
 <div class="mb-4">
     <div class="page-title" style="font-size:26px; margin-bottom:24px;">Riwayat Jurnal</div>
 
-  <form method="GET" class="mb-4">
+<form method="GET" class="mb-4">
 
-<div class="row g-3">
+<div class="row g-3 align-items-center">
 
 <!-- SEARCH -->
-<div class="col-md-6">
+<div class="col-md-5">
 <input type="text" name="search"
 class="form-control"
 placeholder="Cari kegiatan..."
@@ -77,12 +77,22 @@ foreach($namaBulan as $key => $nama){
 </select>
 </div>
 
-<!-- BUTTON -->
-<div class="col-md-3">
-<button class="btn btn-primary w-100"
+<!-- BUTTON FILTER + RESET -->
+<div class="col-md-4">
+<div class="d-flex gap-2">
+
+<button class="btn btn-primary w-50"
 style="height:48px; border-radius:10px;">
 Filter
 </button>
+
+<a href="?"
+class="btn btn-secondary w-50"
+style="height:48px; border-radius:10px; display:flex; align-items:center; justify-content:center;">
+Reset
+</a>
+
+</div>
 </div>
 
 </div>
@@ -114,7 +124,6 @@ Filter
 <?php while($row = mysqli_fetch_assoc($query)): ?>
 
 <?php
-/* STATUS JURNAL */
 $status = $row['status_verifikasi'];
 
 if($status == 'diverifikasi'){
@@ -125,7 +134,6 @@ if($status == 'diverifikasi'){
     $badgeStatus = "bg-warning-subtle text-warning";
 }
 
-/* KEHADIRAN */
 $hadir = $row['kehadiran'];
 
 if($hadir == 'hadir'){

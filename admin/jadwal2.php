@@ -38,10 +38,6 @@ $search = isset($_GET['search']) ? strtolower($_GET['search']) : "";
 <!-- HEADER -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="view fw-bold">Daftar Jadwal Per Kelas</h1>
-
-    <a href="tambah_kelas.php" class="btn btn-primary btn-custom">
-        + Tambah Kelas
-    </a>
 </div>
 
 <!-- SEARCH -->
@@ -56,6 +52,12 @@ $search = isset($_GET['search']) ? strtolower($_GET['search']) : "";
         <button class="btn btn-primary" style="width:140px; height:45px;">
             <i class="bi bi-funnel"></i> Filter
         </button>
+
+        <!-- ✅ TOMBOL RESET (BARU) -->
+        <a href="?" class="btn btn-secondary" style="width:140px; height:45px; display:flex; align-items:center; justify-content:center; gap:6px; text-decoration:none;">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset
+        </a>
+
     </div>
 </form>
 

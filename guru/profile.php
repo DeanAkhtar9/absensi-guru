@@ -7,67 +7,24 @@ checkRole('guru');
 
 include "../config/database.php";
 
-/* =========================
-   AMBIL DATA GURU
-========================= */
-$id_guru = $_SESSION['id_user'];
-
-$query = mysqli_query($conn, "
-    SELECT nama, email, no_telp 
-    FROM users 
-    WHERE id_user = '$id_guru'
-");
-
-$guru = mysqli_fetch_assoc($query);
+$id_user = $_SESSION['id_user'];
 
 /* =========================
-   AMBIL DATA JADWAL DARI SHEET
+   AMBIL DATA USER
 ========================= */
+$user = mysqli_fetch_assoc(mysqli_query($conn, "
+    SELECT * FROM users WHERE id_user='$id_user'
+"));
 
-/* MASTER SHEET (mapping kelas -> gid) */
-$url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&single=true&output=csv";
+/* =========================
+   AMBIL KELAS WALI (OPSIONAL)
+========================= */
+$kelas = mysqli_fetch_assoc(mysqli_query($conn, "
+    SELECT nama_kelas FROM kelas 
+    WHERE id_walikelas='$id_user'
+"));
 
-$csv_master = file_get_contents($url_master);
-$rows_master = array_map("str_getcsv", explode("\n", $csv_master));
-
-$jadwalGuru = [];
-
-/* LOOP SEMUA KELAS */
-foreach ($rows_master as $row) {
-
-    if (count($row) < 2) continue;
-
-    $nama_kelas = trim($row[0]);
-    $gid = trim($row[1]);
-
-    if (!$gid) continue;
-
-    $url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=$gid&single=true&output=csv";
-
-    $csv = @file_get_contents($url);
-    if (!$csv) continue;
-
-    $rows = array_map("str_getcsv", explode("\n", $csv));
-
-    foreach ($rows as $i => $r) {
-
-        if ($i == 0) continue;
-        if (count($r) < 5) continue;
-
-        $id = intval($r[0]);
-
-        /* FILTER HANYA JADWAL MILIK GURU */
-        if ($id == $id_guru) {
-
-            $jadwalGuru[] = [
-                'kelas' => $nama_kelas,
-                'mapel' => $r[1],
-                'hari' => $r[2],
-                'jam' => $r[3] . " - " . $r[4]
-            ];
-        }
-    }
-}
+$nama_kelas = $kelas['nama_kelas'] ?? '-';
 ?>
 
 <?php include "../templates/header.php"; ?>
@@ -76,134 +33,119 @@ foreach ($rows_master as $row) {
 
 <style>
 .profile-card{
-    border-radius:12px;
+    background:white;
+    border-radius:14px;
+    padding:2px 30px 30px 30px; /* atas kanan bawah kiri */
 }
 
-.jadwal-card{
-    border-radius:12px;
-}
-
-.table thead{
+.avatar{
+    width:80px;
+    height:80px;
+    border-radius:50%;
     background:#eef4ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
 }
 
-.table td, .table th{
-    border:1px solid rgba(0,0,0,0.05);
+.info-item{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    padding:15px 0;
+    border-bottom:1px solid rgba(0,0,0,0.05);
+    padding:30px 10px 30px 0px; /* atas kanan bawah kiri */
 }
-.table tbody tr:hover{
-    background:#f8f9fc;
-}
-.table thead{
+
+.icon-box{
+    width:70px;
+    height:70px;
+    font-size:35px;
+    color: #3d4eff;
+    border-radius:10px;
     background:#eef4ff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
+.label{
+    font-size:12px;
+    color:#6c757d;
+}
 
+.value{
+    font-weight:500;
+}
 </style>
 
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
 
+
 <div class="main-content p-4">
 
-<h4 class="fw-bold mb-4">Profil Guru</h4>
+<div class="profile-card">
 
-<div class="row g-4">
+<!-- HEADER PROFILE -->
+<div class="d-flex align-items-center gap-3 mb-4 mt-4">
 
-<!-- =========================
-     CARD PROFIL
-========================= -->
-<div class="col-12">
+<div style="background-color: #e7e7e7; width:100px; height:100px; display:flex; justify-content:center; align-items:center; border-radius:15px;">
+    <i class="bi bi-person" style="font-size:60px;"></i>
+</div>
 
-<div class="card shadow-sm" style="border-radius:12px;">
-<div class="card-body text-center">
-
-<img src="../assets/user.png" width="70" class="rounded-circle mb-3">
-
-
-
+<div>
 <h5 class="fw-bold mb-1">
-<?= htmlspecialchars($guru['nama']) ?>
+<?= htmlspecialchars($user['nama']) ?>
 </h5>
 
-<p class="text-muted mb-3">Guru</p>
-
-<hr>
-
-<div class="text-start mt-3">
-
-<div class="mb-3">
-<label class="text-muted small">Email</label>
-<div class="fw-semibold">
-<?= htmlspecialchars($guru['email'] ?? '-') ?>
-</div>
+<div class="text-primary small">
+WALAS - <?= htmlspecialchars($nama_kelas) ?>
 </div>
 
-<div class="mb-3">
-<label class="text-muted small">No Telpon</label>
-<div class="fw-semibold">
-<?= htmlspecialchars($guru['no_telp'] ?? '-') ?>
-</div>
-</div>
+<div class="mt-1">
+<span class="badge bg-primary-subtle text-primary">
+NIP: 123456789
+</span>
 
-</div>
-
-</div>
-</div>
-
-</div>
-
-
-<!-- =========================
-     CARD JADWAL
-========================= -->
-<div class="col-12">
-
-<div class="card shadow-sm" style="border-radius:12px;">
-<div class="card-body">
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-<h6 class="fw-bold mb-0">Jadwal Mengajar</h6>
-
-<span class="badge bg-primary">
-<?= count($jadwalGuru) ?> Jadwal
+<span class="badge bg-success-subtle text-success">
+Status: Aktif
 </span>
 </div>
 
-<div class="table-responsive">
-<table class="table align-middle">
-
-<thead style="background:#eef4ff;">
-<tr>
-<th>Kelas</th>
-<th>Mapel</th>
-<th>Hari</th>
-<th>Jam</th>
-</tr>
-</thead>
-
-<tbody>
-
-<?php if (empty($jadwalGuru)) { ?>
-<tr>
-<td colspan="4" class="text-center text-muted">
-Tidak ada jadwal ditemukan
-</td>
-</tr>
-<?php } ?>
-
-<?php foreach ($jadwalGuru as $j) { ?>
-<tr>
-<td><?= htmlspecialchars($j['kelas']) ?></td>
-<td><?= htmlspecialchars($j['mapel']) ?></td>
-<td><?= htmlspecialchars($j['hari']) ?></td>
-<td><?= htmlspecialchars($j['jam']) ?></td>
-</tr>
-<?php } ?>
-
-</tbody>
-
-</table>
 </div>
 
+</div>
+
+<hr>
+
+<!-- INFO -->
+<div class="mt-3">
+
+<!-- EMAIL -->
+<div class="info-item">
+<div class="icon-box bi bi-envelope"></div>
+<div>
+<div class="label">EMAIL INSTANSI</div>
+<div class="value"><?= htmlspecialchars($user['email']) ?></div>
+</div>
+</div>
+
+<!-- TELEPON -->
+<div class="info-item">
+<div class="icon-box bi bi-telephone"></div>
+<div>
+<div class="label">NOMOR TELEPON</div>
+<div class="value"><?= htmlspecialchars($user['no_telp']) ?></div>
+</div>
+</div>
+
+<!-- UNIT -->
+<div class="info-item" style="border-bottom:none;">
+<div class="icon-box bi bi-house"></div>
+<div>
+<div class="label">UNIT KERJA</div>
+<div class="value">SMKN 10 SURABAYA</div>
 </div>
 </div>
 
@@ -212,7 +154,5 @@ Tidak ada jadwal ditemukan
 </div>
 
 </div>
-
-
 
 <?php include "../templates/footer.php"; ?>
