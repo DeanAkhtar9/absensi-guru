@@ -121,7 +121,7 @@ LIMIT $limit OFFSET $offset
 
 <thead class="table-light">
 <tr>
-<th>ID</th>
+<th>ID USER</th>
 <th>NAMA</th>
 <th>ROLE</th>
 <th>EMAIL</th>
