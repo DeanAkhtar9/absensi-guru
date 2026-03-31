@@ -43,7 +43,7 @@ $pesan = '';
 $success = "";
 $error = "";
 
-$allowedJenis = ['akademik','fasilitas','kedisiplinan'];
+$allowedJenis = ['akademik','fasilitas','kedisiplinan','Absensi'];
 
 /* =========================
    PROSES SIMPAN LAPORAN
