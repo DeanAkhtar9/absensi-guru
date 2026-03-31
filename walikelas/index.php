@@ -12,20 +12,23 @@ date_default_timezone_set('Asia/Jakarta');
 $id_user = $_SESSION['id_user'];
 
 /* =========================
-   AMBIL ID KELAS WALIKELAS
+   AMBIL DATA KELAS
 ========================= */
 $kelasData = mysqli_fetch_assoc(mysqli_query($conn, "
-    SELECT id_kelas FROM kelas WHERE id_walikelas='$id_user'
+    SELECT id_kelas, nama_kelas 
+    FROM kelas 
+    WHERE id_walikelas='$id_user'
 "));
 
 $id_kelas = $kelasData['id_kelas'] ?? 0;
+$nama_kelas = $kelasData['nama_kelas'] ?? '';
 
 /* =========================
    AMBIL SISWA DI KELAS
 ========================= */
 $siswaList = [];
 $qSiswa = mysqli_query($conn, "
-    SELECT id_siswa, id_user 
+    SELECT id_siswa 
     FROM siswa 
     WHERE id_kelas='$id_kelas'
 ");
@@ -52,36 +55,36 @@ $laporanBaru = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT COUNT(*) as total 
     FROM komplain 
     WHERE id_siswa IN ($siswaIDs)
-    AND DATE(created_at) = CURDATE()
+    AND DATE(created_at)=CURDATE()
 "))['total'];
 
 /* =========================
-   TOTAL JURNAL
+   TOTAL JURNAL (FIX UTAMA)
 ========================= */
 $totalJurnal = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT COUNT(*) as total 
-    FROM jurnal_mengajar jm
-    JOIN absensi_guru ag ON jm.id_absensi_guru = ag.id_absensi_guru
-    JOIN jadwal_mengajar j ON ag.id_jadwal = j.id_jadwal
-    WHERE j.id_kelas='$id_kelas'
+    FROM jurnal_mengajar
+    WHERE kelas='$nama_kelas'
 "))['total'];
 
 /* =========================
-   KEHADIRAN
+   KEHADIRAN (FIX TOTAL)
 ========================= */
 $hadir = mysqli_fetch_assoc(mysqli_query($conn, "
-    SELECT COUNT(*) as total 
+    SELECT COUNT(*) as total
     FROM absensi_guru ag
-    JOIN jadwal_mengajar j ON ag.id_jadwal = j.id_jadwal
-    WHERE j.id_kelas='$id_kelas'
+    JOIN jurnal_mengajar jm 
+        ON jm.id_absensi_guru = ag.id_absensi_guru
+    WHERE jm.kelas='$nama_kelas'
     AND ag.status='hadir'
 "))['total'];
 
 $totalAbsensi = mysqli_fetch_assoc(mysqli_query($conn, "
-    SELECT COUNT(*) as total 
+    SELECT COUNT(*) as total
     FROM absensi_guru ag
-    JOIN jadwal_mengajar j ON ag.id_jadwal = j.id_jadwal
-    WHERE j.id_kelas='$id_kelas'
+    JOIN jurnal_mengajar jm 
+        ON jm.id_absensi_guru = ag.id_absensi_guru
+    WHERE jm.kelas='$nama_kelas'
 "))['total'];
 
 $persentase = $totalAbsensi > 0 
@@ -89,18 +92,17 @@ $persentase = $totalAbsensi > 0
     : 0;
 
 /* =========================
-   AKTIVITAS TERBARU (FIX)
+   AKTIVITAS TERBARU (FIX TOTAL)
 ========================= */
 $aktivitas = mysqli_query($conn, "
+
     SELECT 
         'Jurnal Mengajar' as jenis, 
         jm.created_at as tanggal, 
         jm.diisi_oleh as user_id, 
         jm.status_verifikasi as status
     FROM jurnal_mengajar jm
-    JOIN absensi_guru ag ON jm.id_absensi_guru = ag.id_absensi_guru
-    JOIN jadwal_mengajar j ON ag.id_jadwal = j.id_jadwal
-    WHERE j.id_kelas='$id_kelas'
+    WHERE jm.kelas='$nama_kelas'
 
     UNION
 
@@ -111,7 +113,7 @@ $aktivitas = mysqli_query($conn, "
         k.status
     FROM komplain k
     JOIN siswa s ON k.id_siswa = s.id_siswa
-    WHERE k.id_siswa IN ($siswaIDs)
+    WHERE s.id_kelas='$id_kelas'
 
     ORDER BY tanggal DESC
     LIMIT 5
@@ -121,7 +123,7 @@ $aktivitas = mysqli_query($conn, "
    USER LIST
 ========================= */
 $userList = [];
-$qUser = mysqli_query($conn, "SELECT id_user, nama FROM users");
+$qUser = mysqli_query($conn, "SELECT id_user,nama FROM users");
 while($u = mysqli_fetch_assoc($qUser)){
     $userList[$u['id_user']] = $u['nama'];
 }

@@ -34,6 +34,19 @@ $data = mysqli_fetch_assoc($q);
 $id_siswa = $data['id_siswa'] ?? 0;
 
 /* =========================
+   AMBIL KELAS SISWA (FIX)
+========================= */
+$qKelas = mysqli_query($conn,"
+    SELECT k.nama_kelas 
+    FROM siswa s
+    JOIN kelas k ON s.id_kelas = k.id_kelas
+    WHERE s.id_siswa='$id_siswa'
+");
+
+$dataKelas = mysqli_fetch_assoc($qKelas);
+$kelas_siswa = trim($dataKelas['nama_kelas'] ?? '');
+
+/* =========================
    DETECT JADWAL
 ========================= */
 $jadwalHariIni = [];
@@ -58,6 +71,9 @@ foreach ($rows_master as $row) {
 
     $kelas = trim($row[0]);
     $gid   = trim($row[1]);
+
+    // 🔥 FILTER KELAS SISWA (FIX UTAMA)
+    if($kelas !== $kelas_siswa) continue;
 
     if(!$kelas || !$gid) continue;
 
@@ -154,56 +170,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php include "../header.php"; ?>
 
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-
-<style>
-.page-wrapper{
-    padding:40px;
-}
-
-.laporan-card{
-    background:#fff;
-    border-radius:16px;
-    padding:24px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.05);
-    border:1px solid #eee;
-    height:100%;
-}
-
-.page-title{
-    font-weight:550;
-    margin-top:-30px;
-}
-
-.page-subtitle{
-    color:#6b7280;
-    font-size:14px;
-}
-
-.form-select{
-    border-radius:10px;
-    padding:10px;
-    border:1px solid #e5e7eb;
-}
-
-.form-select:focus{
-    border-color:#3B82F6;
-    box-shadow:0 0 0 2px rgba(59,130,246,0.15);
-}
-
-.btn-submit{
-    background:linear-gradient(90deg,#3B82F6,#2563EB);
-    border:none;
-    border-radius:10px;
-    padding:12px;
-    font-weight:500;
-    color:white;
-    transition:0.3s;
-}
-
-.btn-submit:hover{
-    opacity:0.9;
-}
-</style>
 
 <div class="main-content">
 <div class="page-wrapper">

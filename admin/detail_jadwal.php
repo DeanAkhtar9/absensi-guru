@@ -25,10 +25,24 @@ $kelas = mysqli_fetch_assoc(mysqli_query($conn,"
 $id_kelas = $kelas['id_kelas'] ?? 0;
 
 /* =========================
-   UPDATE WALI KELAS
+   UPDATE WALI KELAS (FIX)
 ========================= */
 if(isset($_POST['update_wali'])){
     $id = $_POST['id_wali'] ?? '';
+
+    if($id){
+        // Cek apakah sudah jadi wali di kelas lain
+        $cek = mysqli_query($conn,"
+            SELECT * FROM kelas 
+            WHERE id_walikelas='$id' AND id_kelas != '$id_kelas'
+        ");
+
+        if(mysqli_num_rows($cek) > 0){
+            $_SESSION['error'] = "❌ Wali sudah dipakai di kelas lain!";
+            header("Location: ".$_SERVER['REQUEST_URI']);
+            exit;
+        }
+    }
 
     mysqli_query($conn,"
         UPDATE kelas 
@@ -36,27 +50,56 @@ if(isset($_POST['update_wali'])){
         WHERE id_kelas='$id_kelas'
     ");
 
+    $_SESSION['success'] = "✅ Wali kelas berhasil diupdate";
     header("Location: ".$_SERVER['REQUEST_URI']);
     exit;
 }
 
 /* =========================
-   UPDATE PENGURUS KELAS
+   UPDATE PENGURUS (FIX TOTAL)
 ========================= */
 if(isset($_POST['update_pengurus'])){
     $id = $_POST['id_pengurus'] ?? '';
 
-    // Hapus pengurus lama dari kelas
-    mysqli_query($conn,"DELETE FROM siswa WHERE id_kelas='$id_kelas'");
-
-    if($id){
-        // Hapus pengurus jika dia punya kelas lain
-        mysqli_query($conn,"DELETE FROM siswa WHERE id_user='$id'");
-
-        // Insert pengurus baru
-        mysqli_query($conn,"INSERT INTO siswa (id_user,id_kelas) VALUES ('$id','$id_kelas')");
+    if(!$id){
+        header("Location: ".$_SERVER['REQUEST_URI']);
+        exit;
     }
 
+    // Cek apakah siswa sudah punya kelas lain
+    $cek = mysqli_query($conn,"
+        SELECT * FROM siswa 
+        WHERE id_user='$id' AND id_kelas != '$id_kelas'
+    ");
+
+    if(mysqli_num_rows($cek) > 0){
+        $_SESSION['error'] = "❌ Siswa sudah terdaftar di kelas lain!";
+        header("Location: ".$_SERVER['REQUEST_URI']);
+        exit;
+    }
+
+    // Cek apakah sudah ada pengurus di kelas ini
+    $cekPengurus = mysqli_query($conn,"
+        SELECT * FROM siswa WHERE id_kelas='$id_kelas'
+    ");
+
+    if(mysqli_num_rows($cekPengurus) > 0){
+        // Update saja (tidak hapus semua siswa)
+        mysqli_query($conn,"
+            UPDATE siswa 
+            SET id_user='$id' 
+            WHERE id_kelas='$id_kelas'
+            LIMIT 1
+        ");
+    } else {
+        // Insert jika belum ada
+        mysqli_query($conn,"
+            INSERT INTO siswa (id_user,id_kelas) 
+            VALUES ('$id','$id_kelas')
+        ");
+    }
+
+    $_SESSION['success'] = "✅ Pengurus berhasil diupdate";
     header("Location: ".$_SERVER['REQUEST_URI']);
     exit;
 }
@@ -67,12 +110,14 @@ if(isset($_POST['update_pengurus'])){
 $wali = mysqli_fetch_assoc(mysqli_query($conn,"
     SELECT nama FROM users WHERE id_user='".($kelas['id_walikelas'] ?? 0)."'
 "));
+
 $pengurus = mysqli_fetch_assoc(mysqli_query($conn,"
     SELECT u.nama FROM siswa s
     JOIN users u ON s.id_user=u.id_user
     WHERE s.id_kelas='$id_kelas'
     LIMIT 1
 "));
+
 $nama_wali = $wali['nama'] ?? 'Belum ada';
 $nama_pengurus = $pengurus['nama'] ?? 'Belum ada';
 
@@ -81,6 +126,7 @@ $nama_pengurus = $pengurus['nama'] ?? 'Belum ada';
 ========================= */
 $gid = 0;
 $url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?output=csv";
+
 $data = file_get_contents($url_master);
 $rows_master = array_map("str_getcsv", explode("\n", $data));
 

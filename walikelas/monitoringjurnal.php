@@ -11,26 +11,26 @@ include "../sidebar.php";
 include "../header.php";
 
 /* =========================
-   AMBIL ID KELAS WALIKELAS
+   AMBIL KELAS WALIKELAS
 ========================= */
 $id_walikelas = $_SESSION['id_user'];
 
-$kelasWalikelas = [];
+$kelasList = [];
 $qKelas = mysqli_query($conn, "
-    SELECT id_kelas 
+    SELECT nama_kelas 
     FROM kelas 
     WHERE id_walikelas='$id_walikelas'
 ");
 
 while($k = mysqli_fetch_assoc($qKelas)){
-    $kelasWalikelas[] = $k['id_kelas'];
+    $kelasList[] = "'".mysqli_real_escape_string($conn, $k['nama_kelas'])."'";
 }
 
-if(empty($kelasWalikelas)){
-    $kelasWalikelas[] = 0;
+if(empty($kelasList)){
+    $kelasList[] = "'-'";
 }
 
-$kelasIDs = implode(',', $kelasWalikelas);
+$kelasFilter = implode(',', $kelasList);
 
 /* =========================
    PARAMETER
@@ -41,52 +41,62 @@ $limit = 5;
 $offset = ($page - 1) * $limit;
 
 /* =========================
-   WHERE FIX
+   WHERE UTAMA (UNTUK CARD)
 ========================= */
-$where = "WHERE jm.id_kelas IN ($kelasIDs)";
+$whereMain = "WHERE j.kelas IN ($kelasFilter)";
+
+/* =========================
+   WHERE SEARCH (TIDAK PENGARUHI CARD)
+========================= */
+$where = $whereMain;
 
 if(!empty($search)){
-    $search_safe = mysqli_real_escape_string($conn, $search);
-    $where .= " AND j.materi LIKE '%$search_safe%'";
+    $s = mysqli_real_escape_string($conn, $search);
+
+    $where .= " AND (
+        j.materi LIKE '%$s%' OR
+        j.catatan LIKE '%$s%' OR
+        j.kelas LIKE '%$s%' OR
+        u.nama LIKE '%$s%' OR
+        ag.status LIKE '%$s%'
+    )";
 }
 
 /* =========================
-   TOTAL DATA
+   TOTAL DATA (PAKAI SEARCH)
 ========================= */
 $totalData = mysqli_fetch_assoc(mysqli_query($conn,"
     SELECT COUNT(*) as total
     FROM jurnal_mengajar j
     JOIN absensi_guru ag ON j.id_absensi_guru=ag.id_absensi_guru
-    JOIN jadwal_mengajar jm ON ag.id_jadwal=jm.id_jadwal
+    JOIN users u ON j.diisi_oleh=u.id_user
     $where
 "))['total'];
 
 $totalPage = ceil($totalData / $limit);
 
 /* =========================
-   STATISTIK
+   STATISTIK (TIDAK TERPENGARUH SEARCH)
 ========================= */
 $totalJurnal = mysqli_fetch_assoc(mysqli_query($conn,"
     SELECT COUNT(*) as total 
     FROM jurnal_mengajar j
     JOIN absensi_guru ag ON j.id_absensi_guru=ag.id_absensi_guru
-    JOIN jadwal_mengajar jm ON ag.id_jadwal=jm.id_jadwal
-    $where AND YEARWEEK(ag.tanggal,1)=YEARWEEK(CURDATE(),1)
+    $whereMain AND YEARWEEK(ag.tanggal,1)=YEARWEEK(CURDATE(),1)
 "))['total'];
 
 $guruHariIni = mysqli_fetch_assoc(mysqli_query($conn,"
     SELECT COUNT(DISTINCT j.diisi_oleh) as total
     FROM jurnal_mengajar j
     JOIN absensi_guru ag ON j.id_absensi_guru=ag.id_absensi_guru
-    JOIN jadwal_mengajar jm ON ag.id_jadwal=jm.id_jadwal
-    $where AND DATE(ag.tanggal)=CURDATE()
+    $whereMain AND DATE(ag.tanggal)=CURDATE()
 "))['total'];
 
 $tidakHadir = mysqli_fetch_assoc(mysqli_query($conn,"
     SELECT COUNT(*) as total
-    FROM absensi_guru ag
-    JOIN jadwal_mengajar jm ON ag.id_jadwal=jm.id_jadwal
-    $where AND ag.status!='hadir' AND DATE(ag.tanggal)=CURDATE()
+    FROM jurnal_mengajar j
+    JOIN absensi_guru ag ON j.id_absensi_guru=ag.id_absensi_guru
+    $whereMain AND ag.status!='hadir' AND DATE(ag.tanggal)=CURDATE()
 "))['total'];
 
 /* =========================
@@ -95,14 +105,12 @@ $tidakHadir = mysqli_fetch_assoc(mysqli_query($conn,"
 $query = mysqli_query($conn,"
     SELECT 
         ag.tanggal,
-        k.nama_kelas,
+        j.kelas AS nama_kelas,
         j.materi,
         u.nama AS nama_guru,
         ag.status
     FROM jurnal_mengajar j
     JOIN absensi_guru ag ON j.id_absensi_guru=ag.id_absensi_guru
-    JOIN jadwal_mengajar jm ON ag.id_jadwal=jm.id_jadwal
-    JOIN kelas k ON jm.id_kelas=k.id_kelas
     JOIN users u ON j.diisi_oleh=u.id_user
     $where
     ORDER BY ag.tanggal DESC
