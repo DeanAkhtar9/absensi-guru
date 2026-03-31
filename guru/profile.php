@@ -7,7 +7,24 @@ checkRole('guru');
 
 include "../config/database.php";
 
+date_default_timezone_set('Asia/Jakarta');
+
 $id_user = $_SESSION['id_user'];
+
+/* =========================
+   FUNCTION AMBIL CSV
+========================= */
+function getCSV($url){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
+    $output = curl_exec($ch);
+    curl_close($ch);
+    return $output;
+}
 
 /* =========================
    AMBIL DATA USER
@@ -17,7 +34,51 @@ $user = mysqli_fetch_assoc(mysqli_query($conn, "
 "));
 
 /* =========================
-   AMBIL KELAS WALI (OPSIONAL)
+   AMBIL MAPEL DARI CSV (HARI INI)
+========================= */
+$nama_mapel = '-';
+
+$hari_map = [
+ 'Sunday'=>'Minggu','Monday'=>'Senin','Tuesday'=>'Selasa',
+ 'Wednesday'=>'Rabu','Thursday'=>'Kamis','Friday'=>'Jumat','Saturday'=>'Sabtu'
+];
+
+$hari_ini = strtolower($hari_map[date('l')]);
+
+$url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&output=csv";
+
+$csv_master = getCSV($url_master);
+$rows_master = array_map("str_getcsv", explode("\n", $csv_master));
+
+foreach ($rows_master as $row) {
+
+    if(count($row) < 2) continue;
+
+    $gid = trim($row[1]);
+    if(!$gid) continue;
+
+    $url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=$gid&output=csv";
+
+    $csv = getCSV($url);
+    $rows = array_map("str_getcsv", explode("\n", $csv));
+
+    foreach ($rows as $i => $r) {
+        if ($i == 0 || count($r) < 3) continue;
+
+        $id_guru_sheet = intval(trim($r[0]));
+        $hari_sheet = strtolower(trim($r[2]));
+
+        if($hari_sheet == 'jumaat') $hari_sheet = 'jumat';
+
+        if ($id_guru_sheet == $id_user && $hari_sheet == $hari_ini) {
+            $nama_mapel = $r[1];
+            break 2; // keluar dari 2 loop
+        }
+    }
+}
+
+/* =========================
+   AMBIL KELAS WALI
 ========================= */
 $kelas = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT nama_kelas FROM kelas 
@@ -31,38 +92,28 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 <?php include "../sidebar.php"; ?>
 <?php include "../header.php"; ?>
 
+<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+
 <style>
 .profile-card{
     background:white;
     border-radius:14px;
-    padding:2px 30px 30px 30px; /* atas kanan bawah kiri */
-}
-
-.avatar{
-    width:80px;
-    height:80px;
-    border-radius:50%;
-    background:#eef4ff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
+    padding:20px 30px;
 }
 
 .info-item{
     display:flex;
     align-items:center;
     gap:20px;
-    padding:15px 0;
+    padding:20px 0;
     border-bottom:1px solid rgba(0,0,0,0.05);
-    padding:30px 10px 30px 0px; /* atas kanan bawah kiri */
 }
 
 .icon-box{
-    width:70px;
-    height:70px;
-    font-size:35px;
-    color: #3d4eff;
+    width:60px;
+    height:60px;
+    font-size:28px;
+    color:#3d4eff;
     border-radius:10px;
     background:#eef4ff;
     display:flex;
@@ -78,39 +129,23 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 .value{
     font-weight:500;
 }
+.badge
 </style>
-
-<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-
 
 <div class="main-content p-4">
 
 <div class="profile-card">
 
-<!-- HEADER PROFILE -->
-<div class="d-flex align-items-center gap-3 mb-4 mt-4">
-
-<div style="background-color: #e7e7e7; width:100px; height:100px; display:flex; justify-content:center; align-items:center; border-radius:15px;">
-    <i class="bi bi-person" style="font-size:60px;"></i>
-</div>
+<!-- HEADER -->
+<div class="d-flex align-items-center gap-3 mb-4">
 
 <div>
 <h5 class="fw-bold mb-1">
 <?= htmlspecialchars($user['nama']) ?>
 </h5>
 
-<div class="text-primary small">
-<?= htmlspecialchars($role) ?>
-</div>
-
-<div class="mt-1">
-<span class="badge bg-primary-subtle text-primary">
-NIP: 123456789
-</span>
-
-<span class="badge bg-success-subtle text-success">
-Status: Aktif
-</span>
+<div class="d-flex align-items-center gap-0 small">
+<?= htmlspecialchars($role)?></span> <?= htmlspecialchars($nama_mapel)?>
 </div>
 
 </div>
@@ -122,7 +157,6 @@ Status: Aktif
 <!-- INFO -->
 <div class="mt-3">
 
-<!-- EMAIL -->
 <div class="info-item">
 <div class="icon-box bi bi-envelope"></div>
 <div>
@@ -131,7 +165,6 @@ Status: Aktif
 </div>
 </div>
 
-<!-- TELEPON -->
 <div class="info-item">
 <div class="icon-box bi bi-telephone"></div>
 <div>
@@ -140,8 +173,7 @@ Status: Aktif
 </div>
 </div>
 
-<!-- UNIT -->
-<div class="info-item" style="border-bottom:none;">
+<div class="info-item">
 <div class="icon-box bi bi-house"></div>
 <div>
 <div class="label">UNIT KERJA</div>

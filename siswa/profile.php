@@ -90,17 +90,13 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 <!-- HEADER PROFILE -->
 <div class="d-flex align-items-center gap-3 mb-4 mt-4">
 
-<div style="background-color: #e7e7e7; width:100px; height:100px; display:flex; justify-content:center; align-items:center; border-radius:15px;">
-    <i class="bi bi-person" style="font-size:60px;"></i>
-</div>
-
 <div>
 <h5 class="fw-bold mb-1">
 <?= htmlspecialchars($user['nama']) ?>
 </h5>
 
 <div class="text-primary small">
-<?= htmlspecialchars($role) ?>
+<?= htmlspecialchars($role) ?> <?= htmlspecialchars($nama_kelas) ?>
 </div>
 
 
