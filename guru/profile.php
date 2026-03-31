@@ -144,7 +144,7 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 <?= htmlspecialchars($user['nama']) ?>
 </h5>
 
-<div class="d-flex align-items-center gap-0 small">
+<div class="d-flex align-items-center gap-0 small" style="color: #0a64d2;">
 <?= htmlspecialchars($role)?></span> <?= htmlspecialchars($nama_mapel)?>
 </div>
 
