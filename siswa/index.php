@@ -38,35 +38,46 @@ $id_siswa = $dataSiswa['id_siswa'];
 $stmt->close();
 
 /* =========================
-   STATISTIK KEHADIRAN (FIX)
+   STATISTIK KOMPLAIN (FIX)
 ========================= */
-function hitung($conn, $id_siswa, $status) {
-    $stmt = $conn->prepare("
-        SELECT COUNT(*) as total 
-        FROM absensi_siswa 
-        WHERE id_siswa=? AND status=?
-    ");
-    $stmt->bind_param("is", $id_siswa, $status);
-    $stmt->execute();
-    $res = $stmt->get_result()->fetch_assoc()['total'];
-    $stmt->close();
-    return $res;
-}
 
-$total = $conn->query("
+// TOTAL LAPORAN
+$stmt = $conn->prepare("
     SELECT COUNT(*) as total 
     FROM komplain 
-    WHERE id_siswa='$id_siswa'
-")->fetch_assoc()['total'];
+    WHERE id_siswa=?
+");
+$stmt->bind_param("i", $id_siswa);
+$stmt->execute();
+$total = $stmt->get_result()->fetch_assoc()['total'];
+$stmt->close();
 
+// DIPROSES (DIV + DITINDAKLANJUTI)
+$stmt = $conn->prepare("
+    SELECT COUNT(*) as total 
+    FROM komplain 
+    WHERE id_siswa=? 
+    AND status IN ('diverifikasi','ditindaklanjuti')
+");
+$stmt->bind_param("i", $id_siswa);
+$stmt->execute();
+$diproses = $stmt->get_result()->fetch_assoc()['total'];
+$stmt->close();
 
-$hadir = hitung($conn, $id_siswa, "hadir");
-$tidak_hadir = hitung($conn, $id_siswa, "tidak_hadir");
-$tanpa_ket = hitung($conn, $id_siswa, "alpa");
-
+// SELESAI
+$stmt = $conn->prepare("
+    SELECT COUNT(*) as total 
+    FROM komplain 
+    WHERE id_siswa=? 
+    AND status='selesai'
+");
+$stmt->bind_param("i", $id_siswa);
+$stmt->execute();
+$selesai = $stmt->get_result()->fetch_assoc()['total'];
+$stmt->close();
 
 /* =========================
-   5 LAPORAN TERBARU SISWA (FIX)
+   5 LAPORAN TERBARU
 ========================= */
 $stmt = $conn->prepare("
     SELECT 
@@ -85,114 +96,103 @@ $stmt->execute();
 $terbaru = $stmt->get_result();
 ?>
 
-<!-- Tailwind CSS -->
-
 <main class="main-content">
-    <!-- Page Header -->
-    <header class="flex flex-col gap-1">
-        <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white" style="color: #202020;">Dashboard Siswa</h2>
-        <p class="text-slate-500 dark:text-slate-400">Ringkasan laporan dan aktivitas Anda hari ini.</p>
-    </header>
 
-    <!-- Welcome Card -->
-    <section class="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden">
-        <div class="relative z-10 max-w-2xl">
-            <h3 class="text-2xl font-bold mb-2" style="color: #1E3A8A;">
-                Selamat Datang, <?= htmlspecialchars($_SESSION['nama'] ?? 'Siswa'); ?> 👋
-            </h3>
-            <p class="text-slate-600 dark:text-slate-300 leading-relaxed" style="color: #4f6584;">
-                Pantau dan kelola laporan akademik serta administratif Anda dengan mudah
-                melalui sistem manajemen terpadu ini.
-            </p>
-        </div>
-        <div class="absolute right-0 bottom-0 opacity-10 dark:opacity-20 translate-x-1/4 translate-y-1/4 pointer-events-none">
-            <img src="/absensi-guru/assets/img/toga.png" alt="Toga Sekolah" class="w-[200px] h-[200px] object-contain">
-        </div>
-    </section>
+<header class="flex flex-col gap-1">
+    <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white" style="color: #202020;">Dashboard Siswa</h2>
+    <p class="text-slate-500 dark:text-slate-400">Ringkasan laporan dan aktivitas Anda hari ini.</p>
+</header>
 
-    <!-- Statistic Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Total Laporan -->
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-start">
-            <div class="space-y-1">
-                <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Laporan</p>
-                <p class="text-4xl font-black text-balck-600 leading-tight"><?= $total ?></p>
-            </div>
-            <div class="bg-primary/10 dark:bg-primary/20 p-3 rounded-lg flex items-center justify-center">
-                <img src="/absensi-guru/assets/img/doc.png" alt="Total Laporan" class="w-10 h-10">
-            </div>
-        </div>
-
-    <!-- Laporan Diproses -->
-    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-start">
-        <div class="space-y-1">
-            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider" style="color: #4f6584;">Laporan Diproses</p>
-            <p class="text-4xl font-black text-balck-600 leading-tight"><?= $hadir ?></p>
-        </div>
-        <div class=" p-3 rounded-lg flex items-center justify-center">
-            <img src="/absensi-guru/assets/img/doc-proses.png" alt="Diproses" class="w-10 h-10">
-        </div>
-    </div>
-
-    <!-- Laporan Selesai -->
-    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex justify-between items-start">
-        <div class="space-y-1">
-            <p class="text-sm font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider" style="color: #4f6584;">Laporan Selesai</p>
-            <p class="text-4xl font-black text-balck-600 leading-tight"><?= $tidak_hadir ?></p>
-        </div>
-        <div class="p-3 rounded-lg flex items-center justify-center">
-            <img src="/absensi-guru/assets/img/doc-selesai.png" alt="Selesai" class="w-10 h-10">
-        </div>
-    </div>
-</div>
-
- <!-- Recent Activity / Laporan Terbaru -->
-<section class="space-y-4">
-    <div class="flex items-center justify-between">
-        <h3 class="text-xl font-bold text-slate-900 dark:text-white" style="color: #202020;">Laporan Terbaru Anda</h3>
-    <a class="text-blue-500 hover:text-blue-700 transition-colors text-sm font-semibold flex items-center gap-1" href="riwayat_laporan.php" >
-        Lihat Semua
-    </a>
-    </div>
-
-    <!-- Card / container table -->
-     <div class="laporan-table-container w-100 p-0 mt-3">
-        <table class="laporan-table w-full text-left border-collapse">
-            <thead>
-                <tr>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #4f6584;">Tanggal</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #4f6584;">Jenis Lapoan</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #4f6584;">Deskripsi</th>
-                    <th class="px-6 py-4 text-xs font-bold uppercase tracking-wider" style="color: #4f6584;">Status</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
-                <?php while($row = $terbaru->fetch_assoc()): ?>
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                        <td class="px-6 py-4 text-sm" style="color: #475569;"><?= date('d M Y', strtotime($row['created_at'])) ?></td>
-                        <td class="px-6 py-4 text-sm font-bold" style="color: #434e5f;"><?= htmlspecialchars($row['jenis_laporan']) ?></td>
-                        <td class="px-6 py-4 text-sm" style="color: #475569;"><?= htmlspecialchars(substr($row['pesan'],0,50)) ?>...</td>
-                        <td class="px-6 py-4">
-                            <?php
-                                $status = strtolower($row['status'] ?? '');
-                                if($status == "baru"){
-    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Baru</span>';
-} elseif($status == "diverifikasi"){
-    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-info text-dark">Diverifikasi</span>';
-} elseif($status == "ditindaklanjuti"){
-    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-warning text-dark">Ditindaklanjuti</span>';
-} else {
-    echo '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Selesai</span>';
-}
-
-                            ?>
-                        </td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
+<section class="bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 relative overflow-hidden">
+    <div class="relative z-10 max-w-2xl">
+        <h3 class="text-2xl font-bold mb-2" style="color: #1E3A8A;">
+            Selamat Datang, <?= htmlspecialchars($_SESSION['nama'] ?? 'Siswa'); ?> 👋
+        </h3>
+        <p class="text-slate-600 dark:text-slate-300 leading-relaxed" style="color: #4f6584;">
+            Pantau dan kelola laporan akademik serta administratif Anda dengan mudah
+            melalui sistem manajemen terpadu ini.
+        </p>
     </div>
 </section>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+<!-- TOTAL -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border shadow-sm flex justify-between">
+    <div>
+        <p class="text-sm text-slate-500 uppercase">Total Laporan</p>
+        <p class="text-4xl font-black"><?= $total ?></p>
+    </div>
+    <img src="/absensi-guru/assets/img/doc.png" class="w-10">
+</div>
+
+<!-- DIPROSES -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border shadow-sm flex justify-between">
+    <div>
+        <p class="text-sm text-slate-500 uppercase">Laporan Diproses</p>
+        <p class="text-4xl font-black"><?= $diproses ?></p>
+    </div>
+    <img src="/absensi-guru/assets/img/doc-proses.png" class="w-10">
+</div>
+
+<!-- SELESAI -->
+<div class="bg-white dark:bg-slate-800 p-6 rounded-xl border shadow-sm flex justify-between">
+    <div>
+        <p class="text-sm text-slate-500 uppercase">Laporan Selesai</p>
+        <p class="text-4xl font-black"><?= $selesai ?></p>
+    </div>
+    <img src="/absensi-guru/assets/img/doc-selesai.png" class="w-10">
+</div>
+
+</div>
+
+<!-- TABEL -->
+<section class="mt-5">
+
+<h3 class="text-xl font-bold mb-3">Laporan Terbaru Anda</h3>
+
+<table class="table w-full">
+<thead>
+<tr>
+<th>Tanggal</th>
+<th>Jenis</th>
+<th>Deskripsi</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+<?php while($row = $terbaru->fetch_assoc()): ?>
+
+<tr>
+<td><?= date('d M Y', strtotime($row['created_at'])) ?></td>
+<td><?= htmlspecialchars($row['jenis_laporan']) ?></td>
+<td><?= htmlspecialchars(substr($row['pesan'],0,50)) ?>...</td>
+<td>
+<?php
+$status = strtolower($row['status']);
+
+if($status == "baru"){
+    echo '<span class="badge bg-primary">Baru</span>';
+}elseif($status == "diverifikasi"){
+    echo '<span class="badge bg-info">Diverifikasi</span>';
+}elseif($status == "ditindaklanjuti"){
+    echo '<span class="badge bg-warning">Diproses</span>';
+}else{
+    echo '<span class="badge bg-success">Selesai</span>';
+}
+?>
+</td>
+</tr>
+
+<?php endwhile; ?>
+
+</tbody>
+</table>
+
+</section>
+
 </main>
 
 <?php include "../templates/footer.php"; ?>
