@@ -56,19 +56,19 @@ LIMIT 5
 ?>
 
 <style>
-    .card{
-border-radius:12px;
+.card{
+   border-radius:12px;
 }
 
 .table th{
-font-size:12px;
-color:#6c757d;
-text-align: center;
+   font-size:12px;
+   color:#6c757d;
+   text-align: center;
 }
 
 .badge{
-border-radius:20px;
-padding:6px 12px;
+   border-radius:20px;
+   padding:6px 12px;
 }
 
 </style>
@@ -78,23 +78,18 @@ padding:6px 12px;
 
 
 <div class="container-fluid py-4">
-<div >
-<h4 class="fw-bold">Dashboard Admin</h4>
-<p class="text-muted mb-0">Ringkasan sistem dan aktivitas laporan sekolah</p>
-</div>
-<!-- HEADER -->
+   <div >
+      <h4 class="fw-bold">Dashboard Admin</h4>
+      <p class="text-muted mb-0">Ringkasan sistem dan aktivitas laporan sekolah</p>
+   </div>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+   <div class="d-flex justify-content-between align-items-center mb-4">
+   
+      <div class="text-muted">
 
+      </div>
 
-
-<div class="text-muted">
-
-</div>
-
-</div>
-
-<!-- CARD STATISTIK -->
+   </div>
 
 <div class="row mb-4">
 

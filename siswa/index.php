@@ -123,7 +123,7 @@ $terbaru = $stmt->get_result();
         <p class="text-sm text-slate-500 uppercase">Total Laporan</p>
         <p class="text-4xl font-black"><?= $total ?></p>
     </div>
-    <img src="/absensi-guru/assets/img/doc.png" class="w-10">
+    <img src="/absensi-guru/assets/img/doc.png" class="w-12 h-12">
 </div>
 
 <!-- DIPROSES -->
@@ -132,7 +132,7 @@ $terbaru = $stmt->get_result();
         <p class="text-sm text-slate-500 uppercase">Laporan Diproses</p>
         <p class="text-4xl font-black"><?= $diproses ?></p>
     </div>
-    <img src="/absensi-guru/assets/img/doc-proses.png" class="w-10">
+    <img src="/absensi-guru/assets/img/doc-proses.png" class="w-12 h-12">
 </div>
 
 <!-- SELESAI -->
@@ -141,7 +141,7 @@ $terbaru = $stmt->get_result();
         <p class="text-sm text-slate-500 uppercase">Laporan Selesai</p>
         <p class="text-4xl font-black"><?= $selesai ?></p>
     </div>
-    <img src="/absensi-guru/assets/img/doc-selesai.png" class="w-10">
+    <img src="/absensi-guru/assets/img/doc-selesai.png" class="w-12 h-12">
 </div>
 
 </div>

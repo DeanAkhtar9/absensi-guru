@@ -35,9 +35,8 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 .profile-card{
     background:white;
     border-radius:14px;
-    padding:2px 30px 30px 30px; /* atas kanan bawah kiri */
+    padding:2px 30px 30px 30px;
 }
-
 .avatar{
     width:80px;
     height:80px;
@@ -48,16 +47,14 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
     justify-content:center;
     font-size:30px;
 }
-
 .info-item{
     display:flex;
     align-items:center;
     gap:20px;
     padding:15px 0;
     border-bottom:1px solid rgba(0,0,0,0.05);
-    padding:30px 10px 30px 0px; /* atas kanan bawah kiri */
+    padding:30px 10px 30px 0px;
 }
-
 .icon-box{
     width:70px;
     height:70px;
@@ -79,34 +76,20 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
     font-weight:500;
 }
 </style>
-
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-
-
 <div class="main-content p-4">
-
 <div class="profile-card">
-
-<!-- HEADER PROFILE -->
 <div class="d-flex align-items-center gap-3 mb-4 mt-4">
-
 <div>
 <h5 class="fw-bold mb-1">
 <?= htmlspecialchars($user['nama']) ?>
 </h5>
-
 <div class="text-primary small">
 <?= htmlspecialchars($role) ?> <?= htmlspecialchars($nama_kelas) ?>
-</div>  
-
-
 </div>
-
 </div>
-
+</div>
 <hr>
-
-<!-- INFO -->
 <div class="mt-3">
 
 <!-- EMAIL -->
