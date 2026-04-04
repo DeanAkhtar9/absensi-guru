@@ -34,6 +34,7 @@ function getCSV($url){
 ========================= */
 $id_user = $_SESSION['id_user'];
 $nama_user = $_SESSION['nama'];
+$role = $_SESSION['role'];
 
 /* =========================
    HARI INI
@@ -133,7 +134,7 @@ $total_siswa = mysqli_fetch_assoc($qSiswa)['total'] ?? 0;
 <div class="px-5 py-4 w-100">
 
 <!-- HEADER -->
-<h4 class="fw-bold">Dashboard Admin</h4>    
+<h4 class="fw-bold">Dashboard <?= $role ?> </h4>    
 <p class="text-muted mb-4">
 Ringkasan aktivitas mengajar hari ini
 </p>

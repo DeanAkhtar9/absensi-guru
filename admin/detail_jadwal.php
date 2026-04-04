@@ -5,236 +5,242 @@ session_start();
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('admin');
-
 require "../config/database.php";
 
 date_default_timezone_set('Asia/Jakarta');
 
-/* =========================
-   VALIDASI PARAMETER
-========================= */
 $nama_kelas = $_GET['kelas'] ?? '';
 if(!$nama_kelas) die("Kelas tidak ditemukan");
 
 /* =========================
-   DATA KELAS
+   AMBIL DATA KELAS
 ========================= */
-$kelas = mysqli_fetch_assoc(mysqli_query($conn,"
-    SELECT * FROM kelas WHERE nama_kelas='$nama_kelas'
-"));
-$id_kelas = $kelas['id_kelas'] ?? 0;
+$qKelas = mysqli_query($conn,"SELECT * FROM kelas WHERE nama_kelas='$nama_kelas'");
+$kelas = mysqli_fetch_assoc($qKelas);
+if(!$kelas) die("Data kelas tidak ditemukan");
+
+$id_kelas = $kelas['id_kelas'];
 
 /* =========================
-   UPDATE WALI KELAS (FIX)
+   UPDATE WALI
 ========================= */
 if(isset($_POST['update_wali'])){
-    $id = $_POST['id_wali'] ?? '';
+    $id = intval($_POST['id_wali']);
 
-    if($id){
-        // Cek apakah sudah jadi wali di kelas lain
-        $cek = mysqli_query($conn,"
-            SELECT * FROM kelas 
-            WHERE id_walikelas='$id' AND id_kelas != '$id_kelas'
-        ");
-
-        if(mysqli_num_rows($cek) > 0){
-            $_SESSION['error'] = "❌ Wali sudah dipakai di kelas lain!";
-            header("Location: ".$_SERVER['REQUEST_URI']);
-            exit;
-        }
-    }
-
-    mysqli_query($conn,"
-        UPDATE kelas 
-        SET id_walikelas=".($id ? "'$id'" : "NULL")."
-        WHERE id_kelas='$id_kelas'
+    $cek = mysqli_query($conn,"
+    SELECT * FROM kelas 
+    WHERE id_walikelas='$id' AND id_kelas!='$id_kelas'
     ");
 
-    $_SESSION['success'] = "✅ Wali kelas berhasil diupdate";
-    header("Location: ".$_SERVER['REQUEST_URI']);
-    exit;
+    if(mysqli_num_rows($cek)>0){
+        $_SESSION['error']="❌ Guru sudah jadi wali di kelas lain!";
+    }else{
+        mysqli_query($conn,"
+        UPDATE kelas SET id_walikelas='$id'
+        WHERE id_kelas='$id_kelas'
+        ");
+        $_SESSION['success']="✅ Wali berhasil diupdate";
+    }
+
+    header("Location: ".$_SERVER['REQUEST_URI']); exit;
 }
 
 /* =========================
-   UPDATE PENGURUS (FIX TOTAL)
+   UPDATE PENGURUS
 ========================= */
 if(isset($_POST['update_pengurus'])){
-    $id = $_POST['id_pengurus'] ?? '';
+    $id = intval($_POST['id_pengurus']);
 
-    if(!$id){
-        header("Location: ".$_SERVER['REQUEST_URI']);
-        exit;
-    }
+    mysqli_query($conn,"DELETE FROM siswa WHERE id_kelas='$id_kelas'");
+    mysqli_query($conn,"INSERT INTO siswa (id_user,id_kelas) VALUES ('$id','$id_kelas')");
 
-    // Cek apakah siswa sudah punya kelas lain
-    $cek = mysqli_query($conn,"
-        SELECT * FROM siswa 
-        WHERE id_user='$id' AND id_kelas != '$id_kelas'
-    ");
-
-    if(mysqli_num_rows($cek) > 0){
-        $_SESSION['error'] = "❌ Siswa sudah terdaftar di kelas lain!";
-        header("Location: ".$_SERVER['REQUEST_URI']);
-        exit;
-    }
-
-    // Cek apakah sudah ada pengurus di kelas ini
-    $cekPengurus = mysqli_query($conn,"
-        SELECT * FROM siswa WHERE id_kelas='$id_kelas'
-    ");
-
-    if(mysqli_num_rows($cekPengurus) > 0){
-        // Update saja (tidak hapus semua siswa)
-        mysqli_query($conn,"
-            UPDATE siswa 
-            SET id_user='$id' 
-            WHERE id_kelas='$id_kelas'
-            LIMIT 1
-        ");
-    } else {
-        // Insert jika belum ada
-        mysqli_query($conn,"
-            INSERT INTO siswa (id_user,id_kelas) 
-            VALUES ('$id','$id_kelas')
-        ");
-    }
-
-    $_SESSION['success'] = "✅ Pengurus berhasil diupdate";
-    header("Location: ".$_SERVER['REQUEST_URI']);
-    exit;
+    $_SESSION['success']="✅ Pengurus berhasil diupdate";
+    header("Location: ".$_SERVER['REQUEST_URI']); exit;
 }
 
 /* =========================
-   AMBIL NAMA WALI & PENGURUS
+   DATA WALI & PENGURUS
 ========================= */
 $wali = mysqli_fetch_assoc(mysqli_query($conn,"
-    SELECT nama FROM users WHERE id_user='".($kelas['id_walikelas'] ?? 0)."'
+SELECT nama FROM users WHERE id_user='".($kelas['id_walikelas'] ?? 0)."'
 "));
 
 $pengurus = mysqli_fetch_assoc(mysqli_query($conn,"
-    SELECT u.nama FROM siswa s
-    JOIN users u ON s.id_user=u.id_user
-    WHERE s.id_kelas='$id_kelas'
-    LIMIT 1
+SELECT u.nama FROM siswa s
+JOIN users u ON s.id_user=u.id_user
+WHERE s.id_kelas='$id_kelas'
+LIMIT 1
 "));
 
-$nama_wali = $wali['nama'] ?? 'Belum ada';
-$nama_pengurus = $pengurus['nama'] ?? 'Belum ada';
+$nama_wali = $wali['nama'] ?? 'Tidak ada';
+$nama_pengurus = $pengurus['nama'] ?? 'Tidak ada';
+
 
 /* =========================
-   AMBIL GID GOOGLE SHEET
+   AMBIL JADWAL (FIX)
 ========================= */
+
+$rows = [];
 $gid = 0;
-$url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?output=csv";
 
-$data = file_get_contents($url_master);
-$rows_master = array_map("str_getcsv", explode("\n", $data));
+$url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&output=csv";
 
-foreach($rows_master as $r){
-    if(count($r)<2) continue;
-    if(trim($r[0]) == $nama_kelas){
-        $gid = trim($r[1]);
-        break;
+$master = @file_get_contents($url_master);
+
+if($master){
+
+    $rows_master = array_map("str_getcsv", explode("\n", $master));
+
+    foreach ($rows_master as $row){
+
+        if(count($row) < 2) continue;
+
+        if(trim($row[0]) == $nama_kelas){
+            $gid = trim($row[1]);
+            break;
+        }
+    }
+
+    if($gid){
+
+        $url_sheet = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=$gid&output=csv";
+
+        $csv = @file_get_contents($url_sheet);
+
+        if($csv){
+            $rows = array_map("str_getcsv", explode("\n", $csv));
+        }
     }
 }
 
 /* =========================
-   AMBIL DATA JADWAL
-========================= */
-$rows = [];
-if($gid){
-    $url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=$gid&output=csv";
-    $csv = file_get_contents($url);
-    $rows = array_map("str_getcsv", explode("\n", $csv));
-}
-
-/* =========================
-   AMBIL DATA GURU
+   DATA GURU
 ========================= */
 $guruList=[];
-$q=mysqli_query($conn,"SELECT id_user,nama FROM users");
+$q=mysqli_query($conn,"SELECT id_user,nama FROM users WHERE role='guru'");
 while($g=mysqli_fetch_assoc($q)){
-    $guruList[$g['id_user']]=$g['nama'];
+$guruList[$g['id_user']]=$g['nama'];
 }
 
+
 /* =========================
-   INCLUDE HEADER/FOOTER
+   TAMBAH JADWAL KE SPREADSHEET
 ========================= */
-include "../templates/header.php";
-include "../templates/navbar.php";
-include "../sidebar.php";
-include "../header.php";
+if(isset($_POST['tambah_jadwal'])){
+
+    $id_user = $_POST['id_user'];
+    $mapel = $_POST['mapel'];
+    $hari = $_POST['hari'];
+    $jam_mulai = $_POST['jam_mulai'];
+    $jam_selesai = $_POST['jam_selesai'];
+
+    // VALIDASI
+    if(!$id_user || !$mapel || !$hari || !$jam_mulai || !$jam_selesai){
+        $_SESSION['error'] = "❌ Semua field wajib diisi!";
+    }else{
+
+        // URL WEB APP (GANTI DENGAN PUNYA KAMU)
+        $url = "https://script.google.com/macros/s/AKfycbzwxlpXdx3nwnbuV07ZuIiJp_Y3zIQiI86BwvpzzjSj8VYLaAwTkwwySLpMvAxAmpMV/exec";
+
+        $data = [
+            "action" => "add",
+            "gid" => $_POST['gid'],
+            "id_guru" => $id_user,
+            "mapel" => $mapel,
+            "hari" => $hari,
+            "jam_mulai" => $jam_mulai,
+            "jam_selesai" => $jam_selesai
+        ];
+
+        $options = [
+            "http" => [
+                "header"  => "Content-Type: application/json",
+                "method"  => "POST",
+                "content" => json_encode($data),
+            ]
+        ];
+
+        $context  = stream_context_create($options);
+      $ch = curl_init($url);
+
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json'
+]);
+
+// penting biar tidak error SSL di localhost
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+$result = curl_exec($ch);
+
+if($result === false){
+    $_SESSION['error'] = "❌ CURL ERROR: " . curl_error($ch);
+}
+
+curl_close($ch);
+
+        if(trim($result) == "OK"){
+            $_SESSION['success'] = "✅ Jadwal berhasil ditambahkan";
+        }elseif(trim($result) == "BENTROK"){
+            $_SESSION['error'] = "❌ Jadwal bentrok dengan jadwal lain!";
+        }else{
+            $_SESSION['error'] = "❌ Gagal kirim ke spreadsheet";
+        }
+    }
+
+    header("Location: ".$_SERVER['REQUEST_URI']); exit;
+}
+
+
 ?>
 
-<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-<script src="../assets/js/bootstrap.bundle.min.js"></script>
+<?php include "../templates/header.php"; ?>
+<?php include "../sidebar.php"; ?>
+<?php include "../header.php"; ?>
 
 <div class="main-content p-4">
 
-<!-- HEADER -->
-<div class="d-flex justify-content-between mb-4">
-<h5 class="fw-bold">Detail Kelas <?= htmlspecialchars($nama_kelas) ?></h5>
-<a href="jadwal2.php" class="btn btn-secondary btn-sm" style="width:120px; background-color: #067b9b; padding-top:11px;">←  Kembali</a>
+<h4 class="fw-bold mb-3">Detail Kelas <?= $nama_kelas ?></h4>
+
+<?php if(isset($_SESSION['error'])): ?>
+<div class="alert alert-danger"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
+<?php endif; ?>
+
+<?php if(isset($_SESSION['success'])): ?>
+<div class="alert alert-success"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
+<?php endif; ?>
+
+<div class="card p-3 mb-3">
+<b>Wali:</b> <?= $nama_wali ?><br>
+<b>Pengurus:</b> <?= $nama_pengurus ?>
 </div>
 
-<!-- INFO KELAS -->
-<div class="card mb-3 p-3 shadow-sm">
-<div class="d-flex justify-content-between align-items-center">
+<button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalWali">Edit Wali</button>
+<button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalPengurus">Edit Pengurus</button>
+<button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalJadwal">
++ Tambah Jadwal
+</button>
+<hr>
 
-<div>
-    <div class="mb-2">
-        <i class="bi bi-person-badge text-warning"></i>
-        <span class="text-muted">Wali:</span>
-        <span class="fw-semibold"><?= $nama_wali=='Belum ada'?'<span class="text-danger">Tidak ada</span>':htmlspecialchars($nama_wali) ?></span>
-    </div>
-    <div>
-        <i class="bi bi-people text-info"></i>
-        <span class="text-muted">Pengurus:</span>
-        <span class="fw-semibold"><?= $nama_pengurus=='Belum ada'?'<span class="text-danger">Tidak ada</span>':htmlspecialchars($nama_pengurus) ?></span>
-    </div>
-</div>
+<table class="table table-bordered">
+<tr><th>No</th><th>Guru</th><th>Mapel</th><th>Hari</th><th>Jam</th></tr>
 
-<div class="d-flex gap-2">
-    <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalWali">
-        <i class="bi bi-pencil-square"></i> Edit Wali
-    </button>
-    <button class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#modalPengurus">
-        <i class="bi bi-person-plus"></i> Edit Pengurus
-    </button>
-    <a href="https://docs.google.com/spreadsheets/d/1OUnML_ulkjy46R1bJn_lpbCKhOncgvh3AYM5KDAdsu4/edit#gid=<?= $gid ?>" 
-       target="_blank"
-       class="btn btn-primary btn-sm">
-       <i class="bi bi-plus-circle"></i> Tambah Jadwal
-    </a>
-</div>
-
-</div>
-</div>
-
-<!-- TABEL JADWAL -->
-<div class="card shadow-sm">
-<div class="card-body">
-<table class="table table-bordered table-hover">
-<tr>
-<th>No</th><th>Guru</th><th>Mapel</th><th>Hari</th><th>Jam</th>
-</tr>
 <?php
 $no=1;
 foreach($rows as $i=>$r){
-    if($i==0||count($r)<5) continue;
-    echo "<tr>
-    <td>".$no++."</td>
-    <td>".($guruList[intval($r[0])]??'-')."</td>
-    <td>$r[1]</td>
-    <td>$r[2]</td>
-    <td>$r[3] - $r[4]</td>
-    </tr>";
+if($i==0||count($r)<5) continue;
+echo "<tr>
+<td>".$no++."</td>
+<td>".($guruList[$r[0]]??'-')."</td>
+<td>$r[1]</td>
+<td>$r[2]</td>
+<td>$r[3] - $r[4]</td>
+</tr>";
 }
 ?>
 </table>
-</div>
-</div>
 
 </div>
 
@@ -243,18 +249,22 @@ foreach($rows as $i=>$r){
 <div class="modal-dialog">
 <div class="modal-content">
 <form method="POST">
+
 <div class="modal-header">
-<h6 class="modal-title">Update Wali Kelas</h6>
+<h5>Edit Wali</h5>
 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
+
 <div class="modal-body">
-<input type="text" id="searchWali" class="form-control" placeholder="Cari wali...">
-<div id="resultWali" class="list-group mt-2"></div>
+<input type="text" id="searchWali" class="form-control" placeholder="Cari guru...">
+<div id="resultWali" class="border mt-2"></div>
 <input type="hidden" name="id_wali" id="idWali">
 </div>
+
 <div class="modal-footer">
 <button type="submit" name="update_wali" class="btn btn-primary">Simpan</button>
 </div>
+
 </form>
 </div>
 </div>
@@ -265,57 +275,124 @@ foreach($rows as $i=>$r){
 <div class="modal-dialog">
 <div class="modal-content">
 <form method="POST">
+
 <div class="modal-header">
-<h6 class="modal-title">Update Pengurus</h6>
+<h5>Edit Pengurus</h5>
 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
 </div>
+
 <div class="modal-body">
 <input type="text" id="searchSiswa" class="form-control" placeholder="Cari siswa...">
-<div id="resultSiswa" class="list-group mt-2"></div>
+<div id="resultSiswa" class="border mt-2"></div>
 <input type="hidden" name="id_pengurus" id="idSiswa">
 </div>
+
 <div class="modal-footer">
 <button type="submit" name="update_pengurus" class="btn btn-primary">Simpan</button>
 </div>
+
 </form>
 </div>
 </div>
 </div>
 
+<div class="modal fade" id="modalJadwal" tabindex="-1">
+<div class="modal-dialog">
+<div class="modal-content">
+
+<div class="modal-header">
+<h5>Tambah Jadwal</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<form method="POST">
+<div class="modal-body">
+
+<input type="text" id="searchGuru" class="form-control" placeholder="Cari guru...">
+<div id="resultGuru" class="border mt-2"></div>
+<input type="hidden" name="id_user" id="idGuru">
+<input type="hidden" name="gid" value="<?= $gid ?>">
+<input type="text" name="mapel" class="form-control mt-2" placeholder="Mapel">
+
+<select name="hari" class="form-control mt-2">
+<option>senin</option>
+<option>selasa</option>
+<option>rabu</option>
+<option>kamis</option>
+<option>jumat</option>
+<option>sabtu</option>
+</select>
+
+<input type="time" name="jam_mulai" class="form-control mt-2">
+<input type="time" name="jam_selesai" class="form-control mt-2">
+
+</div>
+
+<div class="modal-footer">
+<button name="tambah_jadwal" class="btn btn-primary">Simpan</button>
+</div>
+
+</form>
+
+</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
-function setupSearch(inputId,resultId,hiddenId,role){
-    let timeout=null;
-    document.getElementById(inputId).addEventListener("keyup",function(){
-        clearTimeout(timeout);
-        let keyword=this.value;
-        timeout=setTimeout(()=>{
-            if(keyword.length<1){
-                document.getElementById(resultId).innerHTML="";
-                return;
-            }
-            fetch("search_user.php?q="+keyword+"&role="+role)
-            .then(res=>res.json())
-            .then(data=>{
-                let html="";
-                data.forEach(u=>{
-                    html+=`<a href="#" class="list-group-item list-group-item-action"
-                    onclick="selectUser('${u.id_user}','${u.nama}','${inputId}','${hiddenId}','${resultId}')">
-                    ${u.nama}</a>`;
-                });
-                document.getElementById(resultId).innerHTML=html;
-            });
-        },300);
-    });
+function setup(input,result,hidden,role){
+document.getElementById(input).addEventListener("keyup",function(){
+
+fetch("search_user.php?q="+this.value+"&role="+role)
+.then(res=>res.json())
+.then(data=>{
+let html="";
+data.forEach(u=>{
+html+=`<div style="cursor:pointer;padding:5px"
+onclick="pilih('${u.id_user}','${u.nama}','${input}','${hidden}')">
+${u.nama}
+</div>`;
+});
+document.getElementById(result).innerHTML=html;
+});
+
+});
 }
 
-function selectUser(id,nama,inputId,hiddenId,resultId){
-    document.getElementById(inputId).value=nama;
-    document.getElementById(hiddenId).value=id;
-    document.getElementById(resultId).innerHTML="";
+function pilih(id,nama,input,hidden){
+document.getElementById(input).value=nama;
+document.getElementById(hidden).value=id;
+document.getElementById("resultWali").innerHTML="";
+document.getElementById("resultSiswa").innerHTML="";
 }
 
-setupSearch("searchWali","resultWali","idWali","walikelas");
-setupSearch("searchSiswa","resultSiswa","idSiswa","siswa");
+setup("searchWali","resultWali","idWali","guru");
+setup("searchSiswa","resultSiswa","idSiswa","siswa");
 </script>
 
+<script>
+    document.getElementById("searchGuru").addEventListener("keyup",function(){
+
+fetch("search_guru.php?q="+this.value+"&role=guru")
+.then(res=>res.json())
+.then(data=>{
+let html="";
+data.forEach(u=>{
+html+=`<div style="cursor:pointer;padding:5px"
+onclick="pilihGuru('${u.id_user}','${u.nama}')">
+${u.nama}
+</div>`;
+});
+document.getElementById("resultGuru").innerHTML=html;
+});
+
+});
+
+function pilihGuru(id,nama){
+document.getElementById("searchGuru").value=nama;
+document.getElementById("idGuru").value=id;
+document.getElementById("resultGuru").innerHTML="";
+}
+</script>
 <?php include "../templates/footer.php"; ?>

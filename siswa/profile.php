@@ -16,6 +16,7 @@ $user = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT * FROM users WHERE id_user='$id_user'
 "));
 
+$nama = $_SESSION['nama'];
 /* =========================
    AMBIL KELAS WALI (OPSIONAL)
 ========================= */
@@ -96,7 +97,7 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 </h5>
 
 <div class="text-primary small">
-<?= htmlspecialchars($role) ?> <?= htmlspecialchars($nama_kelas) ?>
+<?= htmlspecialchars($role) ?> <?= htmlspecialchars($nama) ?>
 </div>
 
 

@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('guru');
@@ -9,231 +8,185 @@ include "../config/database.php";
 
 date_default_timezone_set('Asia/Jakarta');
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 $id_user = $_SESSION['id_user'];
 
-/* =========================
-   FUNCTION CURL
-========================= */
+/* ========================= */
 function getCSV($url){
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
-    $output = curl_exec($ch);
-    curl_close($ch);
-    return $output;
+    return @file_get_contents($url);
 }
 
-/* =========================
-   AUTO DETECT JADWAL
-========================= */
-$kelas_aktif = null;
-$jam_mulai_fix = null;
-$jam_selesai_fix = null;
+function hariFix($h){
+    return strtolower(str_replace(['jumaat','jum\'at'],'jumat',trim($h)));
+}
+/* ========================= */
 
-$url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&single=true&output=csv";
+$jadwalHariIni = [];
 
-$csv_master = getCSV($url_master);
-$rows_master = array_map("str_getcsv", explode("\n", $csv_master));
-
-$jam_sekarang = date("H:i");
-
-$hari = date('l');
-$hariIndo = [
- 'Sunday'=>'Minggu','Monday'=>'Senin','Tuesday'=>'Selasa',
- 'Wednesday'=>'Rabu','Thursday'=>'Kamis','Friday'=>'Jumat','Saturday'=>'Sabtu'
+$hari_map = [
+ 'Sunday'=>'minggu','Monday'=>'senin','Tuesday'=>'selasa',
+ 'Wednesday'=>'rabu','Thursday'=>'kamis','Friday'=>'jumat','Saturday'=>'sabtu'
 ];
-$hari = $hariIndo[$hari];
 
-/* LOOP SEMUA KELAS */
-foreach ($rows_master as $row) {
+$hari_now = $hari_map[date('l')];
 
-    if(count($row) < 2) continue;
+/* =========================
+   CEK ABSENSI
+========================= */
+$qAbsen = mysqli_query($conn,"
+SELECT id_absensi_guru,status,created_at 
+FROM absensi_guru
+WHERE id_user='$id_user'
+AND DATE(tanggal)=CURDATE()
+ORDER BY id_absensi_guru DESC
+LIMIT 1
+");
+
+$absen = mysqli_fetch_assoc($qAbsen);
+
+/* =========================
+   AMBIL JADWAL
+========================= */
+$url_master = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=799813071&output=csv";
+
+$rows_master = array_map("str_getcsv", explode("\n", getCSV($url_master)));
+
+foreach ($rows_master as $row){
+
+    if(count($row)<2) continue;
 
     $kelas = trim($row[0]);
     $gid   = trim($row[1]);
 
-    if(!$kelas || !$gid) continue;
+    $csv = getCSV("https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=$gid&output=csv");
 
-    $url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZwSBy_K6b0qt6-4lN2RqJ2Q4zUkUL4sRO7dT7V6z9ChPMZXdo8GL0HIKF_W3vaZ8GbDiBxgAvfW38/pub?gid=".$gid."&output=csv";
+    if(!$csv) continue;
 
-    $csv = getCSV($url);
     $rows = array_map("str_getcsv", explode("\n", $csv));
 
-    foreach ($rows as $i => $r) {
-        if ($i == 0) continue;
-        if (count($r) < 5) continue;
+    foreach($rows as $i=>$r){
 
-        $id_guru_sheet = intval($r[0]);
-        $hari_sheet    = trim($r[2]);
-        $jam_mulai     = substr(trim($r[3]),0,5);
-        $jam_selesai   = substr(trim($r[4]),0,5);
+        if($i==0 || count($r)<5) continue;
 
-        if (
-            $id_guru_sheet == $id_user &&
-            strtolower($hari_sheet) == strtolower($hari) &&
-            $jam_sekarang >= $jam_mulai &&
-            $jam_sekarang <= $jam_selesai
-        ) {
-            $kelas_aktif = $kelas;
-            $jam_mulai_fix = $jam_mulai;
-            $jam_selesai_fix = $jam_selesai;
-            break 2;
+        $id_guru = intval($r[0]);
+        $hari = hariFix($r[2]);
+
+        if($id_guru != $id_user || $hari != $hari_now) continue;
+
+        /* =========================
+           CEK JURNAL
+        ========================= */
+        $qJurnal = mysqli_query($conn,"
+        SELECT 1 FROM jurnal_mengajar
+        WHERE diisi_oleh='$id_user'
+        AND kelas='$kelas'
+        AND mapel='".$r[1]."'
+        AND DATE(tanggal)=CURDATE()
+        ");
+
+        $sudahIsi = mysqli_num_rows($qJurnal)>0;
+
+        /* =========================
+           VALIDASI 12 JAM (FIX TOTAL)
+        ========================= */
+
+        $bolehIsi = false;
+
+        // Ambil jam mulai dari jadwal (contoh: 01:00)
+        $jam_mulai = strtotime(date('Y-m-d').' '.$r[3]);
+
+        // FIX untuk jam dini hari (misal 01:00 dianggap kemarin)
+        if($jam_mulai > time()){
+            $jam_mulai = strtotime('-1 day', $jam_mulai);
         }
+
+        $batas = $jam_mulai + 43200; // +12 jam
+
+        if($absen && in_array($absen['status'],['hadir','izin'])){
+
+            if(time() <= $batas && !$sudahIsi){
+                $bolehIsi = true;
+            }
+        }
+
+        /* =========================
+           STATUS TAMBAHAN
+        ========================= */
+
+        $statusText = '';
+        $badge = '';
+
+        if($sudahIsi){
+            $statusText = '✔ Sudah diisi';
+            $badge = 'bg-success';
+        }
+        elseif(!$absen){
+            $statusText = 'Belum diabsen';
+            $badge = 'bg-danger';
+        }
+        elseif(time() > $batas){
+            $statusText = 'Lewat 12 jam';
+            $badge = 'bg-secondary';
+        }
+        elseif(time() < $jam_mulai){
+            $statusText = 'Belum waktunya';
+            $badge = 'bg-warning';
+        }
+        else{
+            $statusText = 'Isi Jurnal';
+            $badge = 'bg-primary';
+        }
+
+        $jadwalHariIni[] = [
+            'kelas'=>$kelas,
+            'mapel'=>$r[1],
+            'jam'=>$r[3]." - ".$r[4],
+            'status'=>$absen['status'] ?? null,
+            'boleh'=>$bolehIsi,
+            'sudah'=>$sudahIsi,
+            'text'=>$statusText,
+            'badge'=>$badge
+        ];
     }
-}
-
-/* =========================
-   PROSES SIMPAN
-========================= */
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
-    $tanggal = $_POST['tanggal'];
-    $materi  = mysqli_real_escape_string($conn, $_POST['materi']);
-
-    if(!$kelas_aktif){
-        $_SESSION['error'] = "❌ Tidak ada jadwal mengajar!";
-        header("Location: ".$_SERVER['PHP_SELF']);
-        exit;
-    }
-
-    /* CEK ABSENSI */
-    $cek = mysqli_query($conn, "
-    SELECT id_absensi_guru, status
-    FROM absensi_guru
-    WHERE id_user='$id_user'
-    AND DATE(tanggal)='$tanggal'
-    ORDER BY tanggal DESC
-    LIMIT 1
-");
-
-    $absen = mysqli_fetch_assoc($cek);
-
-    if (!$absen) {
-        $_SESSION['error'] = "❌ Belum absen!";
-        header("Location: ".$_SERVER['PHP_SELF']);
-        exit;
-    }
-
-    if (!in_array($absen['status'], ['hadir','izin'])) {
-        $_SESSION['error'] = "❌ Tidak bisa isi jurnal!";
-        header("Location: ".$_SERVER['PHP_SELF']);
-        exit;
-    }
-
-    $id_absensi = $absen['id_absensi_guru'];
-
-    /* SIMPAN */
-    $query = mysqli_query($conn, "
-        INSERT INTO jurnal_mengajar
-        (id_absensi_guru, diisi_oleh, tanggal, materi, kelas, status_verifikasi)
-        VALUES
-        ('$id_absensi', '$id_user', '$tanggal', '$materi', '$kelas_aktif', 'tersimpan')
-    ");
-
-    $_SESSION[$query ? 'success' : 'error'] =
-        $query ? "✅ Jurnal berhasil disimpan!" : "❌ Gagal menyimpan!";
-
-    header("Location: ".$_SERVER['PHP_SELF']);
-    exit;
 }
 ?>
 
-<?php
-include "../templates/header.php";
-include "../sidebar.php";
-include "../header.php";
-?>
+<?php include "../templates/header.php"; ?>
+<?php include "../sidebar.php"; ?>
+<?php include "../header.php"; ?>
 
-<!-- =========================
-     CONTENT (AMAN SIDEBAR)
-========================= -->
-<div class="main-content">
-<div class="page-wrapper">
+<div class="main-content p-4">
+
+<h4 class="fw-bold mb-4">Jurnal Hari Ini</h4>
 
 <div class="row">
-<div class="col-md-12">
 
-<!-- HEADER -->
-<div class="mb-4">
-    <div class="page-title" style="font-size:26px; margin-top:-15px;">Isi Jurnal Mengajar</div>
-    <div class="page-subtitle">
-        Isi jurnal sesuai dengan kegiatan pembelajaran hari ini
-    </div>
-</div>
+<?php foreach($jadwalHariIni as $j): ?>
 
-<?php if(isset($_SESSION['error'])): ?>
-<div class="alert alert-danger"><?= $_SESSION['error']; ?></div>
-<?php unset($_SESSION['error']); endif; ?>
+<div class="col-md-4 mb-3">
 
-<?php if(isset($_SESSION['success'])): ?>
-<div class="alert alert-success"><?= $_SESSION['success']; ?></div>
-<?php unset($_SESSION['success']); endif; ?>
+<div class="card p-3 shadow-sm h-100"
+style="cursor:<?= $j['boleh'] ? 'pointer':'not-allowed' ?>;
+opacity:<?= $j['boleh'] ? '1':'0.5' ?>;"
+onclick="<?= $j['boleh'] ? "window.location.href='isi_jurnal.php?kelas=".urlencode($j['kelas'])."&mapel=".urlencode($j['mapel'])."'" : "" ?>"
+>
 
+<h6><?= $j['kelas'] ?></h6>
+<p><?= $j['mapel'] ?></p>
+<small><?= $j['jam'] ?></small>
 
-<?php if($kelas_aktif): ?>
+<hr>
 
-<!-- FORM -->
-<div class="laporan-card">
-<form method="POST">
+<span class="badge <?= $j['badge'] ?>">
+    <?= $j['text'] ?>
+</span>
 
-<div class="row">
-<div class="col-md-6 mb-3">
-<h4 class="fw-bold mb-2" style="font-size:24px; margin-bottom:16px;">Jadwal Aktif</h5>
-    <p class="mb-1"><b>Kelas:</b> <?= $kelas_aktif ?></p>
-    <p class="mb-0"><b>Jam:</b> <?= $jam_mulai_fix ?> - <?= $jam_selesai_fix ?></p>
-<label class="form-label" style="margin-top:35px;">Tanggal</label>
-<input type="date" name="tanggal" class="form-control" required>
-</div>
-</div>
-
-<div class="mb-3">
-<label class="form-label">Materi</label>
-<textarea name="materi" class="form-control" rows="6" placeholder="Tuliskan materi pembelajaran..." required></textarea>
-</div>
-
-<button type="submit" class="btn-submit w-100 mt-2" style="background-color: #3364ce; height:37px; color: #fff; border-radius:4px;">
-Simpan Jurnal
-</button>
-
-</form>
-</div>
-
-<?php else: ?>
-
-<div class="alert alert-warning">
-❗ Saat ini tidak ada jadwal mengajar
-</div>
-
-<?php endif; ?>
-
-</div>
 </div>
 
 </div>
+
+<?php endforeach; ?>
+
 </div>
-
-<style>
-.content-area{
-    padding: 20px;
-    max-width: 800px;
-    margin: auto;
-}
-</style>
-
-<script>
-setTimeout(()=>{
- let a=document.querySelector('.alert');
- if(a){
-    a.style.opacity=0;
-    setTimeout(()=>a.remove(),500);
- }
-},3000);
-</script>
+</div>
 
 <?php include "../templates/footer.php"; ?>

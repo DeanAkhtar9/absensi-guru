@@ -7,7 +7,7 @@ checkRole('guru');
 
 include "../config/database.php";
 
-$id_guru = $_SESSION['id_user'];
+$id_guru = intval($_SESSION['id_user']);
 
 /* =========================
    FILTER
@@ -15,20 +15,20 @@ $id_guru = $_SESSION['id_user'];
 $search = $_GET['search'] ?? '';
 $bulan  = $_GET['bulan'] ?? '';
 
-$where = "WHERE jm.diisi_oleh = '$id_guru'";
+$where = "WHERE jm.diisi_oleh = $id_guru";
 
 if (!empty($search)) {
     $where .= " AND jm.materi LIKE '%$search%'";
 }
 
 if (!empty($bulan)) {
-    $where .= " AND MONTH(jm.tanggal) = '$bulan'";
+    $where .= " AND MONTH(jm.created_at) = '$bulan'";
 }
 
 /* =========================
-   QUERY (JOIN ABSENSI)
+   QUERY (PAKAI CREATED_AT)
 ========================= */
-$query = mysqli_query($conn, "
+$sql = "
     SELECT 
         jm.*,
         ag.status AS kehadiran
@@ -36,18 +36,86 @@ $query = mysqli_query($conn, "
     JOIN absensi_guru ag 
         ON jm.id_absensi_guru = ag.id_absensi_guru
     $where
-    ORDER BY jm.tanggal DESC
-");
+    ORDER BY jm.created_at DESC
+";
+
+$query = mysqli_query($conn, $sql);
+
+/* =========================
+   EXPORT EXCEL
+========================= */
+if(isset($_GET['export']) && $_GET['export']=="excel"){
+
+    header("Content-Type: application/vnd.ms-excel");
+    header("Content-Disposition: attachment; filename=rekap_jurnal.xls");
+
+    echo "<table border='1'>
+    <tr>
+    <th>Tanggal</th>
+    <th>Jam</th>
+    <th>Kelas</th>
+    <th>Mapel</th>
+    <th>Kehadiran</th>
+    <th>Status</th>
+    </tr>";
+
+    $q = mysqli_query($conn, $sql);
+
+    while($row = mysqli_fetch_assoc($q)){
+        echo "<tr>
+        <td>".date('d-m-Y', strtotime($row['created_at']))."</td>
+        <td>".date('H:i', strtotime($row['created_at']))."</td>
+        <td>{$row['kelas']}</td>
+        <td>{$row['mapel']}</td>
+        <td>{$row['kehadiran']}</td>
+        <td>{$row['status_verifikasi']}</td>
+        </tr>";
+    }
+
+    echo "</table>";
+    exit;
+}
 ?>
 
 <?php include "../templates/header.php"; ?>
 <?php include "../sidebar.php"; ?>
 <?php include "../header.php"; ?>
 
+<!-- =========================
+     STYLE PRINT (TIDAK UBAH UI)
+========================= -->
+<style>
+@media print {
+    .sidebar, .navbar, .btn, form {
+        display: none !important;
+    }
+
+    .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+    }
+
+    th {
+        background: #eee;
+    }
+}
+</style>
+
 <div class="main-content"><div class="px-4 py-3 w-100">
 
 <div class="mb-4">
-    <div class="page-title" style="font-size:26px; margin-bottom:24px;">Riwayat Jurnal</div>
+    <div class="page-title" style="font-size:26px; margin-bottom:24px;">
+        Riwayat Jurnal
+    </div>
 
 <form method="GET" class="mb-4">
 
@@ -69,6 +137,11 @@ style="height:48px; border-radius:10px; border-color: #d0d0d0;">
 <option value="">Semua Bulan</option>
 
 <?php
+$namaBulan = [
+1=>"Januari","Februari","Maret","April","Mei","Juni",
+"Juli","Agustus","September","Oktober","November","Desember"
+];
+
 foreach($namaBulan as $key => $nama){
     $selected = ($bulan == $key) ? "selected" : "";
     echo "<option value='$key' $selected>$nama</option>";
@@ -77,7 +150,7 @@ foreach($namaBulan as $key => $nama){
 </select>
 </div>
 
-<!-- BUTTON FILTER + RESET -->
+<!-- BUTTON -->
 <div class="col-md-4">
 <div class="d-flex gap-2">
 
@@ -99,8 +172,20 @@ Reset
 
 </form> 
 
+<!-- ACTION -->
+<div class="mb-3 d-flex gap-2">
+<a href="?<?= http_build_query($_GET) ?>&export=excel"
+class="btn btn-success">
+Export Excel
+</a>
+
+<button onclick="window.print()" class="btn btn-primary">
+Print
+</button>
+</div>
+
 <!-- =========================
-     TABLE
+     TABLE (TIDAK DIUBAH)
 ========================= -->
 <div class="card shadow-sm">
 <div class="card-body">
@@ -111,7 +196,8 @@ Reset
 <thead style="background:#f4f7ff;">
 <tr>
 <th>Tanggal</th>
-<th>Kegiatan</th>
+<th>Jam</th>
+<th>Matapelajaran</th>
 <th>Kehadiran</th>
 <th>Status Jurnal</th>
 <th class="text-center">Detail</th>
@@ -143,13 +229,18 @@ if($hadir == 'hadir'){
 }else{
     $badgeHadir = "bg-danger";
 }
+
+/* 🔥 FIX JAM DISINI */
+$tgl = strtotime($row['created_at']);
 ?>
 
 <tr>
 
-<td><?= date('d F Y', strtotime($row['tanggal'])) ?></td>
+<td><?= date('d F Y', $tgl) ?></td>
 
-<td><?= htmlspecialchars($row['materi']) ?></td>
+<td><?= date('H:i', $tgl) ?></td>
+
+<td><?= htmlspecialchars($row['mapel'] ?? '-') ?></td>
 
 <td>
 <span class="badge <?= $badgeHadir ?>">
@@ -176,7 +267,7 @@ Detail
 
 <?php else: ?>
 <tr>
-<td colspan="5" class="text-center text-muted">
+<td colspan="6" class="text-center text-muted">
 Belum ada data jurnal
 </td>
 </tr>

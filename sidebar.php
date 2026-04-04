@@ -9,6 +9,7 @@ if(!isset($_SESSION['role'])){
 }
 
 $role = $_SESSION['role'];
+$nama = $_SESSION['nama'];
 ?>
 
 <!DOCTYPE html>
@@ -33,7 +34,7 @@ $role = $_SESSION['role'];
             </div>
             <div class="brand-text">
                 <h2>School</h2>
-                <small><?php echo ucfirst($role); ?></small>
+                <p><?php echo ucfirst($role); ?> | <span><?= htmlspecialchars($nama) ?></span></p> 
             </div>
         </div>
     </div>
@@ -56,7 +57,7 @@ $role = $_SESSION['role'];
         <?php endif; ?>
        <!-- ================= GURU ================= -->
         <?php if($role == 'guru'): ?>
-
+            <li><a href="/absensi-guru/guru/lihatjadwal.php"><i class="bi bi-check2-square"></i><span>Jadwal Mengajar</span></a></li>
             <li><a href="/absensi-guru/guru/jurnal.php"><i class="bi bi-check2-square"></i><span> Jurnal</span></a></li>
             <li><a href="/absensi-guru/guru/riwayat_jurnal.php"><i class="bi bi-stopwatch"></i><span> Riwayat Jurnal</span></a></li>
             <li><a href="/absensi-guru/guru/profile.php"><i class="bi bi-person"></i> Profil</a></li>
@@ -65,8 +66,8 @@ $role = $_SESSION['role'];
        <!-- ================= Walikelas ================= -->
         <?php if($role == 'walikelas'): ?>
 
-            <li><a href="/absensi-guru/walikelas/monitoringkomplain.php"><i class="bi bi-check2-square"></i><span> Monitoing Laporan</span></a></li>
-            <li><a href="/absensi-guru/walikelas/monitoringjurnal.php"><i class="bi bi-stopwatch"></i><span> Monitoing Jurnal</span></a></li>
+            <li><a href="/absensi-guru/walikelas/monitoringkomplain.php"><i class="bi bi-check2-square"></i><span> Monitoring Laporan</span></a></li>
+            <li><a href="/absensi-guru/walikelas/monitoringjurnal.php"><i class="bi bi-stopwatch"></i><span> Monitoring Jurnal</span></a></li>
             <li><a href="/absensi-guru/walikelas/profile.php"><i class="bi bi-person"></i> Profil</a></li>
         <?php endif; ?>
 

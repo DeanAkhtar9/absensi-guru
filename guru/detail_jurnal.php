@@ -18,11 +18,14 @@ $id = $_GET['id'];
 
 $id_guru = $_SESSION['id_user'];
 
-$query = mysqli_query($conn, "
-    SELECT * FROM jurnal_mengajar 
-    WHERE id_jurnal = '$id'
-    AND diisi_oleh = '$id_guru'
-");
+
+    $query = mysqli_query($conn, "
+    SELECT j.*, a.status AS kehadiran, a.keterangan AS ket_absen
+    FROM jurnal_mengajar j
+    JOIN absensi_guru a ON j.id_absensi_guru = a.id_absensi_guru
+    WHERE j.id_jurnal = '$id'
+    AND j.diisi_oleh = '$id_guru'");
+
 
 $data = mysqli_fetch_assoc($query);
 
@@ -35,7 +38,26 @@ if (!$data) {
 <?php include "../templates/header.php"; ?>
 <?php include "../sidebar.php"; ?>
 <?php include "../header.php"; ?>
+<style>
+@media print {
 
+    body * {
+        visibility: hidden;
+    }
+
+    #areaPrint, #areaPrint * {
+        visibility: visible;
+    }
+
+    #areaPrint {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+
+}
+</style>
 <!-- =========================
      CONTENT
 ========================= -->
@@ -51,16 +73,29 @@ if (!$data) {
     </div>
 
     <!-- KANAN -->
+
+
+<div class="d-flex gap-2">
     <a href="riwayat_jurnal.php" 
        class="btn btn-secondary btn-sm"
        style="width:120px; background-color:#067b9b;">
        ← Kembali
     </a>
+    
+        <button onclick="printJurnal()" 
+class="btn btn-success btn-sm">
+🖨 Print
+</button>
 
+<button onclick="downloadJurnal()" 
+class="btn btn-primary btn-sm">
+⬇ Download
+</button>
+</div>
 </div>
 
 <!-- CARD -->
-<div class="card shadow-sm border-0">
+<div class="card shadow-sm border-0" id="areaPrint">
 <div class="card-body p-4">
 
 <?php
@@ -106,6 +141,30 @@ if($status == 'diverifikasi'){
     </div>
 </div>
 
+
+<div class="col-md-6 mb-3">
+    <label class="text-muted small">MataPelajaran</label>
+    <div class="fw-semibold">
+        <?= htmlspecialchars($data['mapel'] ?? '-') ?>
+    </div>
+</div>
+
+<div class="col-md-6 mb-3">
+    <label class="text-muted small">Kehadiran</label>
+    <div class="fw-semibold">
+        <?= ucfirst($data['kehadiran']) ?>
+    </div>
+</div>
+
+<?php if(!empty($data['ket_absen'])): ?>
+<div class="col-md-6 mb-3">
+    <label class="text-muted small">Keterangan Absensi</label>
+    <div class="fw-semibold">
+        <?= htmlspecialchars($data['ket_absen']) ?>
+    </div>
+</div>
+<?php endif; ?>
+
 </div>
 
 <hr>
@@ -129,5 +188,13 @@ if($status == 'diverifikasi'){
 </div>
 
 </div>
+<script>
+function printJurnal(){
+    window.print();
+}
 
+function downloadJurnal(){
+    window.print(); // user pilih "Save as PDF"
+}
+</script>
 <?php include "../templates/footer.php"; ?>
