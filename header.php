@@ -2,154 +2,116 @@
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
+require "config/database.php"; // Pastikan path benar
 
-// Ambil data dari session
 $role = $_SESSION['role'] ?? 'Guest';
-$username = $_SESSION['username'] ?? 'User';
-$email = $_SESSION['email'] ?? '';
-$nama = $_SESSION['nama'] ?? $username;
+$user_id = $_SESSION['id_user'] ?? 0; // Pastikan kamu simpan id_user di session saat login
+$nama = $_SESSION['nama'] ?? 'User';
 $tanggal = date("l, d F Y");
+
+// Ambil jumlah notifikasi yang belum dibaca
+$queryNotif = mysqli_query($conn, "SELECT * FROM notifikasi WHERE id_user = '$user_id' AND is_read = 0 ORDER BY created_at DESC");
+$jmlNotif = mysqli_num_rows($queryNotif);
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Header</title>
-
-<!-- Bootstrap Icon CDN -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
 <style>
-/* --- HEADER --- */
-.main-header {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding: 12px 20px;
-    background-color: #f5f5f5;
-    border-bottom: 1px solid #ddd;
-    font-family: Arial, sans-serif;
+/* --- NOTIFIKASI CSS --- */
+.notif-container {
     position: relative;
+    margin-right: 20px;
 }
-
-.header-date {
-    margin-right: 15px;
-    font-size: 14px;
-    color: #555;
+.notif-btn {
+    background: none; border: none; font-size: 22px; cursor: pointer; color: #555; position: relative;
 }
-
-.account-container {
-    position: relative;
+.notif-badge {
+    position: absolute; top: -5px; right: -5px; background: red; color: white;
+    font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;
 }
-
-.account-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #333;
+.notif-dropdown {
+    position: absolute; top: 42px; right: 0; width: 300px; background: #fff;
+    border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); padding: 10px 0;
+    display: none; z-index: 100; max-height: 400px; overflow-y: auto;
 }
-
-.account-dropdown {
-    position: absolute;
-    top: 42px;
-    right: 0;
-    width: 240px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    padding: 15px;
-    display: none;
-    z-index: 10;
+.notif-dropdown.show { display: block; }
+.notif-item {
+    padding: 10px 15px; border-bottom: 1px solid #eee; display: block; text-decoration: none; color: #333;
 }
-
-.account-dropdown.show {
-    display: block;
-}
-
-.account-info strong {
-    font-size: 16px;
-    display: block;
-    color: #222;
-    margin-bottom: 3px;
-}
-
-.account-info span,
-.account-info em {
-    font-size: 13px;
-    color: #666;
-    display: block;
-    margin-bottom: 5px;
-}
-
-.account-dropdown hr {
-    border: 0;
-    border-top: 1px solid #eee;
-    margin: 8px 0;
-}
-
-.account-dropdown a {
-    display: block;
-    padding: 6px 0;
-    text-decoration: none;
-    color: #333;
-    border-radius: 6px;
-    transition: background 0.2s;
-}
-
-.account-dropdown a:hover {
-    background-color: #f0f0f0;
-}
-
-.account-dropdown a.logout {
-    color: #d9534f;
-    font-weight: 600;
-}
+.notif-item:hover { background: #f9f9f9; }
+.notif-item.unread { border-left: 4px solid #007bff; background: #f0f7ff; }
+.notif-item small { color: #888; font-size: 11px; }
+.notif-header { padding: 5px 15px 10px; font-weight: bold; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
 </style>
-</head>
-
-<body>
 
 <div class="main-header">
-
     <div class="header-date"><?= $tanggal ?></div>
 
-    <div class="account-container">
-        <button class="account-btn" onclick="toggleDropdown()" aria-label="Account Menu">
-            <i class="bi bi-person"></i>
+    <div class="notif-container">
+        <button class="notif-btn" onclick="toggleNotif()" aria-label="Notifications">
+            <i class="bi bi-bell"></i>
+            <?php if($jmlNotif > 0): ?>
+                <span class="notif-badge"><?= $jmlNotif ?></span>
+            <?php endif; ?>
         </button>
 
-        <div class="account-dropdown" id="accountDropdown">
-            <div class="account-info">
-                <strong><?= htmlspecialchars($nama) ?></strong>
-                <span><?= htmlspecialchars($email) ?></span>
+        <div class="notif-dropdown" id="notifDropdown">
+            <div class="notif-header">
+                <span>Notifikasi</span>
+                <?php if($jmlNotif > 0): ?>
+                    <a href="baca_semua_notif.php" style="font-size: 11px; color: #007bff;">Tandai semua dibaca</a>
+                <?php endif; ?>
             </div>
-            <hr>
-
-            <a href="/absensi-guru/logout.php" class="logout">Keluar</a>
+            <div class="text-center border-top">
+        <a href="/absensi-guru/riwayat_notifikasi.php" class="d-block p-2 small text-primary fw-bold text-decoration-none">
+            Lihat Semua Riwayat
+        </a>
+    </div>
+            <?php if($jmlNotif == 0): ?>
+                <div class="p-3 text-center text-muted small">Tidak ada notifikasi baru</div>
+            <?php else: ?>
+                <?php while($n = mysqli_fetch_assoc($queryNotif)): ?>
+                    <a href="detail_notifikasi.php?id=<?= $n['id_notif'] ?>" class="notif-item unread">
+                        <div style="font-size: 13px; font-weight: bold;"><?= $n['judul'] ?></div>
+                        <div style="font-size: 12px;"><?= substr($n['pesan'], 0, 50) ?>...</div>
+                        <small><?= date('d M, H:i', strtotime($n['created_at'])) ?></small>
+                    </a>
+                <?php endwhile; ?>
+            <?php endif; ?>
         </div>
     </div>
 
+    <div class="account-container">
+        <button class="account-btn" onclick="toggleDropdown()">
+            <i class="bi bi-person"></i>
+        </button>
+        <div class="account-dropdown" id="accountDropdown">
+            <div class="account-info">
+                <strong><?= htmlspecialchars($nama) ?></strong>
+                <span><?= htmlspecialchars($role) ?></span>
+            </div>
+            <hr>
+            <a href="/absensi-guru/logout.php" class="logout">Keluar</a>
+        </div>
+    </div>
 </div>
 
 <script>
-// Toggle dropdown
-function toggleDropdown() {
-    const dropdown = document.getElementById('accountDropdown');
-    dropdown.classList.toggle('show');
+function toggleNotif() {
+    document.getElementById('notifDropdown').classList.toggle('show');
+    document.getElementById('accountDropdown').classList.remove('show');
 }
 
-// Tutup dropdown jika klik di luar
-document.addEventListener('click', function(event) {
-    const dropdown = document.getElementById('accountDropdown');
-    const btn = document.querySelector('.account-btn');
-    if (!dropdown.contains(event.target) && !btn.contains(event.target)) {
-        dropdown.classList.remove('show');
+function toggleDropdown() {
+    document.getElementById('accountDropdown').classList.toggle('show');
+    document.getElementById('notifDropdown').classList.remove('show');
+}
+
+// Klik luar tutup
+document.addEventListener('click', function(e) {
+    if (!document.querySelector('.notif-container').contains(e.target)) {
+        document.getElementById('notifDropdown').classList.remove('show');
+    }
+    if (!document.querySelector('.account-container').contains(e.target)) {
+        document.getElementById('accountDropdown').classList.remove('show');
     }
 });
 </script>
-
-</body>
-</html>

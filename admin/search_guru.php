@@ -1,23 +1,11 @@
 <?php
 require "../config/database.php";
 
-$q = $_GET['q'] ?? '';
-$role = $_GET['role'] ?? '';
-
-$data=[];
-
-$sql = "SELECT id_user,nama FROM users WHERE nama LIKE '%$q%'";
-
-if($role){
-    $sql .= " AND role='$role'";
+$q = $_GET['q'];
+$role = $_GET['role'];
+$query = mysqli_query($conn, "SELECT id_user, nama FROM users WHERE role='$role' AND nama LIKE '%$q%' LIMIT 10");
+$result = [];
+while($row = mysqli_fetch_assoc($query)) {
+    $result[] = $row;
 }
-
-$sql .= " LIMIT 10";
-
-$res = mysqli_query($conn,$sql);
-
-while($row=mysqli_fetch_assoc($res)){
-    $data[]=$row;
-}
-
-echo json_encode($data);
+echo json_encode($result);

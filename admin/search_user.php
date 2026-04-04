@@ -1,55 +1,36 @@
 <?php
 require "../config/database.php";
 
+$q = isset($_GET['q']) ? mysqli_real_escape_string($conn, $_GET['q']) : '';
+$role = isset($_GET['role']) ? mysqli_real_escape_string($conn, $_GET['role']) : '';
+$type = isset($_GET['type']) ? $_GET['type'] : '';
+
+$result = [];
+
+if ($q !== '') {
+    if ($role == 'guru' && $type != 'jadwal') {
+        // Filter: Hanya guru yang BELUM jadi wali di kelas manapun
+        $sql = "SELECT u.id_user, u.nama FROM users u 
+                LEFT JOIN kelas k ON u.id_user = k.id_walikelas 
+                WHERE u.role = 'guru' AND u.nama LIKE '%$q%' 
+                AND k.id_walikelas IS NULL LIMIT 10";
+    } elseif ($role == 'siswa') {
+        // Filter: Hanya siswa yang BELUM masuk ke tabel siswa (belum punya kelas)
+        $sql = "SELECT u.id_user, u.nama FROM users u 
+                LEFT JOIN siswa s ON u.id_user = s.id_user 
+                WHERE u.role = 'siswa' AND u.nama LIKE '%$q%' 
+                AND s.id_user IS NULL LIMIT 10";
+    } else {
+        // Untuk jadwal: Tampilkan semua guru (karena wali pun boleh mengajar)
+        $sql = "SELECT id_user, nama FROM users 
+                WHERE role = '$role' AND nama LIKE '%$q%' LIMIT 10";
+    }
+
+    $query = mysqli_query($conn, $sql);
+    while ($row = mysqli_fetch_assoc($query)) {
+        $result[] = $row;
+    }
+}
+
 header('Content-Type: application/json');
-
-$q = $_GET['q'] ?? '';
-$role = $_GET['role'] ?? '';
-
-$q = trim($q);
-
-if(!$q){
-    echo json_encode([]);
-    exit;
-}
-
-/* =========================
-   FILTER ROLE
-========================= */
-if($role == 'walikelas'){
-    // ambil hanya guru
-    $stmt = $conn->prepare("
-        SELECT id_user, nama 
-        FROM users 
-        WHERE role='guru' 
-        AND nama LIKE CONCAT(?, '%')
-        LIMIT 10
-    ");
-}
-elseif($role == 'siswa'){
-    // ambil hanya siswa yang SUDAH punya data di tabel siswa
-    $stmt = $conn->prepare("
-        SELECT u.id_user, u.nama
-        FROM users u
-        JOIN siswa s ON u.id_user = s.id_user
-        WHERE u.role='siswa'
-        AND u.nama LIKE CONCAT(?, '%')
-        LIMIT 10
-    ");
-}
-else{
-    echo json_encode([]);
-    exit;
-}
-
-$stmt->bind_param("s", $q);
-$stmt->execute();
-
-$result = $stmt->get_result();
-
-$data = [];
-while($row = $result->fetch_assoc()){
-    $data[] = $row;
-}
-
-echo json_encode($data);
+echo json_encode($result);

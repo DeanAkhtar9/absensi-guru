@@ -20,3 +20,26 @@ try {
     die("Koneksi database gagal: " . $e->getMessage());
 }
 
+
+// ... kode koneksi database kamu (mysqli_connect) ...
+
+if (!function_exists('kirimNotifikasi')) {
+    function kirimNotifikasi($id_penerima, $judul, $pesan) {
+        // Ambil koneksi dari luar fungsi
+        global $conn; 
+        
+        // Jika koneksi belum ada, coba include ulang (opsional tapi aman)
+        if (!$conn) {
+            include __DIR__ . "/database.php";
+        }
+
+        $judul_clean = mysqli_real_escape_string($conn, $judul);
+        $pesan_clean = mysqli_real_escape_string($conn, $pesan);
+        $id_clean    = intval($id_penerima);
+
+        $sql = "INSERT INTO notifikasi (id_user, judul, pesan, is_read, created_at) 
+                VALUES ('$id_clean', '$judul_clean', '$pesan_clean', 0, NOW())";
+        
+        return mysqli_query($conn, $sql);
+    }
+}

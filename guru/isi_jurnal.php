@@ -101,6 +101,35 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     exit;
 }
 
+
+/* ==========================================================
+   KIRIM NOTIFIKASI KE WALI KELAS SAAT JURNAL TERISI
+   ========================================================== */
+if ($query_insert_jurnal_berhasil) { // Ganti dengan variabel status query kamu
+    
+    // 1. Cari ID Wali Kelas berdasarkan Nama Kelas yang sedang diajar
+    // Kita asumsikan nama kelas di jurnal sesuai dengan nama kelas di tabel kelas
+    $nama_kelas_input = $_POST['kelas']; // atau dari variable yang ada
+    $mapel_input = $_POST['mapel'];
+    $nama_guru_pengajar = $_SESSION['nama'];
+
+    $stmt_wali = $conn->prepare("SELECT id_walikelas FROM kelas WHERE nama_kelas = ?");
+    $stmt_wali->bind_param("s", $nama_kelas_input);
+    $stmt_wali->execute();
+    $res_wali = $stmt_wali->get_result();
+    $data_wali = $res_wali->fetch_assoc();
+
+    if ($data_wali && !empty($data_wali['id_walikelas'])) {
+        $id_wali = $data_wali['id_walikelas'];
+        $judul_wali = "Jurnal Terisi: $nama_kelas_input";
+        $isi_wali = "Guru $nama_guru_pengajar telah mengisi jurnal mengajar untuk mata pelajaran $mapel_input hari ini.";
+        
+        kirimNotifikasi($id_wali, $judul_wali, $isi_wali);
+    }
+    $stmt_wali->close();
+}
+
+
 include "../templates/header.php";
 include "../sidebar.php";
 include "../header.php";

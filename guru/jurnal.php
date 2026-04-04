@@ -148,6 +148,28 @@ foreach ($rows_master as $row){
         ];
     }
 }
+
+
+/* =========================
+   OTOMATIS KIRIM NOTIF KE GURU (PENGINGAT)
+========================= */
+foreach ($jadwalHariIni as $j) {
+    // Jika statusnya adalah "Isi Jurnal" (artinya sudah boleh isi tapi belum diisi)
+    if ($j['text'] == 'Isi Jurnal' && $j['boleh'] == true) {
+        $judul_pengingat = "Pengingat Jurnal: " . $j['mapel'];
+        $isi_pengingat = "Anda memiliki jadwal mengajar di kelas " . $j['kelas'] . " yang belum diisi jurnalnya. Silakan segera diisi.";
+        
+        // Cek dulu apakah hari ini sudah pernah dikirim notif serupa agar tidak spam
+        $cekNotif = mysqli_query($conn, "SELECT id_notif FROM notifikasi 
+                                        WHERE id_user = '$id_user' 
+                                        AND judul = '$judul_pengingat' 
+                                        AND DATE(created_at) = CURDATE()");
+        
+        if (mysqli_num_rows($cekNotif) == 0) {
+            kirimNotifikasi($id_user, $judul_pengingat, $isi_pengingat);
+        }
+    }
+}
 ?>
 
 <?php include "../templates/header.php"; ?>

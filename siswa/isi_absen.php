@@ -1,47 +1,48 @@
 <?php
 session_start();
-
 require "../auth/auth_check.php";
 require "../auth/role_check.php";
 checkRole('siswa');
-
 require "../config/database.php";
 
-$id_user = $_SESSION['id_user'];
+$id_user = $_SESSION['id_user']; // ID Siswa yang mengabsen
+$nama_siswa = $_SESSION['nama']; // Nama Siswa
 
 $id_jadwal = $_GET['id'] ?? '';
 $id_guru   = $_GET['guru'] ?? '';
+$nama_kelas = $_GET['kelas'] ?? 'Kelas Anda'; // Tambahkan parameter kelas jika ada
 
 if(!$id_jadwal || !$id_guru){
     die("Data tidak valid");
 }
 
 /* CEK SUDAH ABSEN */
-$cek = mysqli_query($conn,"
-SELECT 1 FROM absensi_guru
-WHERE id_user='$id_guru'
-AND DATE(tanggal)=CURDATE()
-");
-
+$cek = mysqli_query($conn,"SELECT 1 FROM absensi_guru WHERE id_user='$id_guru' AND DATE(tanggal)=CURDATE()");
 if(mysqli_num_rows($cek)>0){
     die("Sudah diabsen");
 }
 
 /* PROSES */
 if($_SERVER['REQUEST_METHOD']=='POST'){
-
     $status = $_POST['status'];
     $ket    = $_POST['keterangan'] ?? '';
 
-    mysqli_query($conn,"
-    INSERT INTO absensi_guru
-    (id_jadwal,id_user,diinput_oleh,status,keterangan,tanggal)
-    VALUES
-    ('$id_jadwal','$id_guru','$id_user','$status','$ket',NOW())
+    // 1. Simpan ke Database
+    $query = mysqli_query($conn,"
+        INSERT INTO absensi_guru (id_jadwal, id_user, diinput_oleh, status, keterangan, tanggal)
+        VALUES ('$id_jadwal', '$id_guru', '$id_user', '$status', '$ket', NOW())
     ");
 
-    header("Location: absen_guru.php");
-    exit;
+    if($query){
+        // 2. KIRIM NOTIFIKASI KE GURU
+        $judul = "Absensi Masuk";
+        $pesan = "Siswa ($nama_siswa) telah mengisi absensi Anda untuk jam pelajaran ini dengan status: " . strtoupper($status);
+        kirimNotifikasi($id_guru, $judul, $pesan);
+
+        $_SESSION['success'] = "Berhasil mengabsen guru.";
+        header("Location: absen_guru.php");
+        exit;
+    }
 }
 ?>
 
