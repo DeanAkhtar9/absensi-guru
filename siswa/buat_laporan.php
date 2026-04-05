@@ -61,14 +61,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Jenis laporan tidak valid!";
     } else {
 
+        // 1. Simpan ke database komplain
         $stmt = $conn->prepare("
             INSERT INTO komplain (id_siswa, jenis_laporan, tanggal, pesan, status)
             VALUES (?, ?, ?, ?, 'baru')
         ");
-
         $stmt->bind_param("isss", $id_siswa, $jenis, $tanggal, $pesan);
 
         if ($stmt->execute()) {
+            
+            /* ==========================================================
+               LOGIKA KIRIM NOTIFIKASI (TAMBAHKAN DI SINI)
+               ========================================================== */
+            
+            $nama_pelapor = $_SESSION['nama'] ?? 'Siswa';
+            $judul_notif = "Laporan Baru: " . ucfirst($jenis);
+            $isi_notif   = "Siswa $nama_pelapor mengirim laporan $jenis pada $tanggal. Pesan: " . substr($pesan, 0, 50) . "...";
+
+            // A. Cari Siapa Wali Kelas Siswa ini
+            $q_wali = mysqli_query($conn, "
+                SELECT k.id_walikelas 
+                FROM siswa s 
+                JOIN kelas k ON s.id_kelas = k.id_kelas 
+                WHERE s.id_siswa = '$id_siswa'
+            ");
+            $data_wali = mysqli_fetch_assoc($q_wali);
+            $id_wali = $data_wali['id_walikelas'] ?? null;
+
+            // B. Kirim ke Wali Kelas
+            if ($id_wali) {
+                kirimNotifikasi($id_wali, $judul_notif, $isi_notif);
+            }
+
+            // C. Kirim ke Semua Admin
+            $q_admin = mysqli_query($conn, "SELECT id_user FROM users WHERE LOWER(role) = 'admin'");
+            while ($adm = mysqli_fetch_assoc($q_admin)) {
+                kirimNotifikasi($adm['id_user'], $judul_notif, $isi_notif);
+            }
+
+            /* ========================================================== */
+
             $success = "Laporan berhasil dikirim!";
             // reset form
             $jenis = $tanggal = $pesan = '';
@@ -77,6 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
 ?>
 
 <link rel="stylesheet" href="../assets/css/bootstrap.min.css">
