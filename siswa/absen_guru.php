@@ -94,12 +94,55 @@ foreach($rows_master as $row){
         ];
     }
 }
+/* ==========================================================
+   LOGIKA NOTIFIKASI DATABASE (GANTI KODE SEBELUMNYA)
+   ========================================================== */
+foreach($jadwalHariIni as $j) {
+    // Cek jika: Sedang jam pelajaran DAN belum absen
+    if(($now >= $j['mulai'] && $now <= $j['batas']) && !$j['sudah']) {
+        
+        $id_guru = $j['id_guru'];
+        $mapel   = $j['mapel'];
+        $judul   = "Peringatan Absensi";
+        $isi     = "Waktunya absen guru: $mapel (" . $j['nama'] . ")";
+        
+        // Cek dulu di database agar tidak SPAM (biar tidak masuk terus tiap refresh)
+        // Kita cek apakah hari ini sudah ada notif untuk mapel ini ke siswa ini
+        $cek_notif = mysqli_query($conn, "
+            SELECT id_notif FROM notifikasi 
+            WHERE id_user = '$id_user' 
+            AND judul = '$judul' 
+            AND pesan LIKE '%$mapel%'
+            AND DATE(created_at) = CURDATE()
+        ");
+
+        // Jika belum ada notifikasi di database untuk hari ini, baru kita KIRIM
+        if (mysqli_num_rows($cek_notif) == 0) {
+            // Gunakan fungsi kirimNotifikasi yang ada di database.php
+            kirimNotifikasi($id_user, $judul, $isi);
+        }
+        
+        break; // Cukup satu notif saja per sesi
+    }
+}
 ?>
 
 <?php include "../templates/header.php"; ?>
 <?php include "../sidebar.php"; ?>
 <?php include "../header.php"; ?>
 
+<style>
+.card-active-pulse {
+    border: 2px solid #3B82F6 !important;
+    animation: pulse-blue 2s infinite;
+}
+
+@keyframes pulse-blue {
+    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+}
+</style>
 <div class="main-content p-4">
 
 <h4 class="mb-4">Absensi Guru Hari Ini</h4>
@@ -119,7 +162,7 @@ $aktif = ($now >= $j['mulai'] && $now <= $j['batas']);
 <?php endif; ?>
 
 <div class="card p-3 shadow-sm 
-<?= $j['sudah'] ? 'border-success' : ($aktif ? '' : 'bg-light') ?>">
+<?= $j['sudah'] ? 'border-success' : ($aktif ? 'card-active-pulse' : 'bg-light') ?>">
 
 <h5><?= $j['mapel'] ?></h5>
 <p><?= $j['nama'] ?></p>
@@ -148,5 +191,41 @@ $aktif = ($now >= $j['mulai'] && $now <= $j['batas']);
 </div>
 
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ambil data dari PHP
+    const adaJadwal = <?= json_encode($punya_notif) ?>;
+    const pesan = <?= json_encode($pesan_notif) ?>;
 
+    // 1. Cek apakah browser mendukung notifikasi
+    if (!("Notification" in window)) {
+        console.log("Browser ini tidak mendukung notifikasi desktop");
+        return;
+    }
+
+    // 2. Fungsi untuk menampilkan notifikasi
+    function tampilkanNotif() {
+        new Notification("Pengingat Absensi Guru", {
+            body: pesan,
+            icon: "../assets/img/logo.png" // Pastikan path logo benar
+        });
+    }
+
+    // 3. Logika eksekusi
+    if (adaJadwal) {
+        // Jika izin sudah diberikan sebelumnya
+        if (Notification.permission === "granted") {
+            tampilkanNotif();
+        } 
+        // Jika belum pernah ditanya, minta izin dulu
+        else if (Notification.permission !== "denied") {
+            Notification.requestPermission().then(function (permission) {
+                if (permission === "granted") {
+                    tampilkanNotif();
+                }
+            });
+        }
+    }
+});
+</script>
 <?php include "../templates/footer.php"; ?>

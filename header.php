@@ -12,6 +12,8 @@ $tanggal = date("l, d F Y");
 // Ambil jumlah notifikasi yang belum dibaca
 $queryNotif = mysqli_query($conn, "SELECT * FROM notifikasi WHERE id_user = '$user_id' AND is_read = 0 ORDER BY created_at DESC");
 $jmlNotif = mysqli_num_rows($queryNotif);
+
+
 ?>
 
 <style>

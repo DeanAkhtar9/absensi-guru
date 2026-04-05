@@ -33,11 +33,26 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
         VALUES ('$id_jadwal', '$id_guru', '$id_user', '$status', '$ket', NOW())
     ");
 
-    if($query){
-        // 2. KIRIM NOTIFIKASI KE GURU
-        $judul = "Absensi Masuk";
-        $pesan = "Siswa ($nama_siswa) telah mengisi absensi Anda untuk jam pelajaran ini dengan status: " . strtoupper($status);
-        kirimNotifikasi($id_guru, $judul, $pesan);
+    // ... Kode setelah query INSERT INTO absensi_guru berhasil ...
+if($query){
+        // 1. Notifikasi konfirmasi bahwa guru telah diabsen (opsional)
+        $judul1 = "Konfirmasi Kehadiran";
+        $pesan1 = "Siswa ($nama_siswa) telah mengisi absensi Anda dengan status: " . strtoupper($status);
+        
+        // Gunakan fungsi kirimNotifikasi jika sudah ada di database.php
+        if(function_exists('kirimNotifikasi')){
+            kirimNotifikasi($id_guru, $judul1, $pesan1);
+        }
+
+        // 2. Notifikasi KHUSUS untuk mengisi Jurnal (Hanya jika guru Hadir/Izin)
+        if($status == 'hadir' || $status == 'izin'){
+            $judul2 = "Tugas: Isi Jurnal Mengajar";
+            $pesan2 = "Absensi sudah masuk. Jangan lupa untuk segera mengisi laporan jurnal mengajar Anda untuk kelas ini.";
+            
+            // Menggunakan query manual agar lebih pasti masuk ke database
+            mysqli_query($conn, "INSERT INTO notifikasi (id_user, judul, pesan, is_read, created_at) 
+                                VALUES ('$id_guru', '$judul2', '$pesan2', 0, NOW())");
+        }
 
         $_SESSION['success'] = "Berhasil mengabsen guru.";
         header("Location: absen_guru.php");

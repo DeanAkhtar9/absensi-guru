@@ -149,24 +149,39 @@ foreach ($rows_master as $row){
     }
 }
 
-
-/* =========================
-   OTOMATIS KIRIM NOTIF KE GURU (PENGINGAT)
-========================= */
+/* ==========================================================
+   SISTEM NOTIFIKASI PINTAR (PENGINGAT JADWAL & JURNAL)
+   ========================================================== */
 foreach ($jadwalHariIni as $j) {
-    // Jika statusnya adalah "Isi Jurnal" (artinya sudah boleh isi tapi belum diisi)
-    if ($j['text'] == 'Isi Jurnal' && $j['boleh'] == true) {
-        $judul_pengingat = "Pengingat Jurnal: " . $j['mapel'];
-        $isi_pengingat = "Anda memiliki jadwal mengajar di kelas " . $j['kelas'] . " yang belum diisi jurnalnya. Silakan segera diisi.";
+    // Ambil jam mulai dari string "07:00 - 08:30"
+    $jam_mulai_string = explode(" - ", $j['jam'])[0];
+    $timestamp_mulai = strtotime(date('Y-m-d') . ' ' . $jam_mulai_string);
+
+    // TRIGGER: Jika Belum diisi jurnalnya DAN waktu sudah masuk jam pelajaran
+    if ($j['sudah'] == false && time() >= $timestamp_mulai) {
         
-        // Cek dulu apakah hari ini sudah pernah dikirim notif serupa agar tidak spam
+        $judul_notif = "Pengingat Jadwal: " . $j['mapel'];
+        
+        // Pesan dinamis tergantung apakah sudah diabsen siswa atau belum
+        if ($j['text'] == 'Belum diabsen') {
+            $isi_notif = "Anda ada jadwal di kelas " . $j['kelas'] . ". Catatan: Siswa belum melakukan absensi kehadiran Anda.";
+        } else {
+            $isi_notif = "Waktunya mengisi jurnal mengajar untuk kelas " . $j['kelas'] . ". Silakan segera dilengkapi.";
+        }
+        
+        // ANTI-SPAM: Cek apakah hari ini sudah ada notif untuk Mapel + Kelas ini
+        $nama_mapel = mysqli_real_escape_string($conn, $j['mapel']);
+        $nama_kelas = mysqli_real_escape_string($conn, $j['kelas']);
+        
         $cekNotif = mysqli_query($conn, "SELECT id_notif FROM notifikasi 
                                         WHERE id_user = '$id_user' 
-                                        AND judul = '$judul_pengingat' 
+                                        AND pesan LIKE '%$nama_mapel%' 
+                                        AND pesan LIKE '%$nama_kelas%'
                                         AND DATE(created_at) = CURDATE()");
         
         if (mysqli_num_rows($cekNotif) == 0) {
-            kirimNotifikasi($id_user, $judul_pengingat, $isi_pengingat);
+            mysqli_query($conn, "INSERT INTO notifikasi (id_user, judul, pesan, is_read, created_at) 
+                                VALUES ('$id_user', '$judul_notif', '$isi_notif', 0, NOW())");
         }
     }
 }
@@ -186,11 +201,10 @@ foreach ($jadwalHariIni as $j) {
 
 <div class="col-md-4 mb-3">
 
-<div class="card p-3 shadow-sm h-100"
-style="cursor:<?= $j['boleh'] ? 'pointer':'not-allowed' ?>;
-opacity:<?= $j['boleh'] ? '1':'0.5' ?>;"
-onclick="<?= $j['boleh'] ? "window.location.href='isi_jurnal.php?kelas=".urlencode($j['kelas'])."&mapel=".urlencode($j['mapel'])."'" : "" ?>"
->
+<div class="card p-3 h-100 <?= $j['boleh'] ? 'border-primary border-2 shadow':'' ?>"
+     style="cursor:<?= $j['boleh'] ? 'pointer':'not-allowed' ?>; 
+            opacity:<?= $j['boleh'] ? '1':'0.7' ?>;"
+     onclick="<?= $j['boleh'] ? "window.location.href='isi_jurnal.php?kelas=".urlencode($j['kelas'])."&mapel=".urlencode($j['mapel'])."'" : "" ?>">
 
 <h6><?= $j['kelas'] ?></h6>
 <p><?= $j['mapel'] ?></p>
