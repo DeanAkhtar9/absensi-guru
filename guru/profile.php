@@ -9,11 +9,19 @@ include "../config/database.php";
 
 date_default_timezone_set('Asia/Jakarta');
 
-$id_user = $_SESSION['id_user'];
+// =========================
+// VALIDASI SESSION
+// =========================
+if (!isset($_SESSION['id_user'])) {
+    die("Session tidak valid");
+}
 
-/* =========================
-   FUNCTION AMBIL CSV
-========================= */
+$id_user = $_SESSION['id_user'];
+$role = $_SESSION['role'] ?? '';
+
+// =========================
+// FUNCTION AMBIL CSV
+// =========================
 function getCSV($url){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -26,16 +34,26 @@ function getCSV($url){
     return $output;
 }
 
-/* =========================
-   AMBIL DATA USER
-========================= */
-$user = mysqli_fetch_assoc(mysqli_query($conn, "
+// =========================
+// AMBIL DATA USER
+// =========================
+$query_user = mysqli_query($conn, "
     SELECT * FROM users WHERE id_user='$id_user'
-"));
+");
 
-/* =========================
-   AMBIL MAPEL DARI CSV (HARI INI)
-========================= */
+if (!$query_user) {
+    die("Query error: " . mysqli_error($conn));
+}
+
+if (mysqli_num_rows($query_user) == 0) {
+    die("User tidak ditemukan");
+}
+
+$user_data = mysqli_fetch_assoc($query_user);
+
+// =========================
+// AMBIL MAPEL DARI CSV
+// =========================
 $nama_mapel = '-';
 
 $hari_map = [
@@ -72,20 +90,25 @@ foreach ($rows_master as $row) {
 
         if ($id_guru_sheet == $id_user && $hari_sheet == $hari_ini) {
             $nama_mapel = $r[1];
-            break 2; // keluar dari 2 loop
+            break 2;
         }
     }
 }
 
-/* =========================
-   AMBIL KELAS WALI
-========================= */
-$kelas = mysqli_fetch_assoc(mysqli_query($conn, "
+// =========================
+// AMBIL KELAS
+// =========================
+$query_kelas = mysqli_query($conn, "
     SELECT nama_kelas FROM kelas 
     WHERE id_walikelas='$id_user'
-"));
+");
 
-$nama_kelas = $kelas['nama_kelas'] ?? '-';
+$nama_kelas = '-';
+
+if ($query_kelas && mysqli_num_rows($query_kelas) > 0) {
+    $kelas = mysqli_fetch_assoc($query_kelas);
+    $nama_kelas = $kelas['nama_kelas'];
+}
 ?>
 
 <?php include "../templates/header.php"; ?>
@@ -129,39 +152,33 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 .value{
     font-weight:500;
 }
-.badge
 </style>
 
 <div class="main-content p-4">
-
 <div class="profile-card">
 
 <!-- HEADER -->
 <div class="d-flex align-items-center gap-3 mb-4">
-
 <div>
 <h5 class="fw-bold mb-1">
-<?= htmlspecialchars($user['nama']) ?>
+<?= htmlspecialchars($user_data['nama'] ?? '-') ?>
 </h5>
 
-<div class="d-flex align-items-center gap-0 small" style="color: #0a64d2;">
-<?= htmlspecialchars($role)?></span> <?= htmlspecialchars($nama_mapel)?>
+<div class="small text-primary">
+<?= htmlspecialchars($role) ?> - <?= htmlspecialchars($nama_mapel) ?>
 </div>
-
 </div>
-
 </div>
 
 <hr>
 
-<!-- INFO -->
 <div class="mt-3">
 
 <div class="info-item">
 <div class="icon-box bi bi-envelope"></div>
 <div>
 <div class="label">EMAIL INSTANSI</div>
-<div class="value"><?= htmlspecialchars($user['email']) ?></div>
+<div class="value"><?= htmlspecialchars($user_data['email'] ?? '-') ?></div>
 </div>
 </div>
 
@@ -169,7 +186,7 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 <div class="icon-box bi bi-telephone"></div>
 <div>
 <div class="label">NOMOR TELEPON</div>
-<div class="value"><?= htmlspecialchars($user['no_telp']) ?></div>
+<div class="value"><?= htmlspecialchars($user_data['no_telp'] ?? '-') ?></div>
 </div>
 </div>
 
@@ -184,7 +201,6 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 </div>
 
 </div>
-
 </div>
 
 <?php include "../templates/footer.php"; ?>
