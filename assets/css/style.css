@@ -1728,10 +1728,6 @@ form .form-select:focus{
     background: #f6f8fb;
 }
 
-/* GRID BIAR LEBIH BESAR */
-.row{
-    gap: 10px;
-}
 
 /* CARD */
 .absen-card{
@@ -2115,4 +2111,62 @@ textarea.form-control{
     border-radius: 10px;
     font-size: 13px;
     transition: 0.2s;
+}
+.table td, .table th {
+    vertical-align: middle !important;
+}
+
+.badge {
+    font-size: 12px;
+    border-radius: 8px;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.btn-sm {
+    border-radius: 6px;
+}
+
+.table td, .table th {
+    vertical-align: middle !important;
+}
+
+.badge {
+    font-size: 12px;
+    border-radius: 8px;
+}
+
+.card {
+    border-radius: 12px;
+}
+
+.btn-sm {
+    border-radius: 6px;
+}
+/* TABLE */
+.table td, .table th {
+    vertical-align: middle;
+}
+
+.table thead th {
+    font-size: 13px;
+}
+
+/* CARD */
+.card {
+    border-radius: 10px;
+}
+
+/* BUTTON */
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 13px;
+}
+
+/* BADGE */
+.badge {
+    font-size: 12px;
+    border-radius: 6px;
 }

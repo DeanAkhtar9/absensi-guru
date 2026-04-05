@@ -11,7 +11,7 @@ date_default_timezone_set('Asia/Jakarta');
 $id_user = $_SESSION['id_user'];
 
 /* =========================
-   AMBIL PARAMETER (FIX)
+   AMBIL PARAMETER
 ========================= */
 $kelas = isset($_GET['kelas']) ? trim($_GET['kelas']) : '';
 $mapel = isset($_GET['mapel']) ? trim($_GET['mapel']) : '';
@@ -23,18 +23,19 @@ if($kelas=='' || $mapel==''){
 }
 
 /* =========================
-   CEK ABSENSI (FIX)
+   CEK ABSENSI
 ========================= */
-$cek = mysqli_query($conn,"
-SELECT id_absensi_guru,status,created_at 
-FROM absensi_guru
-WHERE id_user='$id_user'
-AND DATE(tanggal)=CURDATE()
-ORDER BY id_absensi_guru DESC
-LIMIT 1
+$stmt = $conn->prepare("
+    SELECT id_absensi_guru, status, created_at 
+    FROM absensi_guru
+    WHERE id_user = ?
+    AND DATE(tanggal) = CURDATE()
+    ORDER BY id_absensi_guru DESC
+    LIMIT 1
 ");
-
-$absen = mysqli_fetch_assoc($cek);
+$stmt->bind_param("i", $id_user);
+$stmt->execute();
+$absen = $stmt->get_result()->fetch_assoc();
 
 if(!$absen){
     $_SESSION['error']="❌ Anda belum diabsen!";
@@ -49,7 +50,7 @@ if(!in_array($absen['status'],['hadir','izin'])){
 }
 
 /* =========================
-   BATAS 12 JAM (FIX TOTAL)
+   BATAS 12 JAM
 ========================= */
 $batas = strtotime($absen['created_at']) + 43200;
 
@@ -62,95 +63,82 @@ if(time() > $batas){
 /* =========================
    CEK DUPLIKAT
 ========================= */
-$cek2 = mysqli_query($conn,"
-SELECT 1 FROM jurnal_mengajar
-WHERE diisi_oleh='$id_user'
-AND DATE(tanggal)=CURDATE()
-AND kelas='$kelas'
-AND mapel='$mapel'
+$stmt2 = $conn->prepare("
+    SELECT 1 FROM jurnal_mengajar
+    WHERE diisi_oleh = ?
+    AND DATE(tanggal) = CURDATE()
+    AND kelas = ?
+    AND mapel = ?
 ");
+$stmt2->bind_param("iss", $id_user, $kelas, $mapel);
+$stmt2->execute();
+$res2 = $stmt2->get_result();
 
-if(mysqli_num_rows($cek2)>0){
+if($res2->num_rows > 0){
     $_SESSION['error']="❌ Jurnal sudah diisi!";
     header("Location: jurnal.php"); 
     exit;
 }
 
 /* =========================
-   SIMPAN DATA
+   SIMPAN DATA + NOTIF
 ========================= */
 if($_SERVER['REQUEST_METHOD']=='POST'){
 
-    $materi = mysqli_real_escape_string($conn,$_POST['materi']);
+    $materi = trim($_POST['materi']);
     $tanggal = date("Y-m-d H:i:s");
 
-    $insert = mysqli_query($conn,"
-    INSERT INTO jurnal_mengajar
-    (id_absensi_guru,diisi_oleh,tanggal,materi,kelas,mapel,status_verifikasi)
-    VALUES
-    ('".$absen['id_absensi_guru']."','$id_user','$tanggal','$materi','$kelas','$mapel','tersimpan')
+    // INSERT
+    $stmt3 = $conn->prepare("
+        INSERT INTO jurnal_mengajar
+        (id_absensi_guru, diisi_oleh, tanggal, materi, kelas, mapel, status_verifikasi)
+        VALUES (?, ?, ?, ?, ?, ?, 'tersimpan')
     ");
+    $stmt3->bind_param(
+        "iissss",
+        $absen['id_absensi_guru'],
+        $id_user,
+        $tanggal,
+        $materi,
+        $kelas,
+        $mapel
+    );
 
-    if($insert){
+    if($stmt3->execute()){
 
-        /* =========================
-           NOTIF KE WALI KELAS
-        ========================= */
-        $stmt = $conn->prepare("
-            SELECT id_walikelas 
-            FROM kelas 
-            WHERE nama_kelas = ?
-        ");
-        $stmt->bind_param("s", $kelas);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $wali = $res->fetch_assoc();
+        // =========================
+        // NOTIFIKASI KE WALI KELAS
+        // =========================
+        $stmt_wali = $conn->prepare("SELECT id_walikelas FROM kelas WHERE nama_kelas = ?");
+        $stmt_wali->bind_param("s", $kelas);
+        $stmt_wali->execute();
+        $data_wali = $stmt_wali->get_result()->fetch_assoc();
 
-        if($wali && !empty($wali['id_walikelas'])){
+        if($data_wali && !empty($data_wali['id_walikelas'])){
+            $id_wali = $data_wali['id_walikelas'];
+            $nama_guru = $_SESSION['nama'];
+
             $judul = "Jurnal Terisi: $kelas";
-            $pesan = "Guru ".$_SESSION['nama']." telah mengisi jurnal $mapel hari ini.";
-            kirimNotifikasi($wali['id_walikelas'], $judul, $pesan);
-        }
+            $pesan = "Guru $nama_guru telah mengisi jurnal mapel $mapel hari ini.";
 
-        $stmt->close();
+            // INSERT NOTIF LANGSUNG (AMAN)
+            $stmt_notif = $conn->prepare("
+                INSERT INTO notifikasi (id_user, judul, pesan)
+                VALUES (?, ?, ?)
+            ");
+            $stmt_notif->bind_param("iss", $id_wali, $judul, $pesan);
+            $stmt_notif->execute();
+        }
 
         $_SESSION['success']="✅ Jurnal berhasil disimpan";
 
-    }else{
-        $_SESSION['error']="❌ Gagal simpan jurnal!";
+    } else {
+        $_SESSION['error']="❌ Gagal simpan jurnal! ".$stmt3->error;
     }
 
     header("Location: jurnal.php"); 
     exit;
 }
-
-/* ==========================================================
-   KIRIM NOTIFIKASI KE WALI KELAS SAAT JURNAL TERISI
-   ========================================================== */
-if ($query_insert_jurnal_berhasil) { // Ganti dengan variabel status query kamu
-    
-    // 1. Cari ID Wali Kelas berdasarkan Nama Kelas yang sedang diajar
-    // Kita asumsikan nama kelas di jurnal sesuai dengan nama kelas di tabel kelas
-    $nama_kelas_input = $_POST['kelas']; // atau dari variable yang ada
-    $mapel_input = $_POST['mapel'];
-    $nama_guru_pengajar = $_SESSION['nama'];
-
-    $stmt_wali = $conn->prepare("SELECT id_walikelas FROM kelas WHERE nama_kelas = ?");
-    $stmt_wali->bind_param("s", $nama_kelas_input);
-    $stmt_wali->execute();
-    $res_wali = $stmt_wali->get_result();
-    $data_wali = $res_wali->fetch_assoc();
-
-    if ($data_wali && !empty($data_wali['id_walikelas'])) {
-        $id_wali = $data_wali['id_walikelas'];
-        $judul_wali = "Jurnal Terisi: $nama_kelas_input";
-        $isi_wali = "Guru $nama_guru_pengajar telah mengisi jurnal mengajar untuk mata pelajaran $mapel_input hari ini.";
-        
-        kirimNotifikasi($id_wali, $judul_wali, $isi_wali);
-    }
-    $stmt_wali->close();
-}
-
 
 include "../templates/header.php";
 include "../sidebar.php";

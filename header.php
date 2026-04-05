@@ -20,14 +20,38 @@ $jmlNotif = mysqli_num_rows($queryNotif);
     position: relative;
     margin-right: 20px;
 }
-.notif-badge {
-    position: absolute; top: -5px; right: -5px; background: red; color: white;
-    font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;
+.notif-badge{
+    position: absolute;
+    top: -6px;     /* naik sedikit */
+    right: -6px;   /* geser ke kanan */
+    background: red;
+    color: white;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+    line-height: 1;
+}
+.notif-btn{
+    position: relative;   /* penting */
+    font-size: 22px;
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
 }
 .notif-dropdown {
-    position: absolute; top: 42px; right: 0; width: 300px; background: #fff;
-    border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); padding: 10px 0;
-    display: none; z-index: 100; max-height: 400px; overflow-y: auto;
+    position: absolute;
+    top: 45px;
+    right: 0;              /* WAJIB: nempel kanan */
+    left: auto;            /* reset */
+    width: 300px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    padding: 10px 0;
+    display: none;
+    z-index: 9999;
 }
 .notif-dropdown.show { display: block; }
 .notif-item {

@@ -223,11 +223,11 @@ if($status == 'diverifikasi'){
 $hadir = $row['kehadiran'];
 
 if($hadir == 'hadir'){
-    $badgeHadir = "bg-success";
+    $badgeHadir = "bg-success text-light";
 }elseif($hadir == 'izin'){
-    $badgeHadir = "bg-warning";
+    $badgeHadir = "bg-warning text-light";
 }else{
-    $badgeHadir = "bg-danger";
+    $badgeHadir = "bg-danger text-light";
 }
 
 /* 🔥 FIX JAM DISINI */

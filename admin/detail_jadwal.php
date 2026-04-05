@@ -147,88 +147,153 @@ include "../templates/header.php";
 include "../sidebar.php";
 include "../header.php";
 ?>
-
 <div class="main-content p-4">
-    <h4 class="fw-bold">Manajemen Kelas: <?= $nama_kelas ?></h4>
-    <hr>
 
-    <?php if(isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger alert-dismissible fade show"><?= $_SESSION['error']; unset($_SESSION['error']); ?></div>
-    <?php endif; ?>
-    <?php if(isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show"><?= $_SESSION['success']; unset($_SESSION['success']); ?></div>
-    <?php endif; ?>
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h4 class="fw-bold mb-0">Manajemen Kelas</h4>
+        <small class="text-muted"><?= $nama_kelas ?></small>
+    </div>
+</div>
 
-    <div class="card p-3 mb-3 shadow-sm border-0 bg-light">
-        <div class="row align-items-center">
-            <div class="col-md-5">
-                <small class="text-muted">Wali Kelas:</small>
-                <div class="fw-bold text-primary"><?= $wali['nama'] ?? 'Belum ditentukan' ?></div>
+<hr class="mb-4">
+
+<!-- ALERT -->
+<?php if(isset($_SESSION['error'])): ?>
+    <div class="alert alert-danger alert-dismissible fade show">
+        <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+    </div>
+<?php endif; ?>
+
+<?php if(isset($_SESSION['success'])): ?>
+    <div class="alert alert-success alert-dismissible fade show">
+        <?= $_SESSION['success']; unset($_SESSION['success']); ?>
+    </div>
+<?php endif; ?>
+
+<!-- CARD INFO (FIX RAPI) -->
+    <div class="card-body py-3">
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+            <!-- INFO KIRI -->
+            <div class="d-flex gap-5">
+
+                <div>
+                    <small class="text-muted d-block">Wali Kelas</small>
+                    <span class="fw-semibold text-primary">
+                        <?= $wali['nama'] ?? 'Belum ditentukan' ?>
+                    </span>
+                </div>
+
+                <div>
+                    <small class="text-muted d-block">Pengurus</small>
+                    <span class="fw-semibold text-success">
+                        <?= $pengurus['nama'] ?? 'Belum ditentukan' ?>
+                    </span>
+                </div>
+
             </div>
-            <div class="col-md-5">
-                <small class="text-muted">Pengurus (Siswa):</small>
-                <div class="fw-bold text-success"><?= $pengurus['nama'] ?? 'Belum ditentukan' ?></div>
-            </div>
-            <div class="col-md-2 text-end">
+
+            <!-- AKSI KANAN -->
+            <div>
                 <div class="dropdown">
-                    <button class="btn btn-dark btn-sm dropdown-toggle" data-bs-toggle="dropdown">Aksi Kelas</button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalWali">Ubah Wali</a></li>
-                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#modalPengurus">Ubah Pengurus</a></li>
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
+                        Aksi
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li>
+                            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalWali">
+                                Ubah Wali
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalPengurus">
+                                Ubah Pengurus
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
+
+        </div>
+
+    </div>
+
+<!-- HEADER JADWAL -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0 fw-semibold">
+        <i class="bi bi-calendar3 me-2"></i> Jadwal Pelajaran
+    </h5>
+
+    <button class="btn btn-primary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#modalJadwal">
+        <i class="bi bi-plus"></i> Tambah Jadwal
+    </button>
+</div>
+    <!-- TABLE -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover mb-0">
+
+                <thead class="table-light text-center">
+                    <tr>
+                        <th width="50">No</th>
+                        <th class="text-start">Guru</th>
+                        <th class="text-start">Mapel</th>
+                        <th>Hari</th>
+                        <th>Waktu</th>
+                        <th width="120">Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <?php
+                    $no=1;
+                    foreach($rows as $index => $kolom){
+                        if($index == 0 || count($kolom) < 5 || empty($kolom[0])) continue;
+
+                        $nama_guru = $guruList[$kolom[0]] ?? $kolom[0];
+
+                        echo "<tr>
+                            <td class='text-center'>".$no++."</td>
+
+                            <td class='text-start'>$nama_guru</td>
+
+                            <td class='text-start'>$kolom[1]</td>
+
+                            <td class='text-center'>$kolom[2]</td>
+
+                            <td class='text-center'>
+                                <span class='badge bg-light text-dark border'>
+                                    $kolom[3] - $kolom[4]
+                                </span>
+                            </td>
+
+                            <td class='text-center'>
+                                <div class='d-flex justify-content-center align-items-center gap-2'>
+
+                                    <button class='btn btn-sm border-0 bg-transparent p-1'
+                                        onclick=\"openEdit('$index', '$kolom[0]', '".addslashes($nama_guru)."', '".addslashes($kolom[1])."', '$kolom[2]', '$kolom[3]', '$kolom[4]')\">
+                                        <i class='bi bi-pencil' style='color:#246deb; font-size:16px;'></i>
+                                    </button>
+
+                                    <button class='btn btn-sm border-0 bg-transparent p-1'
+                                        onclick=\"confirmDelete('$index', '".addslashes($kolom[1])."')\">
+                                        <i class='bi bi-trash text-danger' style='font-size:16px;'></i>
+                                    </button>
+
+                                </div>
+                            </td>
+                        </tr>";
+                    }
+                    ?>
+                </tbody>
+
+            </table>
         </div>
     </div>
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0 text-secondary"><i class="bi bi-calendar3 me-2"></i>Jadwal Pelajaran</h5>
-        <button class="btn btn-success btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#modalJadwal">
-            <i class="bi bi-plus-circle me-1"></i> Tambah Jadwal
-        </button>
-    </div>
-
-    <div class="table-responsive shadow-sm rounded">
-        <table class="table table-hover table-bordered bg-white mb-0">
-    <thead class="table-dark">
-        <tr>
-            <th width="50">No</th>
-            <th>Guru Pengajar</th>
-            <th>Mata Pelajaran</th>
-            <th>Hari</th>
-            <th>Waktu</th>
-            <th width="100">Aksi</th> </tr>
-    </thead>
-   <tbody>
-    <?php
-    $no=1;
-    foreach($rows as $index => $kolom){
-        if($index == 0 || count($kolom) < 5 || empty($kolom[0])) continue;
-        
-        $nama_guru = $guruList[$kolom[0]] ?? $kolom[0];
-        
-        echo "<tr>
-            <td>".$no++."</td>
-            <td>$nama_guru</td>
-            <td><span class='fw-semibold'>$kolom[1]</span></td>
-            <td>$kolom[2]</td>
-            <td><span class='badge bg-info text-dark'>$kolom[3] - $kolom[4]</span></td>
-            <td>
-                <div class='btn-group'>
-                    <button class='btn btn-warning btn-sm' onclick=\"openEdit('$index', '$kolom[0]', '".addslashes($nama_guru)."', '".addslashes($kolom[1])."', '$kolom[2]', '$kolom[3]', '$kolom[4]')\">
-                        <i class='bi bi-pencil'></i>
-                    </button>
-                    <button class='btn btn-danger btn-sm' onclick=\"confirmDelete('$index', '".addslashes($kolom[1])."')\">
-                        <i class='bi bi-trash'></i>
-                    </button>
-                </div>
-            </td>
-        </tr>";
-    }
-    ?>
-</tbody>
-</table>
-    </div>
 </div>
 
 <div class="modal fade" id="modalWali" tabindex="-1">
