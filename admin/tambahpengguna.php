@@ -25,9 +25,9 @@ if(isset($_POST['simpan'])){
     } else {
         $query = mysqli_query($conn,"
             INSERT INTO users
-            (username,password,nama,role,no_telp,email)
+            (username,password,role,nama,no_telp,email)
             VALUES
-            ('$username','$password','$nama','$role','$telp','$email')
+            ('$username','$password','$role','$nama','$telp','$email')
         ");
 
         if($query){
