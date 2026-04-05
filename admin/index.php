@@ -183,7 +183,6 @@ Lihat Semua
 <th style="width:20%; text-align:start;">NAMA PELAPOR</th>
 <th style="width:25%; text-align:start;">JENIS LAPORAN</th>
 <th style="width:15%; text-align:start;">STATUS</th>
-<th style="width:15%; text-align:start;">AKSI</th>
 </tr>
 
 </thead>
@@ -218,14 +217,7 @@ elseif($status == 'selesai') $badge = "success";
 </td>
 
 
-<td>
 
-<a href="detail_komplain.php?id=<?=$row['id_komplain']?>" 
-class="btn btn-sm btn-light" style="background-color: #21a9cf; height:30px; width:60px; color: #ffff;">
-Detail
-</a>
-
-</td>
 
 </tr>
 

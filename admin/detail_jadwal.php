@@ -74,7 +74,7 @@ if($gid){
    API: TAMBAH JADWAL
 ========================= */
 if(isset($_POST['tambah_jadwal'])){
-    $url_api = "https://script.google.com/macros/s/AKfycbzdLKhyFr2ud5qr_hCk5inhOwnVp8YJti7UHD7iC1lnOb2N_L6uVtcICx7BiHEftFhD/exec";
+    $url_api = "https://script.google.com/macros/s/AKfycbyRZJfJnd2DJQbM1yEJpRCQewhDm92mADK2KgaE_8_nLdO5Qdcp33gtV9LPcrAT0xlA/exec";
     $data = [
         "action" => "add",
         "gid" => $_POST['gid'],
@@ -96,6 +96,40 @@ if(isset($_POST['tambah_jadwal'])){
     $res = curl_exec($ch);
     if(trim($res) == "OK") $_SESSION['success'] = "✅ Jadwal berhasil ditambahkan!";
     else $_SESSION['error'] = "❌ Gagal ke Sheets: " . $res;
+    curl_close($ch);
+
+    header("Location: ".$_SERVER['REQUEST_URI']); exit;
+}
+/* =========================
+   API: EDIT & DELETE JADWAL
+========================= */
+if(isset($_POST['edit_jadwal']) || isset($_POST['delete_jadwal'])){
+    $url_api = "https://script.google.com/macros/s/AKfycbyRZJfJnd2DJQbM1yEJpRCQewhDm92mADK2KgaE_8_nLdO5Qdcp33gtV9LPcrAT0xlA/exec";
+    
+    $action = isset($_POST['edit_jadwal']) ? "edit" : "delete";
+    
+    $data = [
+        "action" => $action,
+        "gid" => $_POST['gid'],
+        "row_index" => $_POST['row_index'], // Baris ke berapa di sheet
+        "id_guru" => $_POST['id_user'] ?? '',
+        "mapel" => $_POST['mapel'] ?? '',
+        "hari" => $_POST['hari'] ?? '',
+        "jam_mulai" => $_POST['jam_mulai'] ?? '',
+        "jam_selesai" => $_POST['jam_selesai'] ?? ''
+    ];
+
+    $ch = curl_init($url_api);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); 
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    
+    $res = curl_exec($ch);
+    if(trim($res) == "OK") $_SESSION['success'] = "✅ Jadwal berhasil di" . ($action == "edit" ? "update" : "hapus") . "!";
+    else $_SESSION['error'] = "❌ Gagal: " . $res;
     curl_close($ch);
 
     header("Location: ".$_SERVER['REQUEST_URI']); exit;
@@ -156,45 +190,44 @@ include "../header.php";
 
     <div class="table-responsive shadow-sm rounded">
         <table class="table table-hover table-bordered bg-white mb-0">
-            <thead class="table-dark">
-                <tr>
-                    <th width="50">No</th>
-                    <th>Guru Pengajar</th>
-                    <th>Mata Pelajaran</th>
-                    <th>Hari</th>
-                    <th>Waktu</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $no=1;
-                // Loop SEMUA data dari array $rows (hasil fetch spreadsheet)
-                foreach($rows as $index => $kolom){
-                    // Lewati baris pertama (Header di Spreadsheet)
-                    if($index == 0) continue;
-                    
-                    // Lewati jika baris kosong atau tidak lengkap
-                    if(count($kolom) < 5 || empty($kolom[0])) continue;
-                    
-                    echo "<tr>
-                        <td>".$no++."</td>
-                        <td>".($guruList[$kolom[0]] ?? $kolom[0])."</td>
-                        <td><span class='fw-semibold'>$kolom[1]</span></td>
-                        <td>".ucfirst($kolom[2])."</td>
-                        <td><span class='badge bg-info text-dark'>$kolom[3] - $kolom[4]</span></td>
-                    </tr>";
-                }
-                
-                if($no == 1): ?>
-                    <tr>
-                        <td colspan="5" class="text-center p-5 text-muted">
-                            <i class="bi bi-info-circle d-block mb-2 fs-4"></i>
-                            Tidak ada jadwal yang ditemukan di Spreadsheet untuk kelas ini.
-                        </td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+    <thead class="table-dark">
+        <tr>
+            <th width="50">No</th>
+            <th>Guru Pengajar</th>
+            <th>Mata Pelajaran</th>
+            <th>Hari</th>
+            <th>Waktu</th>
+            <th width="100">Aksi</th> </tr>
+    </thead>
+   <tbody>
+    <?php
+    $no=1;
+    foreach($rows as $index => $kolom){
+        if($index == 0 || count($kolom) < 5 || empty($kolom[0])) continue;
+        
+        $nama_guru = $guruList[$kolom[0]] ?? $kolom[0];
+        
+        echo "<tr>
+            <td>".$no++."</td>
+            <td>$nama_guru</td>
+            <td><span class='fw-semibold'>$kolom[1]</span></td>
+            <td>$kolom[2]</td>
+            <td><span class='badge bg-info text-dark'>$kolom[3] - $kolom[4]</span></td>
+            <td>
+                <div class='btn-group'>
+                    <button class='btn btn-warning btn-sm' onclick=\"openEdit('$index', '$kolom[0]', '".addslashes($nama_guru)."', '".addslashes($kolom[1])."', '$kolom[2]', '$kolom[3]', '$kolom[4]')\">
+                        <i class='bi bi-pencil'></i>
+                    </button>
+                    <button class='btn btn-danger btn-sm' onclick=\"confirmDelete('$index', '".addslashes($kolom[1])."')\">
+                        <i class='bi bi-trash'></i>
+                    </button>
+                </div>
+            </td>
+        </tr>";
+    }
+    ?>
+</tbody>
+</table>
     </div>
 </div>
 
@@ -265,6 +298,61 @@ include "../header.php";
     </div>
 </div>
 
+<div class="modal fade" id="modalEdit" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-header bg-warning"><h5>Edit Jadwal</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <input type="hidden" name="row_index" id="edit_row">
+                    <input type="hidden" name="gid" value="<?= $gid ?>">
+                    
+                    <label class="small fw-bold">Guru Pengajar:</label>
+                    <input type="text" id="inGuruEdit" class="form-control" autocomplete="off">
+                    <div id="outGuruEdit" class="list-group mt-1"></div>
+                    <input type="hidden" name="id_user" id="idGuruEdit">
+
+                    <label class="small fw-bold mt-3">Mata Pelajaran:</label>
+                    <input type="text" name="mapel" id="edit_mapel" class="form-control" required>
+
+                    <label class="small fw-bold mt-3">Hari:</label>
+                    <select name="hari" id="edit_hari" class="form-control">
+                        <option value="Senin">Senin</option><option value="Selasa">Selasa</option>
+                        <option value="Rabu">Rabu</option><option value="Kamis">Kamis</option>
+                        <option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option>
+                    </select>
+
+                    <div class="row mt-3">
+                        <div class="col"><label class="small fw-bold">Jam Mulai:</label><input type="time" name="jam_mulai" id="edit_mulai" class="form-control" required></div>
+                        <div class="col"><label class="small fw-bold">Jam Selesai:</label><input type="time" name="jam_selesai" id="edit_selesai" class="form-control" required></div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="submit" name="edit_jadwal" class="btn btn-warning w-100">Update Jadwal</button></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalDelete" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <form method="POST">
+                <div class="modal-body text-center p-4">
+                    <input type="hidden" name="row_index" id="del_row">
+                    <input type="hidden" name="gid" value="<?= $gid ?>">
+                    <i class="bi bi-exclamation-triangle text-danger fs-1"></i>
+                    <p class="mt-2">Hapus jadwal <b id="del_name"></b>?</p>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light w-100" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" name="delete_jadwal" class="btn btn-danger w-100">Hapus</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
 <script>
 // FUNGSI SEARCH UNIVERSAL (Ketik 1 Huruf)
 function setupSearch(inputId, outputId, hiddenId, role, extra = "") {
@@ -299,6 +387,28 @@ document.addEventListener("DOMContentLoaded", function() {
     setupSearch("inWali", "outWali", "idWali", "guru");
     setupSearch("inSiswa", "outSiswa", "idSiswa", "siswa");
     setupSearch("inGuru", "outGuru", "idGuru", "guru", "&type=jadwal");
+});
+
+function openEdit(index, idGuru, namaGuru, mapel, hari, mulai, selesai) {
+    document.getElementById('edit_row').value = index;
+    document.getElementById('idGuruEdit').value = idGuru;
+    document.getElementById('inGuruEdit').value = namaGuru;
+    document.getElementById('edit_mapel').value = mapel;
+    document.getElementById('edit_hari').value = hari;
+    document.getElementById('edit_mulai').value = mulai;
+    document.getElementById('edit_selesai').value = selesai;
+    new bootstrap.Modal(document.getElementById('modalEdit')).show();
+}
+
+function confirmDelete(index, name) {
+    document.getElementById('del_row').value = index;
+    document.getElementById('del_name').innerText = name;
+    new bootstrap.Modal(document.getElementById('modalDelete')).show();
+}
+
+// Inisialisasi search guru untuk modal edit
+document.addEventListener("DOMContentLoaded", function() {
+    setupSearch("inGuruEdit", "outGuruEdit", "idGuruEdit", "guru", "&type=jadwal");
 });
 </script>
 
