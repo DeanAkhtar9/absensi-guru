@@ -155,7 +155,7 @@ foreach($jadwalHariIni as $j) {
 $aktif = ($now >= $j['mulai'] && $now <= $j['batas']);
 ?>
 
-<div class="col-md-4 mb-3">
+<div class="col-md-6 col-lg-4 mb-4">
 
 <?php if($aktif && !$j['sudah']): ?>
 <a href="isi_absen.php?id=<?= $j['id_jadwal'] ?>&guru=<?= $j['id_guru'] ?>" style="text-decoration:none;">
@@ -164,19 +164,25 @@ $aktif = ($now >= $j['mulai'] && $now <= $j['batas']);
 <div class="card p-3 shadow-sm 
 <?= $j['sudah'] ? 'border-success' : ($aktif ? 'card-active-pulse' : 'bg-light') ?>">
 
-<h5><?= $j['mapel'] ?></h5>
-<p><?= $j['nama'] ?></p>
-<p><?= $j['jam'] ?></p>
+<div>
+    <h5><?= $j['mapel'] ?></h5>
+    <div class="guru"><?= $j['nama'] ?></div>
+    <div class="jam">
+        <i class="bi bi-clock"></i> <?= $j['jam'] ?>
+    </div>
+</div>
 
-<?php if($j['sudah']): ?>
-<span class="badge bg-success">✔ Sudah Absen</span>
+<div class="mt-3">
+    <?php if($j['sudah']): ?>
+        <span class="badge bg-success">✔ Sudah Absen</span>
 
-<?php elseif(!$aktif): ?>
-<span class="badge bg-secondary">Belum waktunya</span>
+    <?php elseif(!$aktif): ?>
+        <span class="badge bg-secondary">Belum waktunya</span>
 
-<?php else: ?>
-<span class="badge bg-primary">Klik untuk absen</span>
-<?php endif; ?>
+    <?php else: ?>
+        <span class="badge bg-primary">Klik untuk absen</span>
+    <?php endif; ?>
+</div>
 
 </div>
 

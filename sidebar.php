@@ -34,7 +34,7 @@ $nama = $_SESSION['nama'];
             </div>
             <div class="brand-text">
                 <h2>School</h2>
-                <p><?php echo ucfirst($role); ?> | <span><?= htmlspecialchars($nama) ?></span></p> 
+                <p><?php echo ucfirst($role); ?> | <span style="color:#fff;"><?= htmlspecialchars($nama) ?></span></p> 
             </div>
         </div>
     </div>
@@ -57,7 +57,7 @@ $nama = $_SESSION['nama'];
         <?php endif; ?>
        <!-- ================= GURU ================= -->
         <?php if($role == 'guru'): ?>
-            <li><a href="/absensi-guru/guru/lihatjadwal.php"><i class="bi bi-check2-square"></i><span>Jadwal Mengajar</span></a></li>
+            <li><a href="/absensi-guru/guru/lihatjadwal.php"><i class="bi bi-check2-square"></i><span> Jadwal Mengajar</span></a></li>
             <li><a href="/absensi-guru/guru/jurnal.php"><i class="bi bi-check2-square"></i><span> Jurnal</span></a></li>
             <li><a href="/absensi-guru/guru/riwayat_jurnal.php"><i class="bi bi-stopwatch"></i><span> Riwayat Jurnal</span></a></li>
             <li><a href="/absensi-guru/guru/profile.php"><i class="bi bi-person"></i> Profil</a></li>
