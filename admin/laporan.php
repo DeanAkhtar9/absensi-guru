@@ -161,7 +161,7 @@ td .btn {
 <th style="width:15%;">JENIS</th>
 <th style="width:30%;">DESKRIPSI</th>
 <th style="width:15%;">STATUS</th>
-<th style="width:10%;">AKSI</th>
+<th style="width:10%;">DETAIL</th>
 </tr>
 </thead>
 
@@ -196,24 +196,12 @@ elseif($statusRow=='selesai'){
 echo "<span class='badge bg-success'>Selesai</span>";
 }
 ?><td>
-    <div class="aksi-group">
 
-        <a href="ulaporan.php?id=<?=$row['id_komplain']?>&status=diverifikasi"
-        class="btn btn-primary btn-aksi">
-        Verifikasi
-        </a>
+<a href="detail_komplain.php?id=<?=$row['id_komplain']?>" 
+class="btn btn-sm btn-light" style="background-color: #21a9cf; height:30px; width:60px; color: #ffff;">
+Detail
+</a>
 
-        <a href="ulaporan.php?id=<?=$row['id_komplain']?>&status=ditindaklanjuti"
-        class="btn btn-warning btn-aksi">
-        Tindak
-        </a>
-
-        <a href="ulaporan.php?id=<?=$row['id_komplain']?>&status=selesai"
-        class="btn btn-success btn-aksi">
-        Selesai
-        </a>
-
-    </div>
 </td>
 
 <?php endwhile; ?>
