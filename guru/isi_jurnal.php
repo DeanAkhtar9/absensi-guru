@@ -92,7 +92,30 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     ");
 
     if($insert){
+
+        /* =========================
+           NOTIF KE WALI KELAS
+        ========================= */
+        $stmt = $conn->prepare("
+            SELECT id_walikelas 
+            FROM kelas 
+            WHERE nama_kelas = ?
+        ");
+        $stmt->bind_param("s", $kelas);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $wali = $res->fetch_assoc();
+
+        if($wali && !empty($wali['id_walikelas'])){
+            $judul = "Jurnal Terisi: $kelas";
+            $pesan = "Guru ".$_SESSION['nama']." telah mengisi jurnal $mapel hari ini.";
+            kirimNotifikasi($wali['id_walikelas'], $judul, $pesan);
+        }
+
+        $stmt->close();
+
         $_SESSION['success']="✅ Jurnal berhasil disimpan";
+
     }else{
         $_SESSION['error']="❌ Gagal simpan jurnal!";
     }
@@ -100,7 +123,6 @@ if($_SERVER['REQUEST_METHOD']=='POST'){
     header("Location: jurnal.php"); 
     exit;
 }
-
 
 /* ==========================================================
    KIRIM NOTIFIKASI KE WALI KELAS SAAT JURNAL TERISI
@@ -135,30 +157,152 @@ include "../sidebar.php";
 include "../header.php";
 ?>
 
-<div class="main-content p-4">
+<div class="main-content">
 
-<a href="jurnal.php" class="btn btn-secondary mb-3">← Kembali</a>
+<div class="container-jurnal">
 
-<div class="card p-4 shadow-sm">
+<div class="card-jurnal">
 
-<h5 class="fw-bold">Isi Jurnal</h5>
+<h4 class="title">Isi Jurnal Mengajar</h4>
+<p class="subtitle">
+Silakan dokumentasikan kegiatan pembelajaran hari ini
+</p>
 
-<p><b>Kelas:</b> <?= htmlspecialchars($kelas) ?></p>
-<p><b>Mapel:</b> <?= htmlspecialchars($mapel) ?></p>
+<!-- INFO -->
+<div class="info-box">
+
+<div class="info-item">
+    <span class="label">MATA PELAJARAN</span>
+    <span class="value"><?= htmlspecialchars($mapel) ?></span>
+</div>
+
+<div class="info-item">
+    <span class="label">KELAS</span>
+    <span class="value"><?= htmlspecialchars($kelas) ?></span>
+</div>
+
+<div class="info-item">
+    <span class="label">WAKTU</span>
+    <span class="value"><?= date("H:i") ?></span>
+</div>
+
+</div>
 
 <form method="POST">
 
-<label class="form-label">Materi</label>
-<textarea name="materi" class="form-control" rows="5" required></textarea>
+<label>Materi Pembelajaran</label>
+<textarea name="materi" required></textarea>
 
-<button class="btn btn-primary w-100 mt-3">
-Simpan Jurnal
+<div class="form-actions">
+
+<a href="jurnal.php" class="btn-kembali">
+    Kembali
+</a>
+
+<button type="submit" class="btn-simpan">
+    Simpan Jurnal
 </button>
+
+</div>
 
 </form>
 
 </div>
-
+</div>
 </div>
 
 <?php include "../templates/footer.php"; ?>
+
+<style>
+    .container-jurnal{
+    padding: 40px;
+}
+
+/* CARD */
+.card-jurnal{
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    width: 700px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.07);
+}
+
+/* TITLE */
+.title{
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.subtitle{
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 20px;
+}
+
+/* INFO BOX */
+.info-box{
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.info-item{
+    flex: 1;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.label{
+    display: block;
+    font-size: 11px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.value{
+    display: block;           /* biar full baris */
+    width: 100%;              /* full lebar */
+    font-size: 13px;
+    font-weight: 600;
+    color: #2563eb;
+    background: #f1f5f9;
+    padding: 8px 10px;        /* biar ada isi */
+    border-radius: 8px;
+}
+
+/* TEXTAREA */
+textarea{
+    width: 100%;
+    height: 140px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 12px;
+    margin-top: 5px;
+    background: #f9fafb;
+}
+
+/* ACTION BUTTON */
+.form-actions{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+/* BACK */
+.btn-kembali{
+    background: #14b8a6;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+}
+
+/* SUBMIT */
+.btn-simpan{
+    background: linear-gradient(135deg,#2563eb,#1d4ed8);
+    color: #fff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+}
+</style>

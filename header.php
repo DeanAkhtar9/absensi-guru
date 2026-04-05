@@ -20,9 +20,6 @@ $jmlNotif = mysqli_num_rows($queryNotif);
     position: relative;
     margin-right: 20px;
 }
-.notif-btn {
-    background: none; border: none; font-size: 22px; cursor: pointer; color: #555; position: relative;
-}
 .notif-badge {
     position: absolute; top: -5px; right: -5px; background: red; color: white;
     font-size: 10px; padding: 2px 5px; border-radius: 50%; font-weight: bold;
@@ -40,10 +37,53 @@ $jmlNotif = mysqli_num_rows($queryNotif);
 .notif-item.unread { border-left: 4px solid #007bff; background: #f0f7ff; }
 .notif-item small { color: #888; font-size: 11px; }
 .notif-header { padding: 5px 15px 10px; font-weight: bold; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
+.account-dropdown{
+    position: absolute;
+    top: 45px;
+    right: 0;   /* ubah ke kiri */
+    right: auto;
+    z-index: 9999;
+}
+.account-container{
+    position: relative;
+}
+
+.account-dropdown{
+    position: absolute;
+    top: 100%;   /* tepat di bawah tombol */
+    margin-top: 8px; /* jarak dikit */
+    left: 0;
+    z-index: 9999;
+}
+.account-dropdown{
+    padding: 15px 0; /* atas bawah lebih lega */
+}
+
+.account-info{
+    padding: 10px 20px;
+}
+
+.account-dropdown a{
+    padding: 10px 20px;
+    display: block;
+}
+
+.logout:hover{
+    background: #ffeaea;
+    color: #b02a37;
+}
+.notif-header{
+    padding: 5px 15px 10px;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: center; /* tengah */
+    align-items: center;
+    position: relative; /* biar tombol kanan tetap bisa diposisikan */
+}
 </style>
 
 <div class="main-header">
-    <div class="header-date"><?= $tanggal ?></div>
 
     <div class="notif-container">
         <button class="notif-btn" onclick="toggleNotif()" aria-label="Notifications">
@@ -89,9 +129,10 @@ $jmlNotif = mysqli_num_rows($queryNotif);
                 <span><?= htmlspecialchars($role) ?></span>
             </div>
             <hr>
-            <a href="/absensi-guru/logout.php" class="logout">Keluar</a>
+            <a href="/absensi-guru/logout.php" class="logout" style="color: #ea2a2a;">Keluar</a>
         </div>
     </div>
+    <div class="header-date"><?= $tanggal ?></div>
 </div>
 
 <script>

@@ -176,39 +176,51 @@ foreach ($jadwalHariIni as $j) {
 <?php include "../sidebar.php"; ?>
 <?php include "../header.php"; ?>
 
-<div class="main-content p-4">
+<div class="main-content">
 
-<h4 class="fw-bold mb-4">Jurnal Hari Ini</h4>
+<div class="container-jurnal">
 
-<div class="row">
+<h4 class="title">Jurnal Hari Ini</h4>
+<p class="subtitle">
+Silakan isi jurnal mengajar sesuai jadwal hari ini
+</p>
+
+<div class="grid-jurnal">
 
 <?php foreach($jadwalHariIni as $j): ?>
-
-<div class="col-md-4 mb-3">
-
-<div class="card p-3 shadow-sm h-100"
+<div class="card-jurnal"
 style="cursor:<?= $j['boleh'] ? 'pointer':'not-allowed' ?>;
-opacity:<?= $j['boleh'] ? '1':'0.5' ?>;"
+opacity:<?= $j['boleh'] ? '1':'0.6' ?>;"
 onclick="<?= $j['boleh'] ? "window.location.href='isi_jurnal.php?kelas=".urlencode($j['kelas'])."&mapel=".urlencode($j['mapel'])."'" : "" ?>"
 >
 
-<h6><?= $j['kelas'] ?></h6>
-<p><?= $j['mapel'] ?></p>
-<small><?= $j['jam'] ?></small>
+<div class="card-body">
 
-<hr>
+<!-- HEADER FLEX -->
+<div class="top-row">
+    <div class="kelas">Kelas <?= $j['kelas'] ?></div>
+    <div class="jam">
+        <i class="bi bi-clock"></i> <?= $j['jam'] ?>
+    </div>
+</div>
 
-<span class="badge <?= $j['badge'] ?>">
+<!-- MAPEL -->
+<div class="mapel"><?= $j['mapel'] ?></div>
+
+<hr class="divider">
+
+</div>
+
+<div class="card-footer">
+<span class="badge-custom <?= $j['badge'] ?>">
     <?= $j['text'] ?>
 </span>
-
 </div>
 
 </div>
-
 <?php endforeach; ?>
 
 </div>
 </div>
-
+</div>
 <?php include "../templates/footer.php"; ?>

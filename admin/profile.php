@@ -7,55 +7,68 @@ checkRole('admin');
 
 include "../config/database.php";
 
+// =========================
+// VALIDASI SESSION
+// =========================
+if (!isset($_SESSION['id_user'])) {
+    die("Session tidak valid");
+}
+
 $id_user = $_SESSION['id_user'];
+$role = $_SESSION['role'] ?? '';
 
-/* =========================
-   AMBIL DATA USER
-========================= */
-$user = mysqli_fetch_assoc(mysqli_query($conn, "
+// =========================
+// AMBIL DATA USER
+// =========================
+$query_user = mysqli_query($conn, "
     SELECT * FROM users WHERE id_user='$id_user'
-"));
+");
 
-/* =========================
-   AMBIL KELAS WALI (OPSIONAL)
-========================= */
-$kelas = mysqli_fetch_assoc(mysqli_query($conn, "
+if (!$query_user) {
+    die("Query error: " . mysqli_error($conn));
+}
+
+if (mysqli_num_rows($query_user) == 0) {
+    die("User tidak ditemukan");
+}
+
+$user_data = mysqli_fetch_assoc($query_user);
+
+// =========================
+// AMBIL KELAS (OPSIONAL)
+// =========================
+$query_kelas = mysqli_query($conn, "
     SELECT nama_kelas FROM kelas 
     WHERE id_walikelas='$id_user'
-"));
+");
 
-$nama_kelas = $kelas['nama_kelas'] ?? '-';
+$nama_kelas = '-';
+
+if ($query_kelas && mysqli_num_rows($query_kelas) > 0) {
+    $kelas = mysqli_fetch_assoc($query_kelas);
+    $nama_kelas = $kelas['nama_kelas'];
+}
 ?>
 
 <?php include "../templates/header.php"; ?>
 <?php include "../sidebar.php"; ?>
 <?php include "../header.php"; ?>
 
+<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
+
 <style>
 .profile-card{
     background:white;
     border-radius:14px;
-    padding:2px 30px 30px 30px; /* atas kanan bawah kiri */
-}
-
-.avatar{
-    width:80px;
-    height:80px;
-    border-radius:50%;
-    background:#eef4ff;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:30px;
+    padding:2px 30px 30px 30px;
 }
 
 .info-item{
     display:flex;
     align-items:center;
     gap:20px;
-    padding:15px 0;
+    padding:30px 10px 30px 0px;
     border-bottom:1px solid rgba(0,0,0,0.05);
-    padding:30px 10px 30px 0px; /* atas kanan bawah kiri */
 }
 
 .icon-box{
@@ -80,29 +93,20 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 }
 </style>
 
-<link rel="stylesheet" href="../assets/css/bootstrap.min.css">
-
-
 <div class="main-content p-4">
-
 <div class="profile-card">
 
 <!-- HEADER PROFILE -->
 <div class="d-flex align-items-center gap-3 mb-4 mt-4">
-
 <div>
 <h5 class="fw-bold mb-1">
-<?= htmlspecialchars($user['nama']) ?>
+<?= htmlspecialchars($user_data['nama'] ?? '-') ?>
 </h5>
 
 <div class="text-primary small">
- <?= htmlspecialchars($role) ?>
+<?= htmlspecialchars($role) ?>
 </div>
-
-
-
 </div>
-
 </div>
 
 <hr>
@@ -115,7 +119,7 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 <div class="icon-box bi bi-envelope"></div>
 <div>
 <div class="label">EMAIL INSTANSI</div>
-<div class="value"><?= htmlspecialchars($user['email']) ?></div>
+<div class="value"><?= htmlspecialchars($user_data['email'] ?? '-') ?></div>
 </div>
 </div>
 
@@ -124,7 +128,16 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 <div class="icon-box bi bi-telephone"></div>
 <div>
 <div class="label">NOMOR TELEPON</div>
-<div class="value"><?= htmlspecialchars($user['no_telp']) ?></div>
+<div class="value"><?= htmlspecialchars($user_data['no_telp'] ?? '-') ?></div>
+</div>
+</div>
+
+<!-- KELAS (opsional) -->
+<div class="info-item">
+<div class="icon-box bi bi-mortarboard"></div>
+<div>
+<div class="label">KELAS</div>
+<div class="value"><?= htmlspecialchars($nama_kelas) ?></div>
 </div>
 </div>
 
@@ -140,7 +153,6 @@ $nama_kelas = $kelas['nama_kelas'] ?? '-';
 </div>
 
 </div>
-
 </div>
 
 <?php include "../templates/footer.php"; ?>
